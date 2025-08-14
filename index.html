@@ -407,10 +407,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Konfigurasi Firebase ---
-        // PENTING: Gunakan __firebase_config jika tersedia (di lingkungan Canvas)
         const firebaseConfig = typeof __firebase_config !== 'undefined' 
             ? JSON.parse(__firebase_config)
             : {
@@ -443,15 +442,11 @@
         const fallingStick = document.getElementById('fallingStick');
         const puakpois = [document.getElementById('puakpoi1'), document.getElementById('puakpoi2')];
         const throwCountElement = document.getElementById('throwCount');
-        
-        // Result card elements
         const resultNumber = document.getElementById('resultNumber');
         const sinthioText = document.getElementById('sinthioText');
         const syairText = document.getElementById('syairText');
         const selayangPandangText = document.getElementById('selayangPandangText');
         const pedomanList = document.getElementById('pedomanList');
-
-        // Admin elements
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const ramalanNumberSelect = document.getElementById('ramalanNumberSelect');
@@ -460,8 +455,6 @@
         const selayangPandangInput = document.getElementById('selayangPandangInput');
         const pedomanInput = document.getElementById('pedomanInput');
         const saveBtn = document.getElementById('saveBtn');
-        
-        // Popup elements
         const paymentPopup = document.getElementById('paymentPopup');
         const closePopupBtn = document.getElementById('closePopupBtn');
         const messagePopup = document.getElementById('messagePopup');
@@ -475,6 +468,10 @@
         let throwCount = 0;
         const maxThrowsFree = 3;
         let noBlessingCounter = 0;
+        // **NEW** State untuk melacak status pengguna
+        let isPremiumUser = false;
+        let hasHadFreeSuccess = false;
+
 
         // --- Fungsi Utilitas ---
         function showMessage(title, text) {
@@ -486,29 +483,51 @@
         closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
 
         // --- Logika Otentikasi & Routing ---
+        // **NEW** Fungsi untuk membuat dokumen pengguna dan mendengarkan statusnya
+        async function setupUserAndListener(userId) {
+            const userDocRef = doc(db, "users", userId);
+            
+            onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    isPremiumUser = data.isPremium === true;
+                    hasHadFreeSuccess = data.hasHadFreeSuccess === true;
+                } else {
+                    // Jika dokumen belum ada, buat untuk pengguna baru
+                    setDoc(userDocRef, {
+                        isPremium: false,
+                        hasHadFreeSuccess: false,
+                        createdAt: new Date()
+                    }).catch(e => console.error("Gagal membuat dokumen pengguna:", e));
+                }
+            });
+        }
+
         onAuthStateChanged(auth, user => {
-            if (user && !user.isAnonymous) {
-                // Admin Logged In
+            if (user) {
                 currentUser = user;
-                appContainer.classList.add('hidden');
-                adminLoginSection.classList.add('hidden');
-                adminCmsSection.classList.remove('hidden');
-                initCms();
-            } else if (user && user.isAnonymous) {
-                // Anonymous User
-                currentUser = user;
-                appContainer.classList.remove('hidden');
-                adminLoginSection.classList.add('hidden');
-                adminCmsSection.classList.add('hidden');
+                if (!user.isAnonymous) {
+                    // Admin Logged In
+                    appContainer.classList.add('hidden');
+                    adminLoginSection.classList.add('hidden');
+                    adminCmsSection.classList.remove('hidden');
+                    initCms();
+                } else {
+                    // Anonymous User
+                    appContainer.classList.remove('hidden');
+                    adminLoginSection.classList.add('hidden');
+                    adminCmsSection.classList.add('hidden');
+                    // **NEW** Panggil fungsi listener untuk pengguna anonim
+                    setupUserAndListener(user.uid);
+                }
             } else {
-                // No User
                 currentUser = null;
                 const isAdminUrl = window.location.hash === '#admin';
                 appContainer.classList.toggle('hidden', isAdminUrl);
                 adminLoginSection.classList.toggle('hidden', !isAdminUrl);
                 adminCmsSection.classList.add('hidden');
                 if (!isAdminUrl) {
-                    signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
+                    signInAnonymously(auth).catch(error => console.error("Gagal login anonim:", error));
                 }
             }
         });
@@ -526,20 +545,17 @@
         logoutBtn.addEventListener('click', () => signOut(auth));
 
         async function initCms() {
-            // Populate select options
-            if (ramalanNumberSelect.options.length > 1) return; // Already populated
+            if (ramalanNumberSelect.options.length > 1) return;
             for (let i = 1; i <= 100; i++) {
                 const option = document.createElement('option');
                 option.value = i;
                 option.textContent = `Nomor ${i}`;
                 ramalanNumberSelect.appendChild(option);
             }
-            loadRamalanData(1); // Load data for number 1 by default
+            loadRamalanData(1);
         }
 
-        ramalanNumberSelect.addEventListener('change', (e) => {
-            loadRamalanData(e.target.value);
-        });
+        ramalanNumberSelect.addEventListener('change', (e) => loadRamalanData(e.target.value));
 
         async function loadRamalanData(number) {
             try {
@@ -552,14 +568,12 @@
                     selayangPandangInput.value = data.selayangPandang || '';
                     pedomanInput.value = (data.pedoman || []).join('\n');
                 } else {
-                    // Clear fields if no data exists
                     sinthioInput.value = '';
                     syairInput.value = '';
                     selayangPandangInput.value = '';
                     pedomanInput.value = '';
                 }
             } catch (error) {
-                console.error("Error loading ramalan data: ", error);
                 showMessage('Error', 'Gagal memuat data ramalan.');
             }
         }
@@ -573,12 +587,10 @@
                 selayangPandang: selayangPandangInput.value,
                 pedoman: pedomanInput.value.split('\n').filter(line => line.trim() !== '')
             };
-
             try {
                 await setDoc(doc(db, "ramalan", number), dataToSave);
                 showMessage('Sukses', `Data untuk nomor ${number} berhasil disimpan.`);
             } catch (error) {
-                console.error("Error saving data: ", error);
                 showMessage('Error', 'Gagal menyimpan data.');
             }
         });
@@ -588,6 +600,7 @@
             throwCount = 0;
             throwCountElement.textContent = throwCount;
             throwBtn.disabled = true;
+            shakeBtn.disabled = false; // Aktifkan kembali tombol kocok
             shakeResult.classList.add('hidden');
             throwResult.classList.add('hidden');
             predictionResult.classList.add('hidden');
@@ -619,7 +632,34 @@
         });
 
         throwBtn.addEventListener('click', async () => {
-            if (throwCount >= maxThrowsFree) {
+            // **NEW** Logika untuk memberikan satu kali kesempatan berhasil
+            if (!hasHadFreeSuccess) {
+                console.log("Memberikan satu kali kesempatan berhasil gratis.");
+                puakpois.forEach(poi => {
+                    poi.textContent = '';
+                    poi.classList.add('throw-animation');
+                    setTimeout(() => poi.classList.remove('throw-animation'), 800);
+                });
+
+                setTimeout(async () => {
+                    puakpois[0].textContent = '凹';
+                    puakpois[1].textContent = '凸';
+                    throwResultText.textContent = 'Hasil: Direstui Dewa! (Kesempatan Pertama)';
+                    throwResult.classList.remove('hidden');
+                    showPrediction();
+                    throwBtn.disabled = true;
+                    showMessage('Kesempatan Gratis Digunakan', 'Anda telah menggunakan kesempatan gratis Anda. Untuk ramalan berikutnya, silakan kocok tabung kembali.');
+                    
+                    if (currentUser) {
+                        const userDocRef = doc(db, "users", currentUser.uid);
+                        await updateDoc(userDocRef, { hasHadFreeSuccess: true });
+                    }
+                }, 900);
+                return; // Hentikan eksekusi lebih lanjut
+            }
+
+            // Logika lama untuk pengguna yang sudah menggunakan kesempatan gratis
+            if (!isPremiumUser && throwCount >= maxThrowsFree) {
                 showMessage('Batas Tercapai', 'Anda telah mencapai batas 3x lemparan untuk sesi ini.');
                 paymentPopup.classList.remove('hidden');
                 return;
@@ -634,25 +674,17 @@
                 setTimeout(() => poi.classList.remove('throw-animation'), 800);
             });
             
-            // Fetch blessing counter
             try {
                 const counterRef = doc(db, "counters", "main");
                 const counterSnap = await getDoc(counterRef);
                 noBlessingCounter = counterSnap.exists() ? counterSnap.data().noBlessingCount : 0;
             } catch (e) {
-                console.error("Could not fetch counter", e);
-                noBlessingCounter = 0; // fallback
+                noBlessingCounter = 0;
             }
-
 
             setTimeout(async () => {
                 let isConfirmed = false;
-                let forceNoBlessing = false;
-
-                // Logic for forced "no blessing"
-                if (noBlessingCounter >= 25 && Math.random() < 0.3) { // 30% chance after 25
-                    forceNoBlessing = true;
-                }
+                let forceNoBlessing = (noBlessingCounter >= 25 && Math.random() < 0.3);
 
                 if (forceNoBlessing) {
                     isConfirmed = false;
@@ -670,23 +702,19 @@
                     showPrediction();
                     throwBtn.disabled = true;
                 } else {
-                    // Update counter in firestore
                     try {
                        const counterRef = doc(db, "counters", "main");
                        await updateDoc(counterRef, { noBlessingCount: increment(1) });
                     } catch(e) {
-                       // if doc doesn't exist, create it
                        if (e.code === 'not-found') {
                            await setDoc(doc(db, "counters", "main"), { noBlessingCount: 1 });
-                       } else {
-                           console.error("Failed to update counter", e);
                        }
                     }
 
                     if (forceNoBlessing) {
                         throwResultText.textContent = 'Dewa belum memberi restu. Silakan coba lagi.';
                         paymentPopup.classList.remove('hidden');
-                    } else if (throwCount >= maxThrowsFree) {
+                    } else if (!isPremiumUser && throwCount >= maxThrowsFree) {
                         throwResultText.textContent = 'Batas lemparan tercapai. Ramalan tetap ditampilkan.';
                         showPrediction();
                         throwBtn.disabled = true;
@@ -700,19 +728,16 @@
 
         async function showPrediction() {
             if (!currentPredictionNumberState) return;
-
             try {
                 const docRef = doc(db, "ramalan", String(currentPredictionNumberState));
                 const docSnap = await getDoc(docRef);
-
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     resultNumber.textContent = data.nomor;
                     sinthioText.textContent = data.sinthio || 'Tidak ada data.';
                     syairText.textContent = data.syair || 'Tidak ada data.';
                     selayangPandangText.textContent = data.selayangPandang || 'Tidak ada data.';
-                    
-                    pedomanList.innerHTML = ''; // Clear previous list
+                    pedomanList.innerHTML = '';
                     if (data.pedoman && data.pedoman.length > 0) {
                         data.pedoman.forEach(item => {
                             const li = document.createElement('li');
@@ -724,7 +749,6 @@
                         li.textContent = 'Tidak ada data.';
                         pedomanList.appendChild(li);
                     }
-
                     predictionResult.classList.remove('hidden');
                     predictionResult.scrollIntoView({ behavior: 'smooth' });
                     setupShareAndDownload(data);
@@ -732,7 +756,6 @@
                     showMessage('Error', 'Data ramalan untuk nomor ini tidak ditemukan.');
                 }
             } catch (error) {
-                console.error("Error showing prediction: ", error);
                 showMessage('Error', 'Gagal memuat data ramalan dari server.');
             }
         }
