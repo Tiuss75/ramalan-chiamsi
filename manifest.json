@@ -1,7 +1,7 @@
 {
   "name": "Ramalan Ciam Si",
   "short_name": "Ciam Si",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#7a0a14",
   "theme_color": "#9c1c26",
