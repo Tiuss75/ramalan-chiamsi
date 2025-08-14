@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramalan Ciam Si - Vihara Merah</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#9c1c26">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <div class="container">
+        <i class="fas fa-torii-gate temple-icon"></i>
+        <i class="fas fa-torii-gate temple-icon right"></i>
+
+        <div class="header">
+            <h1>Ramalan Ciam Si</h1>
+            <p>Ramalan tradisional Tionghoa untuk mendapatkan petunjuk dari dewa-dewi.</p>
+        </div>
+
+        <div class="process-container">
+            <div class="step">
+                <div class="step-title">
+                    <i class="fas fa-user"></i>
+                    <h2>Data Diri</h2>
+                </div>
+                <div class="step-content">
+                    <p>Masukkan nama Anda untuk memulai. Tanggal hari ini diambil secara otomatis.</p>
+                    <div class="user-input-section">
+                        <input type="text" id="nameInput" placeholder="Ketik nama Anda di sini..." class="name-input">
+                        <div id="dateDisplay" class="date-display"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <i class="fas fa-praying-hands"></i>
+                    <h2>Kocok Tabung Ciam Si</h2>
+                </div>
+                <div class="step-content">
+                    <p>Fokuskan pikiran dan doa Anda, lalu kocok tabung untuk mendapatkan satu batang bambu ramalan.</p>
+                    <div class="ciamsi-shaker-container">
+                        <div class="ciamsi-container" id="ciamsiContainer">
+                            <div class="ciamsi-lid"></div>
+                            <div class="ciamsi-body">
+                                <div class="ciamsi-logo">簽</div>
+                                <div class="stick-tops"></div>
+                            </div>
+                        </div>
+                        <div class="falling-stick" id="fallingStick"></div>
+                    </div>
+                    <button id="shakeBtn" class="btn" disabled>
+                        <i class="fas fa-hand-point-right"></i> Kocok Tabung
+                    </button>
+                    <div class="result-container hidden" id="shakeResult">
+                        <p>Anda mendapatkan nomor ramalan:</p>
+                        <div class="result-number" id="predictionNumber">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <i class="fas fa-moon"></i>
+                    <h2>Lempar Puak Poi</h2>
+                </div>
+                <div class="step-content">
+                    <p>Lemparkan dua bilah kayu berbentuk bulan untuk mendapatkan konfirmasi dari dewa.</p>
+                    <div class="puak-poi-container">
+                        <div class="puak-poi" id="puakpoi1">-</div>
+                        <div class="puak-poi" id="puakpoi2">-</div>
+                    </div>
+                    <div class="throw-counter">
+                        Lemparan ke: <span class="counter-number" id="throwCount">0</span>/3
+                        <div id="counterWarning" class="counter-warning hidden">Hanya tersisa 1 kali lemparan!</div>
+                    </div>
+                    <button id="throwBtn" class="btn" disabled>
+                        <i class="fas fa-hand-point-right"></i> Lempar Puak Poi
+                    </button>
+                    <div class="result-container hidden" id="throwResult">
+                        <p id="throwResultText">Hasil lemparan: -</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden" id="predictionResult">
+            <div class="prediction-card" id="predictionCard">
+                 <div class="card-header">
+                    <div class="card-title">Hasil Ramalan Ciam Si</div>
+                    <div class="card-number" id="resultNumber">-</div>
+                </div>
+                <div class="user-info-output">
+                    <p><strong>Nama:</strong> <span id="outputName"></span></p>
+                    <p><strong>Tanggal:</strong> <span id="outputDate"></span></p>
+                </div>
+                <div class="prediction-content">
+                    <p id="predictionText">Ramalan akan muncul di sini.</p>
+                    <div class="prediction-guidance">
+                        <h3>Petunjuk Dewa</h3>
+                        <p id="guidanceText">Petunjuk dewa akan muncul di sini.</p>
+                    </div>
+                    <div class="guidance-list">
+                        <div class="guidance-item"><i class="fas fa-heart"></i><h4>Asmara</h4><p id="loveGuidance">-</p></div>
+                        <div class="guidance-item"><i class="fas fa-briefcase"></i><h4>Karier</h4><p id="careerGuidance">-</p></div>
+                        <div class="guidance-item"><i class="fas fa-heartbeat"></i><h4>Kesehatan</h4><p id="healthGuidance">-</p></div>
+                        <div class="guidance-item"><i class="fas fa-money-bill-wave"></i><h4>Keuangan</h4><p id="wealthGuidance">-</p></div>
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <a href="#" class="whatsapp-share" id="whatsappShare"><i class="fab fa-whatsapp"></i> Bagikan</a>
+                <button class="btn download-btn" id="downloadBtn"><i class="fas fa-download"></i> Unduh JPG</button>
+            </div>
+        </div>
+
+    </div>
+    
+    <canvas id="resultCanvas" class="hidden"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
