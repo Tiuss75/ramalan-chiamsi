@@ -151,24 +151,20 @@ const predictions = [
           shakeBtn.disabled = nameInput.value.trim() === '';
       });
 
-     // Ganti bagian ini:
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('Service Worker terdaftar', reg))
-        .catch(err => console.error('Pendaftaran Service Worker gagal', err));
+    
 }
 
-// Menjadi:
+// Ganti dengan ini:
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(registration => {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            })
-            .catch(err => {
-                console.log('ServiceWorker registration failed: ', err);
-            });
-    });
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(registration => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      })
+      .catch(err => {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+  });
 }
 
   // Fungsi untuk mengocok Ciam Si
