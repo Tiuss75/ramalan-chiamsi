@@ -1,7 +1,7 @@
 {
-  "name": "Ramalan Ciam Si",
-  "short_name": "Ciam Si",
-  "start_url": "/ramalan-chiamsi/index.html",
+  "name": "Ramalan Chiam Si",
+  "short_name": "Chiam Si",
+  "start_url": "./ramalan-chiamsi/index.html",
   "scope": "/ramalan-chiamsi/",
   "display": "standalone",
   "background_color": "#7a0a14",
