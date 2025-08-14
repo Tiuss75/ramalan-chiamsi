@@ -1,25 +1,23 @@
 {
   "name": "Ramalan Ciam Si",
   "short_name": "Ciam Si",
-  "start_url": "./index.html",
+  "start_url": "/ramalan-ciamsi/index.html",
+  "scope": "/ramalan-ciamsi/",
   "display": "standalone",
   "background_color": "#7a0a14",
   "theme_color": "#9c1c26",
   "description": "Aplikasi ramalan Ciam Si tradisional untuk mendapatkan petunjuk ilahi.",
   "icons": [
     {
-      "src": "logo.jpg",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "logo1.jpg",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ],
-  "orientation": "portrait",
-  "scope": "/"
+  "orientation": "portrait"
 }
