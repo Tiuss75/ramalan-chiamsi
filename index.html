@@ -315,8 +315,6 @@
                     }
                     predictionResult.classList.remove('hidden');
 
-                    // **PERBAIKAN LOGIKA**
-                    // Nonaktifkan tombol setelah hasil muncul
                     shakeBtn.disabled = true;
                     throwBtn.disabled = true;
 
@@ -324,12 +322,11 @@
                         const userDocRef = doc(db, "users", currentUser.uid);
                         await updateDoc(userDocRef, { hasHadFreeSuccess: true });
                         showMessage('Kesempatan Gratis Digunakan', 'Anda telah menggunakan kesempatan gratis Anda. Untuk memulai sesi baru, silakan kocok tabung kembali.');
-                        shakeBtn.disabled = false; // Izinkan kocok lagi untuk sesi baru
+                        shakeBtn.disabled = false;
                     }
                 } else {
                     showMessage('Data Kosong', `Data untuk ramalan nomor ${currentPredictionNumberState} belum diisi di CMS.`);
                     predictionResult.classList.add('hidden');
-                    // Izinkan coba lagi jika data kosong
                     shakeBtn.disabled = false;
                     throwBtn.disabled = true;
                 }
