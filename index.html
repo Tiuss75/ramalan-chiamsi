@@ -379,7 +379,6 @@
             background: rgba(212,175,55,0.2);
             transform: translateY(-2px);
         }
-        /* [DIUBAH] Membuat teks paket lebih tebal */
         .package-option h4 {
             margin: 0 0 5px 0;
             color: var(--dark-red);
@@ -388,7 +387,8 @@
         .package-option p {
             margin: 5px 0 0 0;
             font-size: 0.95rem;
-            color: var(--white);
+            /* [DIUBAH] Warna teks diubah agar terbaca */
+            color: var(--black);
             font-weight: 600;
         }
         footer {
@@ -1072,7 +1072,6 @@
                 });
             } catch (error) {
                 console.error('Error memanggil Cloud Function:', error);
-                // [DIUBAH] Pesan error lebih spesifik
                 if(error.message.includes('permission-denied')){
                     showMessage('Error', 'Gagal memproses pembayaran: Izin ditolak. Hubungi developer untuk mengatur izin Cloud Function.');
                 } else {
