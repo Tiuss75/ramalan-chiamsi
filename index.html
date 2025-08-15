@@ -1128,7 +1128,7 @@
             e.preventDefault();
             const pedomanItems = Array.from(document.querySelectorAll('#pedomanList li')).map(li => `- ${li.textContent}`);
             const pedomanText = pedomanItems.join('\n');
-            const shareText = `*Ramalan Ciam Si untuk ${nameInput.value.trim() || 'Pengguna'}*\n` +
+            const shareText = `*Ramalan CiamSi untuk ${nameInput.value.trim() || 'Pengguna'}*\n` +
                 `*Nomor: ${currentPredictionNumberState}*\n` +
                 `*Makna Lambang:*\n${sinthioText.textContent}\n` +
                 `*Bunyi Syair:*\n${syairText.textContent}\n` +
