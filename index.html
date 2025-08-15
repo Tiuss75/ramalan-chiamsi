@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -10,12 +9,10 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="favicon-512.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <!-- Midtrans Snap.js -->
     <script type="text/javascript"
         src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="SB-Mid-client-hCnSsq93YoH_kxLO"></script>
-
+        data-client-key="SB-Mid-client-hCnSsq93YoH_kXLO"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;600;700&display=swap');
         :root {
@@ -412,7 +409,6 @@
         <div class="menu">
             <button id="goToPayment" class="btn"><i class="fas fa-crown"></i> Upgrade Sekarang</button>
         </div>
-
         <div class="header">
             <h1>Ramalan Chiam Si</h1>
             <p>Petunjuk ilahi untuk langkah hidup Anda</p>
@@ -440,7 +436,7 @@
             </div>
             <div style="text-align: center;">
                 <button id="shakeBtn" class="btn" disabled>
-                    <i class="fas fa-hand-point-right"></i> Kocok
+                    <i class="fas fa-spinner fa-spin"></i> Memuat...
                 </button>
             </div>
             <div class="result-container hidden" id="shakeResult" style="text-align:center; margin-top:15px;">
@@ -503,7 +499,6 @@
             </div>
         </div>
     </div>
-
     <!-- Admin & Popup Sections -->
     <div id="adminLoginSection" class="admin-section hidden">
         <div class="admin-form">
@@ -543,7 +538,6 @@
         </div>
         <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
     </div>
-
     <!-- Popup Login Google -->
     <div id="loginPopup" class="popup-overlay hidden">
         <div class="popup-content">
@@ -559,31 +553,26 @@
             </div>
         </div>
     </div>
-    
     <!-- Popup Pilihan Pembayaran -->
     <div id="paymentPopup" class="popup-overlay hidden">
         <div class="popup-content" style="max-width: 600px;">
             <h2>Upgrade ke Premium</h2>
             <p>Pilih paket untuk melanjutkan ramalan tanpa batas:</p>
-
             <div class="package-option" data-attempts="5" data-price="25000">
                 <h4>🎯 Paket 5 Kali Kocok</h4>
                 <p><strong>Harga: Rp 25.000</strong></p>
                 <p>Cocok untuk penggunaan sekali waktu.</p>
             </div>
-
             <div class="package-option" data-attempts="12" data-price="50000">
                 <h4>🚀 Paket 12 Kali Kocok</h4>
                 <p><strong>Harga: Rp 50.000</strong></p>
                 <p>Lebih hemat! Ideal untuk pengguna aktif.</p>
             </div>
-
             <div class="package-option" id="testModeBtn">
                 <h4>🧪 Mode Uji Coba (Gratis)</h4>
                 <p><strong>Simulasi pembayaran berhasil</strong></p>
                 <p>Untuk testing dan demo.</p>
             </div>
-
             <div class="popup-buttons" style="margin-top: 20px;">
                 <button id="closePaymentPopup" class="btn" style="background-color: var(--dark-red); color: var(--white);">
                     Batal
@@ -591,7 +580,6 @@
             </div>
         </div>
     </div>
-
     <!-- Popup Konfirmasi Pembayaran -->
     <div id="confirmPaymentPopup" class="popup-overlay hidden">
         <div class="popup-content">
@@ -603,7 +591,6 @@
             </div>
         </div>
     </div>
-
     <!-- Message Popup -->
     <div id="messagePopup" class="popup-overlay hidden">
         <div class="popup-content">
@@ -614,7 +601,6 @@
             </div>
         </div>
     </div>
-
     <!-- Legal Popups -->
     <div id="termsPopup" class="popup-overlay hidden">
         <div class="popup-content popup-content-legal">
@@ -634,7 +620,6 @@
             </div>
         </div>
     </div>
-
     <!-- Footer Aplikasi -->
     <footer>
         <p>&copy; 2025 Ramalan Chiam Si. All Rights Reserved.</p>
@@ -644,17 +629,14 @@
             <a href="mailto:ramalanchiamsi@gmail.com">Kontak Kami</a>
         </div>
     </footer>
-
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <!-- Firebase & App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithCredential, signInWithPopup, linkWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
-
         const firebaseConfig = {
             apiKey: "AIzaSyBzYog6EbRLen7pg2aITsf5utEXQUVP3n0",
             authDomain: "ramalan-chiamsi-df5b0.firebaseapp.com",
@@ -663,13 +645,11 @@
             messagingSenderId: "152505108899",
             appId: "1:152505108899:web:b1e2e90ac2d7e722997216"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const functions = getFunctions(app);
         const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
-
         // === DOM Elements ===
         const appContainer = document.getElementById('appContainer');
         const adminLoginSection = document.getElementById('adminLoginSection');
@@ -720,7 +700,6 @@
         const loginPopup = document.getElementById('loginPopup');
         const googleLoginBtn = document.getElementById('googleLoginBtn');
         const cancelLoginBtn = document.getElementById('cancelLoginBtn');
-
         // === App State ===
         let currentUser = null;
         let isUserAdmin = false;
@@ -728,12 +707,12 @@
         let throwCount = 0;
         const maxThrowsFree = 3;
         let isPremiumUser = false;
-        let freeAttemptsLeft = 2; // Default
+        let freeAttemptsLeft = undefined;
         let selectedPackage = null;
         let unsubscribeUserListener = null;
+        let isLoadingUserData = true;
 
         // === Functions ===
-
         function showMessage(title, text) {
             messageTitle.textContent = title;
             messageText.textContent = text;
@@ -742,12 +721,26 @@
 
         closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
 
+        function showLoadingState() {
+            shakeBtn.disabled = true;
+            shakeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+        }
+
+        function resetShakeButton() {
+            if (isLoadingUserData) {
+                showLoadingState();
+                return;
+            }
+            const canShake = nameInput.value.trim() !== '' && 
+                             (isPremiumUser || (freeAttemptsLeft > 0) || isUserAdmin);
+            shakeBtn.disabled = !canShake;
+            shakeBtn.innerHTML = '<i class="fas fa-hand-point-right"></i> Kocok';
+        }
+
         async function setupUserAndListener(user) {
             if (unsubscribeUserListener) unsubscribeUserListener();
-            
             currentUser = user;
             const userDocRef = doc(db, "users", user.uid);
-
             const userDocSnap = await getDoc(userDocRef);
             if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
                 isUserAdmin = true;
@@ -770,20 +763,15 @@
                     isPremiumUser = false;
                     freeAttemptsLeft = 2;
                 }
-                updateUIBasedOnUserState();
+                isLoadingUserData = false;
+                resetShakeButton();
             });
-        }
-        
-        function updateUIBasedOnUserState() {
-            if (predictionResult.classList.contains('hidden') && nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin)) {
-                shakeBtn.disabled = false;
-            } else {
-                shakeBtn.disabled = true;
-            }
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                isLoadingUserData = true;
+                resetShakeButton();
                 await setupUserAndListener(user);
                 checkUrlHash();
             } else {
@@ -889,27 +877,25 @@
             predictionResult.classList.add('hidden');
             puakpois.forEach(p => p.textContent = '-');
             currentPredictionNumberState = null;
-            updateUIBasedOnUserState();
+            resetShakeButton();
         }
 
         nameInput.addEventListener('input', () => {
             if (predictionResult.classList.contains('hidden')) {
-                updateUIBasedOnUserState();
+                resetShakeButton();
             }
         });
 
         shakeBtn.addEventListener('click', () => {
+            if (isLoadingUserData) return;
             if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
                 paymentPopup.classList.remove('hidden');
                 return;
             }
-
             resetState();
-
             ciamsiContainer.classList.add('shake-animation');
             fallingStick.classList.remove('fall-animation');
             fallingStick.style.opacity = 0;
-
             setTimeout(() => {
                 ciamsiContainer.classList.remove('shake-animation');
                 fallingStick.classList.add('fall-animation');
@@ -925,20 +911,17 @@
             throwBtn.disabled = true;
             throwCount++;
             throwCountElement.textContent = throwCount;
-
             puakpois.forEach(poi => {
                 poi.textContent = '';
                 poi.classList.add('throw-animation');
                 setTimeout(() => poi.classList.remove('throw-animation'), 800);
             });
-
             setTimeout(async () => {
                 const result1 = Math.round(Math.random());
                 const result2 = Math.round(Math.random());
                 puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
                 puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
                 const isConfirmed = result1 !== result2;
-
                 if (isConfirmed) {
                     throwResultText.textContent = 'Hasil: Direstui Dewa!';
                     throwResult.classList.remove('hidden');
@@ -958,7 +941,6 @@
 
         async function showPrediction() {
             if (!currentPredictionNumberState) return;
-
             const docRef = doc(db, "ramalan", String(currentPredictionNumberState));
             try {
                 const docSnap = await getDoc(docRef);
@@ -976,10 +958,10 @@
                     });
                     predictionResult.classList.remove('hidden');
                     shakeBtn.disabled = true;
-
                     if (!isPremiumUser && !isUserAdmin) {
                         const userDocRef = doc(db, "users", currentUser.uid);
                         await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
+                        freeAttemptsLeft--;
                     }
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
@@ -1002,7 +984,6 @@
                 };
                 priceDisplay.textContent = selectedPackage.price.toLocaleString();
                 attemptsDisplay.textContent = selectedPackage.attempts;
-                
                 if (currentUser && currentUser.isAnonymous) {
                     loginPopup.classList.remove('hidden');
                 } else {
@@ -1012,33 +993,24 @@
             });
         });
 
-        // [DIUBAH] Logika login Google diperbaiki untuk menangani error
         googleLoginBtn.addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
                 const userCredential = await signInWithPopup(auth, provider);
-                // Jika berhasil login, langsung lanjutkan ke pembayaran
                 console.log("Login Google berhasil:", userCredential.user.uid);
                 loginPopup.classList.add('hidden');
                 confirmPaymentPopup.classList.remove('hidden');
             } catch (error) {
-                // Tangani error jika akun sudah tertaut
                 if (error.code === 'auth/account-exists-with-different-credential' || error.code === 'auth/credential-already-in-use') {
                     showMessage('Login Gagal', 'Akun Google ini sudah terdaftar. Silakan coba lagi.');
-                    // Coba login lagi untuk memastikan pengguna masuk dengan akun yang benar
-                    await signInWithPopup(auth, provider);
-                    loginPopup.classList.add('hidden');
-                    confirmPaymentPopup.classList.remove('hidden');
                 } else if (error.code === 'auth/popup-closed-by-user') {
                     console.log("Popup login ditutup oleh pengguna.");
-                }
-                else {
+                } else {
                     console.error("Error saat login Google:", error);
                     showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
                 }
             }
         });
-
 
         cancelLoginBtn.addEventListener('click', () => {
             loginPopup.classList.add('hidden');
@@ -1051,17 +1023,31 @@
                 return;
             }
 
+            if (!selectedPackage || !selectedPackage.price || !selectedPackage.attempts) {
+                showMessage('Error', 'Paket tidak valid. Silakan pilih paket lagi.');
+                return;
+            }
+
+            if (selectedPackage.price <= 0 || selectedPackage.attempts <= 0) {
+                showMessage('Error', 'Harga atau jumlah kocokan tidak valid.');
+                return;
+            }
+
+            const name = nameInput.value.trim() || currentUser.displayName || 'Pengguna';
+            if (!name || name.length < 2) {
+                showMessage('Error', 'Nama wajib diisi.');
+                return;
+            }
+
             const btn = confirmRealPayment;
             btn.disabled = true;
             btn.textContent = "Memproses...";
-
             try {
                 const result = await createTransaction({ 
-                    name: nameInput.value.trim() || currentUser.displayName || 'Pengguna',
+                    name: name,
                     price: selectedPackage.price,
                     attempts: selectedPackage.attempts
                 });
-
                 const token = result.data.token;
                 window.snap.pay(token, {
                     onSuccess: () => {
@@ -1075,8 +1061,10 @@
                 });
             } catch (error) {
                 console.error('Error memanggil Cloud Function:', error);
-                if(error.message.includes('permission-denied')){
-                    showMessage('Error', 'Gagal memproses pembayaran: Izin ditolak. Hubungi developer untuk mengatur izin Cloud Function.');
+                if (error.code === 'invalid-argument') {
+                    showMessage('Error', 'Data tidak valid. Pastikan paket dan nama sudah benar.');
+                } else if (error.code === 'permission-denied') {
+                    showMessage('Error', 'Izin ditolak. Hubungi developer.');
                 } else {
                     showMessage('Error', `Gagal memproses pembayaran: ${error.message}`);
                 }
@@ -1119,6 +1107,8 @@
                     freeAttemptsLeft: increment(count),
                     isPremium: true
                 });
+                freeAttemptsLeft = (freeAttemptsLeft || 0) + count;
+                resetShakeButton();
             }
         }
 
@@ -1139,11 +1129,11 @@
             const pedomanItems = Array.from(document.querySelectorAll('#pedomanList li')).map(li => `- ${li.textContent}`);
             const pedomanText = pedomanItems.join('\n');
             const shareText = `*Ramalan Ciam Si untuk ${nameInput.value.trim() || 'Pengguna'}*\n` +
-                `*Nomor: ${currentPredictionNumberState}*\n\n` +
-                `*Makna Lambang:*\n${sinthioText.textContent}\n\n` +
-                `*Bunyi Syair:*\n${syairText.textContent}\n\n` +
-                `*Selayang Pandang:*\n${selayangPandangText.textContent}\n\n` +
-                `*Pedoman Jawaban:*\n${pedomanText}\n\n` +
+                `*Nomor: ${currentPredictionNumberState}*\n` +
+                `*Makna Lambang:*\n${sinthioText.textContent}\n` +
+                `*Bunyi Syair:*\n${syairText.textContent}\n` +
+                `*Selayang Pandang:*\n${selayangPandangText.textContent}\n` +
+                `*Pedoman Jawaban:*\n${pedomanText}\n` +
                 `Dapatkan ramalan Anda di: ${window.location.origin}`;
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
             window.open(whatsappUrl, '_blank');
