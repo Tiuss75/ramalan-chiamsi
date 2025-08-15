@@ -379,14 +379,17 @@
             background: rgba(212,175,55,0.2);
             transform: translateY(-2px);
         }
+        /* [DIUBAH] Membuat teks paket lebih tebal */
         .package-option h4 {
             margin: 0 0 5px 0;
             color: var(--dark-red);
+            font-weight: 700;
         }
         .package-option p {
             margin: 5px 0 0 0;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--white);
+            font-weight: 600;
         }
         footer {
             text-align: center;
@@ -541,7 +544,7 @@
         <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
     </div>
 
-    <!-- [BARU] Popup Login Google -->
+    <!-- Popup Login Google -->
     <div id="loginPopup" class="popup-overlay hidden">
         <div class="popup-content">
             <h2>Login untuk Lanjut</h2>
@@ -720,6 +723,7 @@
 
         // === App State ===
         let currentUser = null;
+        let isUserAdmin = false;
         let currentPredictionNumberState = null;
         let throwCount = 0;
         const maxThrowsFree = 3;
@@ -744,41 +748,46 @@
             currentUser = user;
             const userDocRef = doc(db, "users", user.uid);
 
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
+                isUserAdmin = true;
+                console.log("Admin user has logged in.");
+            } else {
+                isUserAdmin = false;
+            }
+
             unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     isPremiumUser = data.isPremium === true;
                     freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
-                    console.log(`User data loaded: Premium=${isPremiumUser}, Attempts Left=${freeAttemptsLeft}`);
                 } else {
                     setDoc(userDocRef, { 
                         isPremium: false, 
                         freeAttemptsLeft: 2, 
                         createdAt: serverTimestamp() 
-                    }).then(() => {
-                        console.log("New user document created for UID:", user.uid);
-                        isPremiumUser = false;
-                        freeAttemptsLeft = 2;
-                    }).catch(e => console.error("Failed to create user doc:", e));
+                    });
+                    isPremiumUser = false;
+                    freeAttemptsLeft = 2;
                 }
                 updateUIBasedOnUserState();
             });
         }
         
         function updateUIBasedOnUserState() {
-            if (predictionResult.classList.contains('hidden') && nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0)) {
+            if (predictionResult.classList.contains('hidden') && nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin)) {
                 shakeBtn.disabled = false;
             } else {
                 shakeBtn.disabled = true;
             }
         }
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log("Auth state changed. User UID:", user.uid, "Is Anonymous:", user.isAnonymous);
-                setupUserAndListener(user);
+                await setupUserAndListener(user);
                 checkUrlHash();
             } else {
+                isUserAdmin = false;
                 signInAnonymously(auth).catch(error => {
                     console.error("Gagal login anonim:", error);
                     showMessage('Error', 'Gagal memuat sesi Anda. Silakan refresh halaman.');
@@ -790,7 +799,7 @@
             const isAdminPage = window.location.hash === '#admin';
             if (isAdminPage) {
                 appContainer.classList.add('hidden');
-                if (currentUser && !currentUser.isAnonymous) {
+                if (isUserAdmin) {
                     adminCmsSection.classList.remove('hidden');
                     adminLoginSection.classList.add('hidden');
                     initCms();
@@ -812,7 +821,6 @@
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
             signInWithEmailAndPassword(auth, email, password)
-                .then(() => checkUrlHash())
                 .catch(error => showMessage('Login Gagal', error.message));
         });
 
@@ -891,7 +899,7 @@
         });
 
         shakeBtn.addEventListener('click', () => {
-            if (!isPremiumUser && freeAttemptsLeft <= 0) {
+            if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
                 paymentPopup.classList.remove('hidden');
                 return;
             }
@@ -936,7 +944,7 @@
                     throwResult.classList.remove('hidden');
                     await showPrediction();
                 } else {
-                    if (!isPremiumUser && throwCount >= maxThrowsFree) {
+                    if (!isPremiumUser && throwCount >= maxThrowsFree && !isUserAdmin) {
                         throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
                         throwBtn.disabled = true;
                     } else {
@@ -969,7 +977,7 @@
                     predictionResult.classList.remove('hidden');
                     shakeBtn.disabled = true;
 
-                    if (!isPremiumUser) {
+                    if (!isPremiumUser && !isUserAdmin) {
                         const userDocRef = doc(db, "users", currentUser.uid);
                         await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
                     }
@@ -1009,16 +1017,14 @@
             try {
                 const result = await signInWithPopup(auth, provider);
                 const credential = GoogleAuthProvider.credentialFromResult(result);
-                // [DIUBAH] Coba gabungkan, jika gagal karena sudah tertaut, anggap berhasil.
                 try {
                     await linkWithCredential(auth.currentUser, credential);
                     console.log("Akun anonim berhasil digabung dengan akun Google.");
                 } catch (linkError) {
                     if (linkError.code === 'auth/credential-already-in-use') {
                         console.log("Pengguna sudah memiliki akun, tidak perlu digabung.");
-                        // Ini bukan error, jadi kita lanjutkan saja
                     } else {
-                        throw linkError; // Lemparkan error lain yang mungkin terjadi
+                        throw linkError;
                     }
                 }
                 
@@ -1052,11 +1058,11 @@
                     price: selectedPackage.price,
                     attempts: selectedPackage.attempts
                 });
+
                 const token = result.data.token;
                 window.snap.pay(token, {
-                    onSuccess: async () => {
-                        showMessage('Sukses', 'Pembayaran berhasil! Anda mendapat ' + selectedPackage.attempts + ' kali kocok tambahan.');
-                        await addAttempts(selectedPackage.attempts);
+                    onSuccess: () => {
+                        showMessage('Sukses', 'Pembayaran berhasil! Jatah kocok Anda akan segera ditambahkan.');
                         confirmPaymentPopup.classList.add('hidden');
                         resetState();
                     },
@@ -1066,7 +1072,12 @@
                 });
             } catch (error) {
                 console.error('Error memanggil Cloud Function:', error);
-                showMessage('Error', 'Gagal memproses pembayaran. Pastikan Anda sudah login.');
+                // [DIUBAH] Pesan error lebih spesifik
+                if(error.message.includes('permission-denied')){
+                    showMessage('Error', 'Gagal memproses pembayaran: Izin ditolak. Hubungi developer untuk mengatur izin Cloud Function.');
+                } else {
+                    showMessage('Error', `Gagal memproses pembayaran: ${error.message}`);
+                }
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Lanjut ke Midtrans";
