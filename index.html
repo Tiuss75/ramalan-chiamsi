@@ -227,13 +227,18 @@
 
         function resetState() {
             throwCount = 0; throwCountElement.textContent = throwCount;
-            throwBtn.disabled = true; shakeBtn.disabled = false;
+            throwBtn.disabled = true; 
+            shakeBtn.disabled = (nameInput.value.trim() === '');
             shakeResult.classList.add('hidden'); throwResult.classList.add('hidden');
             predictionResult.classList.add('hidden'); puakpois.forEach(p => p.textContent = '-');
             currentPredictionNumberState = null;
         }
 
-        nameInput.addEventListener('input', () => { shakeBtn.disabled = nameInput.value.trim() === ''; });
+        nameInput.addEventListener('input', () => { 
+            if (predictionResult.classList.contains('hidden')) {
+                shakeBtn.disabled = nameInput.value.trim() === '';
+            }
+        });
 
         shakeBtn.addEventListener('click', () => {
             resetState();
@@ -283,6 +288,7 @@
                     if (!isPremiumUser && throwCount >= maxThrowsFree) {
                         paymentPopup.classList.remove('hidden');
                         throwResultText.textContent = 'Batas lemparan tercapai. Silakan upgrade.';
+                        shakeBtn.disabled = false; // Izinkan mulai sesi baru
                     } else {
                         throwResultText.textContent = 'Hasil: Belum direstui. Coba lempar lagi.';
                         throwBtn.disabled = false;
