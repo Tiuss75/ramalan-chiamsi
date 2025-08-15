@@ -6,7 +6,7 @@
     <title>Ramalan Chiam Si - PWA</title>
     <meta name="theme-color" content="#9c1c26">
     <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
-   <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="favicon-512.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -541,6 +541,22 @@
         <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
     </div>
 
+    <!-- [BARU] Popup Login Google -->
+    <div id="loginPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h2>Login untuk Lanjut</h2>
+            <p>Untuk menyimpan status premium Anda secara permanen, silakan login dengan akun Google.</p>
+            <div class="popup-buttons">
+                <button id="googleLoginBtn" class="btn" style="background-color: #4285F4; color: white; width: 100%;">
+                    <i class="fab fa-google"></i> Login dengan Google
+                </button>
+                <button id="cancelLoginBtn" class="btn" style="background-color: var(--dark-red); color: var(--white); width: 100%;">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Popup Pilihan Pembayaran -->
     <div id="paymentPopup" class="popup-overlay hidden">
         <div class="popup-content" style="max-width: 600px;">
@@ -600,7 +616,7 @@
     <div id="termsPopup" class="popup-overlay hidden">
         <div class="popup-content popup-content-legal">
             <h2>Syarat & Ketentuan</h2>
-            <p style="text-align:left;"><h2>Syarat & Ketentuan</h2><p style="text-align:left;">Selamat datang di aplikasi Ramalan Chiam Si. Dengan menggunakan aplikasi ini, Anda setuju untuk mematuhi syarat dan ketentuan berikut:</p><h4 style="text-align:left; margin-top:15px;">1. Tujuan Aplikasi</h4><p style="text-align:left;">Aplikasi ini disediakan untuk tujuan hiburan, refleksi diri, dan pelestarian budaya. Hasil yang diberikan tidak boleh dianggap sebagai nasihat profesional (keuangan, hukum, medis, dll.) dan tidak dijamin akurat 100%.</p><h4 style="text-align:left; margin-top:15px;">2. Layanan Berbayar</h4><p style="text-align:left;">Kami menawarkan akses premium berbayar untuk penggunaan tanpa batas. Pembayaran diproses melalui Midtrans. Semua transaksi bersifat final dan tidak dapat dikembalikan (non-refundable) setelah pembayaran berhasil.</p><h4 style="text-align:left; margin-top:15px;">3. Batasan Tanggung Jawab</h4><p style="text-align:left;">Pengembang tidak bertanggung jawab atas keputusan atau tindakan apa pun yang Anda ambil berdasarkan interpretasi dari hasil yang diberikan oleh aplikasi ini.</p>
+            <p style="text-align:left;">Selamat datang di aplikasi Ramalan Chiam Si. Dengan menggunakan aplikasi ini, Anda setuju untuk mematuhi syarat dan ketentuan berikut:</p><h4 style="text-align:left; margin-top:15px;">1. Tujuan Aplikasi</h4><p style="text-align:left;">Aplikasi ini disediakan untuk tujuan hiburan, refleksi diri, dan pelestarian budaya. Hasil yang diberikan tidak boleh dianggap sebagai nasihat profesional (keuangan, hukum, medis, dll.) dan tidak dijamin akurat 100%.</p><h4 style="text-align:left; margin-top:15px;">2. Layanan Berbayar</h4><p style="text-align:left;">Kami menawarkan akses premium berbayar untuk penggunaan tanpa batas. Pembayaran diproses melalui Midtrans. Semua transaksi bersifat final dan tidak dapat dikembalikan (non-refundable) setelah pembayaran berhasil.</p><h4 style="text-align:left; margin-top:15px;">3. Batasan Tanggung Jawab</h4><p style="text-align:left;">Pengembang tidak bertanggung jawab atas keputusan atau tindakan apa pun yang Anda ambil berdasarkan interpretasi dari hasil yang diberikan oleh aplikasi ini.</p>
             <div class="popup-buttons" style="margin-top:20px;">
                 <button class="btn close-popup-btn">Tutup</button>
             </div>
@@ -609,7 +625,7 @@
     <div id="privacyPopup" class="popup-overlay hidden">
         <div class="popup-content popup-content-legal">
             <h2>Kebijakan Privasi</h2>
-            <p style="text-align:left;">Kami menghargai privasi Anda. Dokumen ini menjelaskan bagaimana kami mengumpulkan dan menggunakan data Anda.</p><h4 style="text-align:left; margin-top:15px;">1. Data yang Kami Kumpulkan</h4><p style="text-align:left;">Aplikasi ini menggunakan Firebase Anonymous Authentication. Kami mengumpulkan User ID anonim yang dibuat secara otomatis untuk setiap pengguna. Kami tidak mengumpulkan data pribadi seperti nama, email, atau nomor telepon, kecuali nama yang Anda masukkan secara sukarela untuk ditampilkan pada hasil ramalan.</p><h4 style="text-align:left; margin-top:15px;">2. Penggunaan Data</h4><p style="text-align:left;">User ID anonim digunakan untuk membedakan antara pengguna gratis dan premium, serta untuk melacak status "uji coba gratis". Data ini disimpan dengan aman di server Firebase dan tidak akan dibagikan kepada pihak ketiga</p>
+            <p style="text-align:left;">Kami menghargai privasi Anda. Dokumen ini menjelaskan bagaimana kami mengumpulkan dan menggunakan data Anda.</p><h4 style="text-align:left; margin-top:15px;">1. Data yang Kami Kumpulkan</h4><p style="text-align:left;">Aplikasi ini menggunakan Firebase Anonymous Authentication dan Google Sign-In. Kami mengumpulkan User ID yang dibuat secara otomatis. Kami tidak mengumpulkan data pribadi selain dari profil Google Anda (nama, email, foto profil) saat Anda login.</p><h4 style="text-align:left; margin-top:15px;">2. Penggunaan Data</h4><p style="text-align:left;">User ID digunakan untuk membedakan antara pengguna gratis dan premium, serta untuk melacak status pembelian dan jatah kocokan. Data ini disimpan dengan aman di server Firebase dan tidak akan dibagikan kepada pihak ketiga.</p>
             <div class="popup-buttons" style="margin-top:20px;">
                 <button class="btn close-popup-btn">Tutup</button>
             </div>
@@ -632,8 +648,10 @@
     <!-- Firebase & App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // [DIUBAH] Tambahkan impor untuk Google Auth & linkWithCredential
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, linkWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // [DIUBAH] Tambahkan impor untuk 'increment'
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
         const firebaseConfig = {
@@ -651,7 +669,7 @@
         const functions = getFunctions(app);
         const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
 
-        // DOM Elements
+        // === DOM Elements ===
         const appContainer = document.getElementById('appContainer');
         const adminLoginSection = document.getElementById('adminLoginSection');
         const adminCmsSection = document.getElementById('adminCmsSection');
@@ -698,15 +716,22 @@
         const testModeBtn = document.getElementById('testModeBtn');
         const priceDisplay = document.getElementById('priceDisplay');
         const attemptsDisplay = document.getElementById('attemptsDisplay');
+        // [BARU] DOM untuk popup login
+        const loginPopup = document.getElementById('loginPopup');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const cancelLoginBtn = document.getElementById('cancelLoginBtn');
 
+        // === App State ===
         let currentUser = null;
         let currentPredictionNumberState = null;
         let throwCount = 0;
         const maxThrowsFree = 3;
         let isPremiumUser = false;
-        let freeAttemptsLeft = 2;
+        let freeAttemptsLeft = 2; // Default
         let selectedPackage = null;
         let unsubscribeUserListener = null;
+
+        // === Functions ===
 
         function showMessage(title, text) {
             messageTitle.textContent = title;
@@ -716,47 +741,54 @@
 
         closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
 
-        async function setupUserAndListener(userId) {
+        async function setupUserAndListener(user) {
             if (unsubscribeUserListener) unsubscribeUserListener();
-
-            const userDocRef = doc(db, "users", userId);
-            try {
-                const docSnap = await getDoc(userDocRef);
-                if (!docSnap.exists()) {
-                    await setDoc(userDocRef, { 
-                        isPremium: false, 
-                        freeAttemptsLeft: 2, 
-                        createdAt: serverTimestamp() 
-                    });
-                }
-            } catch (e) {
-                console.error("Gagal inisialisasi user:", e);
-            }
+            
+            currentUser = user;
+            const userDocRef = doc(db, "users", user.uid);
 
             unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     isPremiumUser = data.isPremium === true;
-                    freeAttemptsLeft = data.freeAttemptsLeft || 2;
-
-                    if (freeAttemptsLeft <= 0 && !isPremiumUser) {
-                        shakeBtn.disabled = true;
-                    }
-                    if (isPremiumUser) {
-                        paymentPopup.classList.add('hidden');
-                    }
+                    freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
+                    console.log(`User data loaded: Premium=${isPremiumUser}, Attempts Left=${freeAttemptsLeft}`);
+                } else {
+                    // Jika dokumen user belum ada, buat baru. Ini penting untuk pengguna anonim.
+                    setDoc(userDocRef, { 
+                        isPremium: false, 
+                        freeAttemptsLeft: 2, 
+                        createdAt: serverTimestamp() 
+                    }).then(() => {
+                        console.log("New user document created for UID:", user.uid);
+                        isPremiumUser = false;
+                        freeAttemptsLeft = 2;
+                    }).catch(e => console.error("Failed to create user doc:", e));
                 }
+                // Update UI berdasarkan status terbaru
+                updateUIBasedOnUserState();
             });
+        }
+        
+        function updateUIBasedOnUserState() {
+            if (nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0)) {
+                shakeBtn.disabled = false;
+            } else {
+                shakeBtn.disabled = true;
+            }
         }
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user;
+                // Pengguna sudah login (baik anonim maupun permanen)
+                console.log("Auth state changed. User UID:", user.uid, "Is Anonymous:", user.isAnonymous);
+                setupUserAndListener(user);
                 checkUrlHash();
             } else {
+                // Pengguna belum login sama sekali, lakukan login anonim
                 signInAnonymously(auth).catch(error => {
                     console.error("Gagal login anonim:", error);
-                    showMessage('Error', 'Gagal memuat aplikasi.');
+                    showMessage('Error', 'Gagal memuat sesi Anda. Silakan refresh halaman.');
                 });
             }
         });
@@ -777,9 +809,6 @@
                 appContainer.classList.remove('hidden');
                 adminLoginSection.classList.add('hidden');
                 adminCmsSection.classList.add('hidden');
-                if (currentUser && currentUser.isAnonymous) {
-                    setupUserAndListener(currentUser.uid);
-                }
             }
         }
 
@@ -789,10 +818,6 @@
         loginBtn.addEventListener('click', () => {
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
-            if (!email || !password) {
-                showMessage('Error', 'Email dan password wajib diisi.');
-                return;
-            }
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => checkUrlHash())
                 .catch(error => showMessage('Login Gagal', error.message));
@@ -849,34 +874,31 @@
                 await setDoc(doc(db, "ramalan", number), dataToSave);
                 showMessage('Sukses', `Data untuk nomor ${number} berhasil disimpan.`);
             } catch (error) {
-                showMessage('Error', 'Gagal menyimpan data.');
+                console.error("Save error:", error);
+                showMessage('Error', 'Gagal menyimpan data. Pastikan Anda login sebagai admin dan cek aturan Firestore.');
             }
         });
 
         function resetState() {
-            if (isPremiumUser || freeAttemptsLeft > 0) {
-                throwCount = 0;
-                throwCountElement.textContent = throwCount;
-                throwBtn.disabled = true;
-                shakeResult.classList.add('hidden');
-                throwResult.classList.add('hidden');
-                predictionResult.classList.add('hidden');
-                puakpois.forEach(p => p.textContent = '-');
-                currentPredictionNumberState = null;
-                shakeBtn.disabled = (nameInput.value.trim() === '');
-            } else {
-                showMessage('Akses Dibatasi', 'Anda telah menggunakan semua kesempatan uji coba. Silakan upgrade untuk sesi baru.');
-            }
+            throwCount = 0;
+            throwCountElement.textContent = throwCount;
+            throwBtn.disabled = true;
+            shakeResult.classList.add('hidden');
+            throwResult.classList.add('hidden');
+            predictionResult.classList.add('hidden');
+            puakpois.forEach(p => p.textContent = '-');
+            currentPredictionNumberState = null;
+            updateUIBasedOnUserState();
         }
 
         nameInput.addEventListener('input', () => {
             if (predictionResult.classList.contains('hidden')) {
-                shakeBtn.disabled = nameInput.value.trim() === '' || (freeAttemptsLeft <= 0 && !isPremiumUser);
+                updateUIBasedOnUserState();
             }
         });
 
         shakeBtn.addEventListener('click', () => {
-            if (freeAttemptsLeft <= 0 && !isPremiumUser) {
+            if (!isPremiumUser && freeAttemptsLeft <= 0) {
                 paymentPopup.classList.remove('hidden');
                 return;
             }
@@ -910,27 +932,20 @@
             });
 
             setTimeout(async () => {
-                let isConfirmed = false;
-                if (freeAttemptsLeft >= 2) {
-                    isConfirmed = true;
-                    puakpois[0].textContent = '凹';
-                    puakpois[1].textContent = '凸';
-                } else {
-                    const result1 = Math.round(Math.random());
-                    const result2 = Math.round(Math.random());
-                    puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
-                    puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
-                    isConfirmed = result1 !== result2;
-                }
+                const result1 = Math.round(Math.random());
+                const result2 = Math.round(Math.random());
+                puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
+                puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
+                const isConfirmed = result1 !== result2;
 
                 if (isConfirmed) {
-                    throwResultText.textContent = freeAttemptsLeft >= 2 ? 'Hasil: Direstui Dewa! (Percobaan 1/2)' : 'Hasil: Direstui Dewa!';
+                    throwResultText.textContent = 'Hasil: Direstui Dewa!';
                     throwResult.classList.remove('hidden');
                     await showPrediction();
                 } else {
                     if (!isPremiumUser && throwCount >= maxThrowsFree) {
-                        paymentPopup.classList.remove('hidden');
-                        throwResultText.textContent = 'Batas lemparan tercapai.';
+                        throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
+                        throwBtn.disabled = true;
                     } else {
                         throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
                         throwBtn.disabled = false;
@@ -959,32 +974,22 @@
                         pedomanList.appendChild(li);
                     });
                     predictionResult.classList.remove('hidden');
-                    shakeBtn.disabled = true;
+                    shakeBtn.disabled = true; // Nonaktifkan kocok setelah hasil muncul
 
                     if (!isPremiumUser) {
                         const userDocRef = doc(db, "users", currentUser.uid);
-                        await updateDoc(userDocRef, { freeAttemptsLeft: freeAttemptsLeft - 1 });
-                        freeAttemptsLeft--;
-
-                        if (freeAttemptsLeft <= 0) {
-                            setTimeout(() => {
-                                paymentPopup.classList.remove('hidden');
-                            }, 1500);
-                        } else {
-                            shakeBtn.disabled = false;
-                        }
+                        await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
                     }
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
-                    predictionResult.classList.add('hidden');
-                    shakeBtn.disabled = false;
+                    resetState();
                 }
             } catch (error) {
                 showMessage('Error', 'Gagal mengambil data.');
             }
         }
 
-        // Pilih Paket
+        // [DIUBAH] Alur Pemilihan Paket
         document.querySelectorAll('.package-option').forEach(pkg => {
             pkg.addEventListener('click', () => {
                 if (pkg.id === 'testModeBtn') {
@@ -997,19 +1002,61 @@
                 };
                 priceDisplay.textContent = selectedPackage.price.toLocaleString();
                 attemptsDisplay.textContent = selectedPackage.attempts;
-                confirmPaymentPopup.classList.remove('hidden');
+                
+                // Cek apakah pengguna anonim atau sudah login
+                if (currentUser && currentUser.isAnonymous) {
+                    // Jika anonim, tampilkan popup login dulu
+                    loginPopup.classList.remove('hidden');
+                } else {
+                    // Jika sudah login, langsung ke konfirmasi pembayaran
+                    confirmPaymentPopup.classList.remove('hidden');
+                }
                 paymentPopup.classList.add('hidden');
             });
         });
 
+        // [BARU] Logika untuk Login Google
+        googleLoginBtn.addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                // Gabungkan akun anonim dengan akun Google
+                await linkWithCredential(auth.currentUser, credential);
+                console.log("Akun anonim berhasil digabung dengan akun Google.");
+                
+                // Setelah berhasil, tutup popup login dan buka konfirmasi pembayaran
+                loginPopup.classList.add('hidden');
+                confirmPaymentPopup.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error saat login Google atau penggabungan akun:", error);
+                if (error.code === 'auth/credential-already-in-use') {
+                    showMessage('Login Gagal', 'Akun Google ini sudah terdaftar. Silakan login dengan akun lain atau hubungi support.');
+                } else {
+                    showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
+                }
+            }
+        });
+
+        cancelLoginBtn.addEventListener('click', () => {
+            loginPopup.classList.add('hidden');
+            paymentPopup.classList.remove('hidden'); // Kembali ke pilihan paket
+        });
+
         confirmRealPayment.addEventListener('click', async () => {
+            if (!currentUser || currentUser.isAnonymous) {
+                showMessage('Error', 'Anda harus login untuk melakukan pembayaran.');
+                return;
+            }
+
             const btn = confirmRealPayment;
             btn.disabled = true;
             btn.textContent = "Memproses...";
 
             try {
                 const result = await createTransaction({ 
-                    name: nameInput.value.trim() || 'Pengguna',
+                    name: nameInput.value.trim() || currentUser.displayName || 'Pengguna',
                     price: selectedPackage.price,
                     attempts: selectedPackage.attempts
                 });
@@ -1019,22 +1066,15 @@
                         showMessage('Sukses', 'Pembayaran berhasil! Anda mendapat ' + selectedPackage.attempts + ' kali kocok tambahan.');
                         await addAttempts(selectedPackage.attempts);
                         confirmPaymentPopup.classList.add('hidden');
+                        resetState();
                     },
-                    onPending: () => {
-                        showMessage('Pending', 'Menunggu konfirmasi pembayaran.');
-                        confirmPaymentPopup.classList.add('hidden');
-                    },
-                    onError: (err) => {
-                        console.error('Error:', err);
-                        showMessage('Gagal', 'Pembayaran gagal. Coba lagi nanti.');
-                    },
-                    onClose: () => {
-                        console.log('Popup ditutup');
-                    }
+                    onPending: () => showMessage('Pending', 'Menunggu konfirmasi pembayaran.'),
+                    onError: (err) => showMessage('Gagal', 'Pembayaran gagal. Coba lagi nanti.'),
+                    onClose: () => console.log('Popup pembayaran ditutup oleh pengguna.')
                 });
             } catch (error) {
-                console.error('Error:', error);
-                showMessage('Error', 'Gagal memproses pembayaran.');
+                console.error('Error memanggil Cloud Function:', error);
+                showMessage('Error', 'Gagal memproses pembayaran. Pastikan Anda sudah login.');
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Lanjut ke Midtrans";
@@ -1055,22 +1095,25 @@
         });
 
         function activateTestMode() {
-            showMessage('Mode Uji Coba', '🎉 Anda sekarang premium! (Mode uji coba)');
-            addAttempts(12);
-            paymentPopup.classList.add('hidden');
+            if(currentUser && currentUser.isAnonymous) {
+                showMessage('Mode Uji Coba', 'Silakan login dengan Google terlebih dahulu untuk mengaktifkan mode uji coba permanen.');
+                loginPopup.classList.remove('hidden');
+                paymentPopup.classList.add('hidden');
+            } else {
+                showMessage('Mode Uji Coba', '🎉 Anda sekarang premium! (Mode uji coba)');
+                addAttempts(99); // Beri banyak attempt untuk testing
+                paymentPopup.classList.add('hidden');
+                resetState();
+            }
         }
 
         async function addAttempts(count) {
             if (currentUser) {
                 const userDocRef = doc(db, "users", currentUser.uid);
                 await updateDoc(userDocRef, { 
-                    freeAttemptsLeft: firebase.firestore.FieldValue.increment(count),
+                    freeAttemptsLeft: increment(count), // [DIUBAH] Gunakan increment
                     isPremium: true
                 });
-                freeAttemptsLeft += count;
-                isPremiumUser = true;
-                shakeBtn.disabled = false;
-                nameInput.dispatchEvent(new Event('input'));
             }
         }
 
