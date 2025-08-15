@@ -47,7 +47,7 @@
         // SEMUA LOGIKA JAVASCRIPT ADA DI SINI
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
         const firebaseConfig = {
@@ -104,7 +104,6 @@
         const termsLink = document.getElementById('termsLink');
         const privacyLink = document.getElementById('privacyLink');
         const closePopupBtns = document.querySelectorAll('.close-popup-btn');
-        const headerTitle = document.querySelector('.header h1');
 
         let currentUser = null;
         let currentPredictionNumberState = null;
@@ -112,7 +111,6 @@
         const maxThrowsFree = 3;
         let isPremiumUser = false;
         let hasHadFreeSuccess = false;
-        let titleClickCount = 0;
 
         function showMessage(title, text) {
             messageTitle.textContent = title;
@@ -280,11 +278,7 @@
                 if (isConfirmed) {
                     throwResultText.textContent = !hasHadFreeSuccess ? 'Hasil: Direstui Dewa! (Kesempatan Pertama)' : 'Hasil: Direstui Dewa!';
                     throwResult.classList.remove('hidden');
-                    showPrediction();
-                    if (!hasHadFreeSuccess && currentUser) {
-                        const userDocRef = doc(db, "users", currentUser.uid);
-                        await updateDoc(userDocRef, { hasHadFreeSuccess: true });
-                    }
+                    await showPrediction();
                 } else {
                     if (!isPremiumUser && throwCount >= maxThrowsFree) {
                         paymentPopup.classList.remove('hidden');
@@ -320,6 +314,12 @@
                         pedomanList.innerHTML = '<li>Data belum diisi.</li>';
                     }
                     predictionResult.classList.remove('hidden');
+
+                    if (!hasHadFreeSuccess && currentUser) {
+                        const userDocRef = doc(db, "users", currentUser.uid);
+                        await updateDoc(userDocRef, { hasHadFreeSuccess: true });
+                        showMessage('Kesempatan Gratis Digunakan', 'Anda telah menggunakan kesempatan gratis Anda. Untuk ramalan berikutnya, aturan normal (batas 3x lemparan) akan berlaku.');
+                    }
                 } else {
                     showMessage('Data Kosong', `Data untuk ramalan nomor ${currentPredictionNumberState} belum diisi di CMS.`);
                     predictionResult.classList.add('hidden');
@@ -342,10 +342,18 @@
 
         document.getElementById('whatsappShare').addEventListener('click', (e) => {
             e.preventDefault();
+            const pedomanItems = [];
+            document.querySelectorAll('#pedomanList li').forEach(li => {
+                pedomanItems.push(`- ${li.textContent}`);
+            });
+            const pedomanText = pedomanItems.join('\n');
+
             const shareText = `*Ramalan Ciam Si untuk ${nameInput.value.trim()}*\n` +
                 `*Nomor: ${currentPredictionNumberState}*\n\n` +
                 `*Makna Lambang:*\n${sinthioText.textContent}\n\n` +
                 `*Bunyi Syair:*\n${syairText.textContent}\n\n` +
+                `*Selayang Pandang:*\n${selayangPandangText.textContent}\n\n` +
+                `*Pedoman Jawaban:*\n${pedomanText}\n\n` +
                 `Dapatkan ramalan Anda di: ${window.location.href.split('#')[0]}`;
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
             window.open(whatsappUrl, '_blank');
@@ -381,21 +389,9 @@
             });
         });
 
-        // **NEW** Secret trigger for payment testing
-        headerTitle.addEventListener('click', () => {
-            titleClickCount++;
-            if (titleClickCount >= 5) {
-                console.log("Secret payment trigger activated!");
-                showMessage('Mode Uji Coba', 'Menampilkan popup pembayaran untuk pengujian.');
-                paymentPopup.classList.remove('hidden');
-                titleClickCount = 0; // Reset counter
-            }
-            setTimeout(() => { titleClickCount = 0 }, 2000); // Reset if not clicked again within 2 seconds
-        });
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.service-worker.register('sw.js').catch(err => console.error('SW registration failed:', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
             });
         }
     </script>
