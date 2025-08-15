@@ -648,9 +648,7 @@
     <!-- Firebase & App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // [DIUBAH] Tambahkan impor untuk Google Auth & linkWithCredential
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, linkWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // [DIUBAH] Tambahkan impor untuk 'increment'
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
@@ -716,7 +714,6 @@
         const testModeBtn = document.getElementById('testModeBtn');
         const priceDisplay = document.getElementById('priceDisplay');
         const attemptsDisplay = document.getElementById('attemptsDisplay');
-        // [BARU] DOM untuk popup login
         const loginPopup = document.getElementById('loginPopup');
         const googleLoginBtn = document.getElementById('googleLoginBtn');
         const cancelLoginBtn = document.getElementById('cancelLoginBtn');
@@ -754,7 +751,6 @@
                     freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
                     console.log(`User data loaded: Premium=${isPremiumUser}, Attempts Left=${freeAttemptsLeft}`);
                 } else {
-                    // Jika dokumen user belum ada, buat baru. Ini penting untuk pengguna anonim.
                     setDoc(userDocRef, { 
                         isPremium: false, 
                         freeAttemptsLeft: 2, 
@@ -765,13 +761,12 @@
                         freeAttemptsLeft = 2;
                     }).catch(e => console.error("Failed to create user doc:", e));
                 }
-                // Update UI berdasarkan status terbaru
                 updateUIBasedOnUserState();
             });
         }
         
         function updateUIBasedOnUserState() {
-            if (nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0)) {
+            if (predictionResult.classList.contains('hidden') && nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0)) {
                 shakeBtn.disabled = false;
             } else {
                 shakeBtn.disabled = true;
@@ -780,12 +775,10 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Pengguna sudah login (baik anonim maupun permanen)
                 console.log("Auth state changed. User UID:", user.uid, "Is Anonymous:", user.isAnonymous);
                 setupUserAndListener(user);
                 checkUrlHash();
             } else {
-                // Pengguna belum login sama sekali, lakukan login anonim
                 signInAnonymously(auth).catch(error => {
                     console.error("Gagal login anonim:", error);
                     showMessage('Error', 'Gagal memuat sesi Anda. Silakan refresh halaman.');
@@ -974,7 +967,7 @@
                         pedomanList.appendChild(li);
                     });
                     predictionResult.classList.remove('hidden');
-                    shakeBtn.disabled = true; // Nonaktifkan kocok setelah hasil muncul
+                    shakeBtn.disabled = true;
 
                     if (!isPremiumUser) {
                         const userDocRef = doc(db, "users", currentUser.uid);
@@ -989,7 +982,6 @@
             }
         }
 
-        // [DIUBAH] Alur Pemilihan Paket
         document.querySelectorAll('.package-option').forEach(pkg => {
             pkg.addEventListener('click', () => {
                 if (pkg.id === 'testModeBtn') {
@@ -1003,45 +995,45 @@
                 priceDisplay.textContent = selectedPackage.price.toLocaleString();
                 attemptsDisplay.textContent = selectedPackage.attempts;
                 
-                // Cek apakah pengguna anonim atau sudah login
                 if (currentUser && currentUser.isAnonymous) {
-                    // Jika anonim, tampilkan popup login dulu
                     loginPopup.classList.remove('hidden');
                 } else {
-                    // Jika sudah login, langsung ke konfirmasi pembayaran
                     confirmPaymentPopup.classList.remove('hidden');
                 }
                 paymentPopup.classList.add('hidden');
             });
         });
 
-        // [BARU] Logika untuk Login Google
         googleLoginBtn.addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
                 const result = await signInWithPopup(auth, provider);
                 const credential = GoogleAuthProvider.credentialFromResult(result);
-                // Gabungkan akun anonim dengan akun Google
-                await linkWithCredential(auth.currentUser, credential);
-                console.log("Akun anonim berhasil digabung dengan akun Google.");
+                // [DIUBAH] Coba gabungkan, jika gagal karena sudah tertaut, anggap berhasil.
+                try {
+                    await linkWithCredential(auth.currentUser, credential);
+                    console.log("Akun anonim berhasil digabung dengan akun Google.");
+                } catch (linkError) {
+                    if (linkError.code === 'auth/credential-already-in-use') {
+                        console.log("Pengguna sudah memiliki akun, tidak perlu digabung.");
+                        // Ini bukan error, jadi kita lanjutkan saja
+                    } else {
+                        throw linkError; // Lemparkan error lain yang mungkin terjadi
+                    }
+                }
                 
-                // Setelah berhasil, tutup popup login dan buka konfirmasi pembayaran
                 loginPopup.classList.add('hidden');
                 confirmPaymentPopup.classList.remove('hidden');
 
             } catch (error) {
-                console.error("Error saat login Google atau penggabungan akun:", error);
-                if (error.code === 'auth/credential-already-in-use') {
-                    showMessage('Login Gagal', 'Akun Google ini sudah terdaftar. Silakan login dengan akun lain atau hubungi support.');
-                } else {
-                    showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
-                }
+                console.error("Error saat login Google:", error);
+                showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
             }
         });
 
         cancelLoginBtn.addEventListener('click', () => {
             loginPopup.classList.add('hidden');
-            paymentPopup.classList.remove('hidden'); // Kembali ke pilihan paket
+            paymentPopup.classList.remove('hidden');
         });
 
         confirmRealPayment.addEventListener('click', async () => {
@@ -1101,7 +1093,7 @@
                 paymentPopup.classList.add('hidden');
             } else {
                 showMessage('Mode Uji Coba', '🎉 Anda sekarang premium! (Mode uji coba)');
-                addAttempts(99); // Beri banyak attempt untuk testing
+                addAttempts(99);
                 paymentPopup.classList.add('hidden');
                 resetState();
             }
@@ -1111,7 +1103,7 @@
             if (currentUser) {
                 const userDocRef = doc(db, "users", currentUser.uid);
                 await updateDoc(userDocRef, { 
-                    freeAttemptsLeft: increment(count), // [DIUBAH] Gunakan increment
+                    freeAttemptsLeft: increment(count),
                     isPremium: true
                 });
             }
