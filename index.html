@@ -85,19 +85,19 @@
 
     <!-- Admin & Popup Sections -->
     <div id="adminLoginSection" class="admin-section hidden">
-        <!-- Konten admin login -->
+        <!-- Konten admin login akan ditambahkan oleh JS jika diperlukan -->
     </div>
     <div id="adminCmsSection" class="container hidden" style="margin-top: 20px;">
-        <!-- Konten CMS -->
+        <!-- Konten CMS akan ditambahkan oleh JS jika diperlukan -->
     </div>
     <div id="paymentPopup" class="popup-overlay hidden">
-        <!-- Konten popup pembayaran -->
+        <!-- Konten popup pembayaran akan ditambahkan oleh JS jika diperlukan -->
     </div>
     <div id="messagePopup" class="popup-overlay hidden">
-        <!-- Konten popup pesan -->
+        <!-- Konten popup pesan akan ditambahkan oleh JS jika diperlukan -->
     </div>
 
-    <!-- **NEW** Popup untuk Syarat & Ketentuan -->
+    <!-- Popup untuk Syarat & Ketentuan -->
     <div id="termsPopup" class="popup-overlay hidden">
         <div class="popup-content popup-content-legal">
             <h2>Syarat & Ketentuan</h2>
@@ -114,7 +114,7 @@
         </div>
     </div>
 
-    <!-- **NEW** Popup untuk Kebijakan Privasi -->
+    <!-- Popup untuk Kebijakan Privasi -->
     <div id="privacyPopup" class="popup-overlay hidden">
         <div class="popup-content popup-content-legal">
             <h2>Kebijakan Privasi</h2>
@@ -129,7 +129,7 @@
         </div>
     </div>
 
-    <!-- **NEW** Footer Aplikasi -->
+    <!-- Footer Aplikasi -->
     <footer>
         <p>&copy; 2025 Ramalan Chiam Si. All Rights Reserved.</p>
         <div style="margin-top: 10px;">
@@ -143,10 +143,10 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
-
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- Konfigurasi Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyBzYog6EbRLen7pg2aITsf5utEXQUVP3n0",
             authDomain: "ramalan-chiamsi-df5b0.firebaseapp.com",
@@ -156,82 +156,105 @@
             appId: "1:152505108899:web:b1e2e90ac2d7e722997216"
         };
 
+        // --- Inisialisasi Firebase ---
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const functions = getFunctions(app);
-        const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
 
         // --- Elemen DOM ---
         const nameInput = document.getElementById('nameInput');
         const shakeBtn = document.getElementById('shakeBtn');
         const throwBtn = document.getElementById('throwBtn');
-        const paymentPopup = document.getElementById('paymentPopup');
-        // **NEW** Elemen untuk popup legal
+        const predictionResult = document.getElementById('predictionResult');
+        const predictionNumber = document.getElementById('predictionNumber');
+        const shakeResult = document.getElementById('shakeResult');
+        const resultNumber = document.getElementById('resultNumber');
+        const sinthioText = document.getElementById('sinthioText');
+        const syairText = document.getElementById('syairText');
+        const selayangPandangText = document.getElementById('selayangPandangText');
+        const pedomanList = document.getElementById('pedomanList');
         const termsPopup = document.getElementById('termsPopup');
         const privacyPopup = document.getElementById('privacyPopup');
         const termsLink = document.getElementById('termsLink');
         const privacyLink = document.getElementById('privacyLink');
         const closePopupBtns = document.querySelectorAll('.close-popup-btn');
 
+        // --- State Aplikasi ---
         let currentUser = null;
-        let isPremiumUser = false;
-        let hasHadFreeSuccess = false;
-        let throwCount = 0;
-        const maxThrowsFree = 3;
-
-        // --- Logika Otentikasi & Listener Status Pengguna ---
-        async function setupUserAndListener(userId) {
-            const userDocRef = doc(db, "users", userId);
-            onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    isPremiumUser = data.isPremium === true;
-                    hasHadFreeSuccess = data.hasHadFreeSuccess === true;
-                    if (isPremiumUser) paymentPopup.classList.add('hidden');
-                } else {
-                    setDoc(userDocRef, { isPremium: false, hasHadFreeSuccess: false, createdAt: new Date() });
-                }
-            });
-        }
-
+        let currentPredictionNumberState = null;
+        
+        // --- Logika Otentikasi & Listener ---
         onAuthStateChanged(auth, user => {
-            if (user && user.isAnonymous) {
+            if (user) {
                 currentUser = user;
-                setupUserAndListener(user.uid);
+                // Anda bisa menambahkan listener status pengguna di sini jika diperlukan
+            } else {
+                signInAnonymously(auth).catch(error => console.error("Gagal login anonim:", error));
             }
-            // Logika lain untuk admin, dll.
         });
 
-        // --- Logika Aplikasi Utama (Kocok, Lempar, dll.) ---
+        // --- Logika Aplikasi ---
         nameInput.addEventListener('input', () => {
             shakeBtn.disabled = nameInput.value.trim() === '';
         });
-        
-        throwBtn.addEventListener('click', async () => {
-            if (!hasHadFreeSuccess) {
-                // Logika untuk memberikan 1x kesempatan gratis
-                // ... (kode lengkap ada di versi sebelumnya)
-                if (currentUser) {
-                    const userDocRef = doc(db, "users", currentUser.uid);
-                    await updateDoc(userDocRef, { hasHadFreeSuccess: true });
+
+        shakeBtn.addEventListener('click', () => {
+            // ... (logika reset state)
+            
+            // **PERUBAHAN UNTUK TESTING**
+            // Baris ini akan selalu menghasilkan nomor 1 untuk mempermudah pengujian.
+            // Ganti kembali ke Math.random() setelah selesai testing.
+            const randomNumber = 1; 
+            // const randomNumber = Math.floor(Math.random() * 100) + 1; // <-- KEMBALIKAN KE BARIS INI NANTI
+
+            predictionNumber.textContent = randomNumber;
+            currentPredictionNumberState = randomNumber;
+            
+            shakeResult.classList.remove('hidden');
+            throwBtn.disabled = false;
+        });
+
+        throwBtn.addEventListener('click', () => {
+            // Untuk tujuan pengujian data, kita langsung anggap berhasil
+            showPrediction(); 
+        });
+
+        async function showPrediction() {
+            if (!currentPredictionNumberState) return;
+            
+            const docRef = doc(db, "ramalan", String(currentPredictionNumberState));
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    resultNumber.textContent = data.nomor || currentPredictionNumberState;
+                    sinthioText.textContent = data.sinthio || 'Data belum diisi.';
+                    syairText.textContent = data.syair || 'Data belum diisi.';
+                    selayangPandangText.textContent = data.selayangPandang || 'Data belum diisi.';
+                    
+                    pedomanList.innerHTML = '';
+                    if (data.pedoman && data.pedoman.length > 0) {
+                        data.pedoman.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = item;
+                            pedomanList.appendChild(li);
+                        });
+                    } else {
+                        pedomanList.innerHTML = '<li>Data belum diisi.</li>';
+                    }
+                    predictionResult.classList.remove('hidden');
+                } else {
+                    // Jika dokumen tidak ada di database
+                    alert(`Data untuk ramalan nomor ${currentPredictionNumberState} belum diisi di CMS.`);
+                    predictionResult.classList.add('hidden');
                 }
-                return;
+            } catch (error) {
+                console.error("Error mengambil data ramalan:", error);
+                alert("Gagal mengambil data dari server. Periksa koneksi dan aturan Firestore Anda.");
             }
+        }
 
-            if (!isPremiumUser && throwCount >= maxThrowsFree) {
-                paymentPopup.classList.remove('hidden');
-                return;
-            }
-            // ... sisa logika lempar
-        });
-
-        // --- Logika Pembayaran Midtrans ---
-        document.getElementById('upgradeBtn').addEventListener('click', async () => {
-            // ... (kode lengkap ada di versi sebelumnya)
-        });
-
-        // **NEW** Logika untuk menampilkan popup legal
+        // --- Logika Popup Legal ---
         termsLink.addEventListener('click', () => termsPopup.classList.remove('hidden'));
         privacyLink.addEventListener('click', () => privacyPopup.classList.remove('hidden'));
         closePopupBtns.forEach(btn => {
