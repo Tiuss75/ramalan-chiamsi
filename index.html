@@ -364,6 +364,29 @@
             display: flex;
             justify-content: center;
             gap: 15px;
+            flex-direction: column;
+        }
+        .package-option {
+            border: 2px solid var(--gold);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            background: rgba(212,175,55,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .package-option:hover {
+            background: rgba(212,175,55,0.2);
+            transform: translateY(-2px);
+        }
+        .package-option h4 {
+            margin: 0 0 5px 0;
+            color: var(--dark-red);
+        }
+        .package-option p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            color: var(--white);
         }
         footer {
             text-align: center;
@@ -517,16 +540,52 @@
         </div>
         <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
     </div>
+
+    <!-- Popup Pilihan Pembayaran -->
     <div id="paymentPopup" class="popup-overlay hidden">
-        <div class="popup-content">
-            <h2>Tingkatkan Pengalaman Anda!</h2>
-            <p>Anda telah menggunakan semua kesempatan uji coba gratis. Untuk melanjutkan tanpa batas, silakan upgrade ke paket premium.</p>
-            <div class="popup-buttons">
-                <button id="upgradeBtn" class="btn">Upgrade Sekarang</button>
-                <button id="closePopupBtn" class="btn" style="background-color: var(--dark-red); color: var(--white);">Nanti Saja</button>
+        <div class="popup-content" style="max-width: 600px;">
+            <h2>Upgrade ke Premium</h2>
+            <p>Pilih paket untuk melanjutkan ramalan tanpa batas:</p>
+
+            <div class="package-option" data-attempts="5" data-price="25000">
+                <h4>🎯 Paket 5 Kali Kocok</h4>
+                <p><strong>Harga: Rp 25.000</strong></p>
+                <p>Cocok untuk penggunaan sekali waktu.</p>
+            </div>
+
+            <div class="package-option" data-attempts="12" data-price="50000">
+                <h4>🚀 Paket 12 Kali Kocok</h4>
+                <p><strong>Harga: Rp 50.000</strong></p>
+                <p>Lebih hemat! Ideal untuk pengguna aktif.</p>
+            </div>
+
+            <div class="package-option" id="testModeBtn">
+                <h4>🧪 Mode Uji Coba (Gratis)</h4>
+                <p><strong>Simulasi pembayaran berhasil</strong></p>
+                <p>Untuk testing dan demo.</p>
+            </div>
+
+            <div class="popup-buttons" style="margin-top: 20px;">
+                <button id="closePaymentPopup" class="btn" style="background-color: var(--dark-red); color: var(--white);">
+                    Batal
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Popup Konfirmasi Pembayaran -->
+    <div id="confirmPaymentPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h2>Proses Pembayaran</h2>
+            <p id="confirmText">Anda akan membayar <strong>Rp <span id="priceDisplay">0</span></strong> untuk <span id="attemptsDisplay">0</span> kali kocok tambahan.</p>
+            <div class="popup-buttons">
+                <button id="confirmRealPayment" class="btn">Lanjut ke Midtrans</button>
+                <button id="cancelConfirm" class="btn" style="background-color: var(--dark-red); color: var(--white);">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Popup -->
     <div id="messagePopup" class="popup-overlay hidden">
         <div class="popup-content">
             <h2 id="messageTitle">Pemberitahuan</h2>
@@ -536,16 +595,12 @@
             </div>
         </div>
     </div>
+
+    <!-- Legal Popups -->
     <div id="termsPopup" class="popup-overlay hidden">
         <div class="popup-content popup-content-legal">
             <h2>Syarat & Ketentuan</h2>
-            <p style="text-align:left;">Selamat datang di aplikasi Ramalan Chiam Si. Dengan menggunakan aplikasi ini, Anda setuju untuk mematuhi syarat dan ketentuan berikut:</p>
-            <h4 style="text-align:left; margin-top:15px;">1. Tujuan Aplikasi</h4>
-            <p style="text-align:left;">Aplikasi ini disediakan untuk tujuan hiburan, refleksi diri, dan pelestarian budaya. Hasil yang diberikan tidak boleh dianggap sebagai nasihat profesional (keuangan, hukum, medis, dll.) dan tidak dijamin akurat 100%.</p>
-            <h4 style="text-align:left; margin-top:15px;">2. Layanan Berbayar</h4>
-            <p style="text-align:left;">Kami menawarkan akses premium berbayar untuk penggunaan tanpa batas. Pembayaran diproses melalui Midtrans. Semua transaksi bersifat final dan tidak dapat dikembalikan (non-refundable) setelah pembayaran berhasil.</p>
-            <h4 style="text-align:left; margin-top:15px;">3. Batasan Tanggung Jawab</h4>
-            <p style="text-align:left;">Pengembang tidak bertanggung jawab atas keputusan atau tindakan apa pun yang Anda ambil berdasarkan interpretasi dari hasil yang diberikan oleh aplikasi ini.</p>
+            <p style="text-align:left;">Selamat datang di aplikasi Ramalan Chiam Si...</p>
             <div class="popup-buttons" style="margin-top:20px;">
                 <button class="btn close-popup-btn">Tutup</button>
             </div>
@@ -554,11 +609,7 @@
     <div id="privacyPopup" class="popup-overlay hidden">
         <div class="popup-content popup-content-legal">
             <h2>Kebijakan Privasi</h2>
-            <p style="text-align:left;">Kami menghargai privasi Anda. Dokumen ini menjelaskan bagaimana kami mengumpulkan dan menggunakan data Anda.</p>
-            <h4 style="text-align:left; margin-top:15px;">1. Data yang Kami Kumpulkan</h4>
-            <p style="text-align:left;">Aplikasi ini menggunakan Firebase Anonymous Authentication. Kami mengumpulkan User ID anonim yang dibuat secara otomatis untuk setiap pengguna. Kami tidak mengumpulkan data pribadi seperti nama, email, atau nomor telepon, kecuali nama yang Anda masukkan secara sukarela untuk ditampilkan pada hasil ramalan.</p>
-            <h4 style="text-align:left; margin-top:15px;">2. Penggunaan Data</h4>
-            <p style="text-align:left;">User ID anonim digunakan untuk membedakan antara pengguna gratis dan premium, serta untuk melacak status "uji coba gratis". Data ini disimpan dengan aman di server Firebase dan tidak akan dibagikan kepada pihak ketiga.</p>
+            <p style="text-align:left;">Kami menghargai privasi Anda...</p>
             <div class="popup-buttons" style="margin-top:20px;">
                 <button class="btn close-popup-btn">Tutup</button>
             </div>
@@ -630,7 +681,10 @@
         const pedomanInput = document.getElementById('pedomanInput');
         const saveBtn = document.getElementById('saveBtn');
         const paymentPopup = document.getElementById('paymentPopup');
-        const closePopupBtn = document.getElementById('closePopupBtn');
+        const confirmPaymentPopup = document.getElementById('confirmPaymentPopup');
+        const closePaymentPopup = document.getElementById('closePaymentPopup');
+        const confirmRealPayment = document.getElementById('confirmRealPayment');
+        const cancelConfirm = document.getElementById('cancelConfirm');
         const messagePopup = document.getElementById('messagePopup');
         const messageTitle = document.getElementById('messageTitle');
         const messageText = document.getElementById('messageText');
@@ -641,6 +695,9 @@
         const privacyLink = document.getElementById('privacyLink');
         const closePopupBtns = document.querySelectorAll('.close-popup-btn');
         const goToPaymentBtn = document.getElementById('goToPayment');
+        const testModeBtn = document.getElementById('testModeBtn');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const attemptsDisplay = document.getElementById('attemptsDisplay');
 
         let currentUser = null;
         let currentPredictionNumberState = null;
@@ -648,6 +705,7 @@
         const maxThrowsFree = 3;
         let isPremiumUser = false;
         let freeAttemptsLeft = 2;
+        let selectedPackage = null;
         let unsubscribeUserListener = null;
 
         function showMessage(title, text) {
@@ -683,7 +741,6 @@
 
                     if (freeAttemptsLeft <= 0 && !isPremiumUser) {
                         shakeBtn.disabled = true;
-                        showMessage('Uji Coba Selesai', 'Anda telah menggunakan semua kesempatan uji coba. Silakan upgrade untuk sesi baru.');
                     }
                     if (isPremiumUser) {
                         paymentPopup.classList.add('hidden');
@@ -797,7 +854,7 @@
         });
 
         function resetState() {
-            if (isPremiumUser) {
+            if (isPremiumUser || freeAttemptsLeft > 0) {
                 throwCount = 0;
                 throwCountElement.textContent = throwCount;
                 throwBtn.disabled = true;
@@ -813,8 +870,8 @@
         }
 
         nameInput.addEventListener('input', () => {
-            if (predictionResult.classList.contains('hidden') && freeAttemptsLeft > 0) {
-                shakeBtn.disabled = nameInput.value.trim() === '';
+            if (predictionResult.classList.contains('hidden')) {
+                shakeBtn.disabled = nameInput.value.trim() === '' || (freeAttemptsLeft <= 0 && !isPremiumUser);
             }
         });
 
@@ -913,6 +970,8 @@
                             setTimeout(() => {
                                 paymentPopup.classList.remove('hidden');
                             }, 1500);
+                        } else {
+                            shakeBtn.disabled = false;
                         }
                     }
                 } else {
@@ -922,6 +981,96 @@
                 }
             } catch (error) {
                 showMessage('Error', 'Gagal mengambil data.');
+            }
+        }
+
+        // Pilih Paket
+        document.querySelectorAll('.package-option').forEach(pkg => {
+            pkg.addEventListener('click', () => {
+                if (pkg.id === 'testModeBtn') {
+                    activateTestMode();
+                    return;
+                }
+                selectedPackage = {
+                    attempts: parseInt(pkg.getAttribute('data-attempts')),
+                    price: parseInt(pkg.getAttribute('data-price'))
+                };
+                priceDisplay.textContent = selectedPackage.price.toLocaleString();
+                attemptsDisplay.textContent = selectedPackage.attempts;
+                confirmPaymentPopup.classList.remove('hidden');
+                paymentPopup.classList.add('hidden');
+            });
+        });
+
+        confirmRealPayment.addEventListener('click', async () => {
+            const btn = confirmRealPayment;
+            btn.disabled = true;
+            btn.textContent = "Memproses...";
+
+            try {
+                const result = await createTransaction({ 
+                    name: nameInput.value.trim() || 'Pengguna',
+                    price: selectedPackage.price,
+                    attempts: selectedPackage.attempts
+                });
+                const token = result.data.token;
+                window.snap.pay(token, {
+                    onSuccess: async () => {
+                        showMessage('Sukses', 'Pembayaran berhasil! Anda mendapat ' + selectedPackage.attempts + ' kali kocok tambahan.');
+                        await addAttempts(selectedPackage.attempts);
+                        confirmPaymentPopup.classList.add('hidden');
+                    },
+                    onPending: () => {
+                        showMessage('Pending', 'Menunggu konfirmasi pembayaran.');
+                        confirmPaymentPopup.classList.add('hidden');
+                    },
+                    onError: (err) => {
+                        console.error('Error:', err);
+                        showMessage('Gagal', 'Pembayaran gagal. Coba lagi nanti.');
+                    },
+                    onClose: () => {
+                        console.log('Popup ditutup');
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error', 'Gagal memproses pembayaran.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Lanjut ke Midtrans";
+            }
+        });
+
+        cancelConfirm.addEventListener('click', () => {
+            confirmPaymentPopup.classList.add('hidden');
+            paymentPopup.classList.remove('hidden');
+        });
+
+        closePaymentPopup.addEventListener('click', () => {
+            paymentPopup.classList.add('hidden');
+        });
+
+        goToPaymentBtn.addEventListener('click', () => {
+            paymentPopup.classList.remove('hidden');
+        });
+
+        function activateTestMode() {
+            showMessage('Mode Uji Coba', '🎉 Anda sekarang premium! (Mode uji coba)');
+            addAttempts(12);
+            paymentPopup.classList.add('hidden');
+        }
+
+        async function addAttempts(count) {
+            if (currentUser) {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                await updateDoc(userDocRef, { 
+                    freeAttemptsLeft: firebase.firestore.FieldValue.increment(count),
+                    isPremium: true
+                });
+                freeAttemptsLeft += count;
+                isPremiumUser = true;
+                shakeBtn.disabled = false;
+                nameInput.dispatchEvent(new Event('input'));
             }
         }
 
@@ -951,50 +1100,6 @@
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
             window.open(whatsappUrl, '_blank');
         });
-
-        closePopupBtn.addEventListener('click', () => paymentPopup.classList.add('hidden'));
-
-        document.getElementById('upgradeBtn').addEventListener('click', async () => {
-            processPayment();
-        });
-
-        goToPaymentBtn.addEventListener('click', async () => {
-            processPayment();
-        });
-
-        async function processPayment() {
-            const upgradeBtn = document.getElementById('upgradeBtn');
-            upgradeBtn.disabled = true;
-            upgradeBtn.textContent = "Memproses...";
-
-            try {
-                const result = await createTransaction({ name: nameInput.value.trim() || 'Pengguna' });
-                const token = result.data.token;
-                window.snap.pay(token, {
-                    onSuccess: () => {
-                        showMessage('Sukses', 'Pembayaran berhasil! Akun Anda telah di-upgrade.');
-                        paymentPopup.classList.add('hidden');
-                    },
-                    onPending: () => {
-                        showMessage('Pending', 'Menunggu konfirmasi pembayaran.');
-                        paymentPopup.classList.add('hidden');
-                    },
-                    onError: (err) => {
-                        console.error('Error pembayaran:', err);
-                        showMessage('Gagal', 'Pembayaran gagal. Silakan coba lagi.');
-                    },
-                    onClose: () => {
-                        console.log('Popup ditutup tanpa pembayaran.');
-                    }
-                });
-            } catch (error) {
-                console.error('Error saat membuat transaksi:', error);
-                showMessage('Error', 'Gagal memproses pembayaran. Cek koneksi atau coba lagi nanti.');
-            } finally {
-                upgradeBtn.disabled = false;
-                upgradeBtn.textContent = "Upgrade Sekarang";
-            }
-        }
 
         termsLink.addEventListener('click', () => termsPopup.classList.remove('hidden'));
         privacyLink.addEventListener('click', () => privacyPopup.classList.remove('hidden'));
