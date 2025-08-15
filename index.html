@@ -1,449 +1,1120 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ramalan Chiamsi</title>
-  <link rel="icon" href="/favicon.ico" />
-  <style>
-    :root { --primary:#b80d1c; --bg:#111; --card:#1a1a1a; --muted:#777; --text:#f3f3f3; }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-    .container{max-width:960px;margin:0 auto;padding:20px}
-    .card{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    h1{margin:0 0 8px;font-size:28px}
-    p.muted{margin:0 0 18px;color:var(--muted)}
-    .row{display:grid;gap:16px}
-    @media(min-width:800px){.row{grid-template-columns:1.2fr .8fr}}
-    .stack{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    label{font-size:14px;color:#bbb}
-    input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #333;background:#111;color:#fff}
-    button{appearance:none;border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;background:#262626;color:#fff}
-    button.primary{background:var(--primary)}
-    button[disabled]{opacity:.5;cursor:not-allowed}
-    .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
-    .pkg{border:1px solid #2a2a2a;border-radius:14px;padding:14px;cursor:pointer;transition:.2s}
-    .pkg:hover{border-color:#444;transform:translateY(-1px)}
-    .hidden{display:none}
-    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#2a2a2a;color:#ddd;font-size:12px}
-    .result-card{background:#121212;border:1px solid #2a2a2a;border-radius:14px;padding:14px}/* Popup */
-.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
-.popup-content{background:#191919;border:1px solid #2b2b2b;border-radius:16px;padding:18px;width:100%;max-width:420px}
-.popup-content h2{margin:0 0 6px}
-.popup-buttons{display:flex;gap:10px;flex-wrap:wrap}
-.form-group{margin:10px 0}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ramalan Chiam Si - PWA</title>
+    <meta name="theme-color" content="#9c1c26">
+    <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
+   <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="favicon-512.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Midtrans Snap.js -->
+    <script type="text/javascript"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="SB-Mid-client-hCnSsq93YoH_kxLO"></script>
 
-/* Simple animations */
-.shake-animation{animation:shake .8s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
-.fall-animation{animation:fall .9s forwards}
-@keyframes fall{0%{opacity:0;transform:translateY(-20px)}100%{opacity:1;transform:translateY(0)}}
-.throw-animation{animation:bounce .8s}
-@keyframes bounce{0%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-
-  </style>
-  <!-- Midtrans Snap.js (SANDBOX). Ganti client-key bila perlu -->
-  <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-hCnSsq93YoH_kxLO"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;600;700&display=swap');
+        :root {
+            --primary-red: #9c1c26;
+            --dark-red: #7a0a14;
+            --gold: #d4af37;
+            --light-gold: #f8ecc2;
+            --dark-gold: #b8860b;
+            --black: #2c2416;
+            --white: #f8f4e9;
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Noto Serif SC', serif;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--primary-red);
+            background-image: linear-gradient(135deg, rgba(122,10,20,.8), rgba(28,5,7,.9));
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(44,36,22,.85);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,.6);
+            border: 3px solid var(--gold);
+            backdrop-filter: blur(5px);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-shadow: 0 3px 5px rgba(0,0,0,.7);
+            cursor: pointer;
+            user-select: none;
+        }
+        .menu {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .menu .btn {
+            background-color: var(--dark-gold);
+            color: var(--black);
+            font-size: 1rem;
+            padding: 10px 20px;
+        }
+        .step {
+            background: rgba(122,10,20,.6);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 2px solid var(--dark-gold);
+        }
+        .step-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            color: var(--gold);
+        }
+        .step-title i {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--black);
+            border: 2px solid var(--gold);
+        }
+        .step-title h2 {
+            font-size: 1.5rem;
+        }
+        .name-input {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--dark-gold);
+            background-color: var(--light-gold);
+            color: var(--black);
+            font-size: 1.1rem;
+        }
+        .ciamsi-shaker-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 220px;
+            position: relative;
+            margin: 20px 0;
+        }
+        .ciamsi-container {
+            width: 100px;
+            height: 180px;
+            position: relative;
+        }
+        .ciamsi-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #6d1a21, #a8323c);
+            border-radius: 15px 15px 10px 10px;
+            border: 4px solid #501015;
+            box-shadow: inset 0 0 15px rgba(0,0,0,.5), 0 10px 20px rgba(0,0,0,.4);
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ciamsi-logo {
+            font-family: var(--font-display);
+            font-size: 50px;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(212,175,55,.5);
+        }
+        .falling-stick {
+            width: 8px;
+            height: 130px;
+            background: linear-gradient(#deb887, #b8860b);
+            border: 1px solid #8B4513;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 180px;
+            opacity: 0;
+            transform-origin: bottom center;
+        }
+        .shake-animation {
+            animation: container-shake .8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes container-shake {
+            10%,90%{transform:translate3d(-1px,0,0) rotate(-1deg)}
+            20%,80%{transform:translate3d(2px,0,0) rotate(2deg)}
+            30%,50%,70%{transform:translate3d(-4px,0,0) rotate(-4deg)}
+            40%,60%{transform:translate3d(4px,0,0) rotate(4deg)}
+        }
+        .fall-animation {
+            animation: stick-fall 1s forwards ease-in;
+        }
+        @keyframes stick-fall {
+            0%{opacity:1;transform:translateY(-180px) translateX(20px) rotate(0)}
+            100%{opacity:1;transform:translateY(220px) translateX(70px) rotate(110deg)}
+        }
+        .puak-poi-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+        }
+        .puak-poi {
+            width: 70px;
+            height: 35px;
+            background: #d2b48c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--black);
+            font-weight: 700;
+            box-shadow: 0 5px 15px rgba(0,0,0,.3);
+        }
+        .throw-animation {
+            animation: throw .8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes throw {
+            0%{transform:translateY(0) rotate(0)}
+            30%{transform:translateY(-80px) rotate(180deg)}
+            70%{transform:translateY(40px) rotate(360deg)}
+            100%{transform:translateY(0) rotate(720deg)}
+        }
+        .btn {
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all .3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,.3);
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: var(--light-gold);
+            transform: translateY(-3px);
+        }
+        .btn:disabled {
+            background: #777;
+            color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .prediction-card {
+            background: var(--white);
+            color: var(--black);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 3px solid var(--gold);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-gold);
+        }
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--primary-red);
+            font-weight: 700;
+        }
+        .card-number {
+            background: var(--gold);
+            color: var(--black);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .prediction-section {
+            margin-bottom: 15px;
+        }
+        .prediction-section h3 {
+            font-family: var(--font-display);
+            color: var(--dark-red);
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--light-gold);
+            padding-bottom: 5px;
+        }
+        .prediction-section p, .prediction-section ul {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        .pedoman-jawaban ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .pedoman-jawaban li {
+            margin-bottom: 5px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .whatsapp-share {
+            background: #25D366;
+            color: #fff;
+        }
+        .whatsapp-share:hover {
+            background: #128c7e;
+        }
+        .download-btn {
+            background-color: var(--dark-red);
+            color: var(--white);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .admin-section, .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .admin-form, .popup-content {
+            background: var(--white);
+            color: var(--black);
+            padding: 30px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0,0,0,.5);
+            text-align: left;
+        }
+        .popup-content-legal {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .admin-form h2, .popup-content h2 {
+            color: var(--dark-red);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .popup-content p {
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .popup-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-direction: column;
+        }
+        .package-option {
+            border: 2px solid var(--gold);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            background: rgba(212,175,55,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .package-option:hover {
+            background: rgba(212,175,55,0.2);
+            transform: translateY(-2px);
+        }
+        .package-option h4 {
+            margin: 0 0 5px 0;
+            color: var(--dark-red);
+        }
+        .package-option p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            color: var(--white);
+        }
+        footer {
+            text-align: center;
+            color: rgba(255,255,255,.7);
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid var(--dark-gold);
+        }
+        footer a {
+            color: var(--light-gold);
+            margin: 0 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>Ramalan Chiamsi</h1>
-      <p class="muted">2x percobaan gratis tanpa login. Untuk lanjut & simpan status premium, masuk dengan email.</p><div class="row">
-    <!-- Left: Game -->
-    <div>
-      <div class="stack">
-        <div style="flex:1">
-          <label for="nameInput">Nama</label>
-          <input id="nameInput" placeholder="Nama kamu" />
+    <!-- Main App Container -->
+    <div id="appContainer" class="container">
+        <!-- Menu Tambahan -->
+        <div class="menu">
+            <button id="goToPayment" class="btn"><i class="fas fa-crown"></i> Upgrade Sekarang</button>
         </div>
-        <button id="shakeBtn" class="primary" disabled>Kocok Chiamsi</button>
-      </div>
 
-      <div id="shakeResult" class="result-card hidden" style="margin-top:12px">
-        <div>Nomor Chiamsi: <strong id="predictionNumber">-</strong></div>
-        <div class="stack" style="margin-top:10px">
-          <button id="throwBtn">Lempar Puakpoi</button>
-          <span class="badge">Lempar: <span id="throwCount">0</span>/3</span>
+        <div class="header">
+            <h1>Ramalan Chiam Si</h1>
+            <p>Petunjuk ilahi untuk langkah hidup Anda</p>
         </div>
-      </div>
-
-      <div id="throwResult" class="result-card hidden" style="margin-top:10px">
-        <div class="stack">
-          <div>Puakpoi 1: <strong id="puakpoi1">-</strong></div>
-          <div>Puakpoi 2: <strong id="puakpoi2">-</strong></div>
+        <div class="step">
+            <div class="step-title">
+                <i class="fas fa-user"></i>
+                <h2>Data Diri</h2>
+            </div>
+            <input type="text" id="nameInput" placeholder="Ketik nama Anda..." class="name-input">
         </div>
-        <div id="throwResultText" style="margin-top:6px">-</div>
-      </div>
-
-      <div id="predictionResult" class="result-card hidden" style="margin-top:10px">
-        <div>Nomor: <strong id="resultNumber">-</strong></div>
-        <div style="margin-top:6px">
-          <div><strong>Sinthio</strong></div>
-          <div id="sinthioText">-</div>
+        <div class="step">
+            <div class="step-title">
+                <i class="fas fa-praying-hands"></i>
+                <h2>Kocok Tabung</h2>
+            </div>
+            <p>Fokuskan pikiran, lalu kocok tabung untuk mendapat nomor ramalan.</p>
+            <div class="ciamsi-shaker-container">
+                <div class="ciamsi-container" id="ciamsiContainer">
+                    <div class="ciamsi-body">
+                        <div class="ciamsi-logo">簽</div>
+                    </div>
+                </div>
+                <div class="falling-stick" id="fallingStick"></div>
+            </div>
+            <div style="text-align: center;">
+                <button id="shakeBtn" class="btn" disabled>
+                    <i class="fas fa-hand-point-right"></i> Kocok
+                </button>
+            </div>
+            <div class="result-container hidden" id="shakeResult" style="text-align:center; margin-top:15px;">
+                <p>Anda mendapatkan nomor ramalan:</p>
+                <div class="result-number" id="predictionNumber" style="font-size: 2rem; font-weight: bold; color: var(--gold);">-</div>
+            </div>
         </div>
-        <div style="margin-top:6px">
-          <div><strong>Syair</strong></div>
-          <div id="syairText">-</div>
+        <div class="step">
+            <div class="step-title">
+                <i class="fas fa-moon"></i>
+                <h2>Lempar Puak Poi</h2>
+            </div>
+            <p>Lemparkan Puak Poi untuk memohon restu dewa.</p>
+            <div class="puak-poi-container">
+                <div class="puak-poi" id="puakpoi1">-</div>
+                <div class="puak-poi" id="puakpoi2">-</div>
+            </div>
+            <div class="throw-counter" style="text-align:center; margin-bottom:15px;">
+                Lemparan ke: <span id="throwCount">0</span>/3
+            </div>
+            <div style="text-align: center;">
+                <button id="throwBtn" class="btn" disabled>
+                    <i class="fas fa-hand-point-right"></i> Lempar
+                </button>
+            </div>
+            <div class="result-container hidden" id="throwResult" style="text-align:center; margin-top:15px;">
+                <p id="throwResultText">Hasil lemparan: -</p>
+            </div>
         </div>
-        <div style="margin-top:6px">
-          <div><strong>Selayang Pandang</strong></div>
-          <div id="selayangPandangText">-</div>
+        <div class="hidden" id="predictionResult">
+            <div class="prediction-card" id="predictionCard">
+                <div class="card-header">
+                    <div class="card-title">Hasil Ramalan</div>
+                    <div class="card-number" id="resultNumber">-</div>
+                </div>
+                <div class="prediction-section">
+                    <h3>Makna Lambang / Sinthio</h3>
+                    <p id="sinthioText">-</p>
+                </div>
+                <div class="prediction-section">
+                    <h3>Bunyi Syair</h3>
+                    <p id="syairText">-</p>
+                </div>
+                <div class="prediction-section">
+                    <h3>Selayang Pandang</h3>
+                    <p id="selayangPandangText">-</p>
+                </div>
+                <div class="prediction-section pedoman-jawaban">
+                    <h3>Pedoman Jawaban</h3>
+                    <ul id="pedomanList"></ul>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <a href="#" class="btn whatsapp-share" id="whatsappShare">
+                    <i class="fab fa-whatsapp"></i> Bagikan
+                </a>
+                <button class="btn download-btn" id="downloadBtn">
+                    <i class="fas fa-download"></i> Unduh
+                </button>
+            </div>
         </div>
-        <div style="margin-top:6px">
-          <div><strong>Pedoman</strong></div>
-          <ul id="pedomanList" style="margin:6px 0 0 18px"></ul>
-        </div>
-      </div>
     </div>
 
-    <!-- Right: Paket & Status -->
-    <div>
-      <div class="result-card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <strong>Paket Kocok</strong>
-          <button id="goToPayment" class="primary">Upgrade</button>
+    <!-- Admin & Popup Sections -->
+    <div id="adminLoginSection" class="admin-section hidden">
+        <div class="admin-form">
+            <h2>Login Admin</h2>
+            <div class="form-group">
+                <label for="adminEmail">Email</label>
+                <input type="email" id="adminEmail" placeholder="admin@email.com">
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="******">
+            </div>
+            <button id="loginBtn" class="btn" style="width: 100%;">Login</button>
         </div>
-        <div class="grid" style="margin-top:10px">
-          <div class="pkg package-option" data-attempts="5" data-price="25000">
-            <div><strong>5x Kocok</strong></div>
-            <div class="muted">Rp 25.000</div>
-          </div>
-          <div class="pkg package-option" data-attempts="12" data-price="50000">
-            <div><strong>12x Kocok</strong></div>
-            <div class="muted">Rp 50.000</div>
-          </div>
-          <div class="pkg" id="testModeBtn">
-            <div><strong>Mode Uji</strong></div>
-            <div class="muted">Gratis premium (dev)</div>
-          </div>
+    </div>
+    <div id="adminCmsSection" class="container hidden" style="margin-top: 20px;">
+        <h2>CMS Ramalan Chiam Si <button id="logoutBtn" class="btn" style="float: right;">Logout</button></h2>
+        <div class="form-group">
+            <label for="ramalanNumberSelect">Pilih Nomor Ramalan</label>
+            <select id="ramalanNumberSelect"></select>
         </div>
-      </div>
+        <div class="form-group">
+            <label for="sinthioInput">Makna Lambang / Sinthio</label>
+            <textarea id="sinthioInput"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="syairInput">Bunyi Syair</label>
+            <textarea id="syairInput"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="selayangPandangInput">Selayang Pandang</label>
+            <textarea id="selayangPandangInput"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="pedomanInput">Pedoman Jawaban (satu per baris)</label>
+            <textarea id="pedomanInput" placeholder="PERDAGANGAN BERJALAN BIASA&#10;MENCARI HARTA BANYAK KOSONG"></textarea>
+        </div>
+        <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
     </div>
-  </div>
 
-</div>
+    <!-- Popup Pilihan Pembayaran -->
+    <div id="paymentPopup" class="popup-overlay hidden">
+        <div class="popup-content" style="max-width: 600px;">
+            <h2>Upgrade ke Premium</h2>
+            <p>Pilih paket untuk melanjutkan ramalan tanpa batas:</p>
 
-  </div>  <!-- Popup: Payment pilih paket (sudah ada tombol Upgrade juga) -->  <div id="paymentPopup" class="popup-overlay hidden">
-    <div class="popup-content">
-      <h2>Pilih Paket</h2>
-      <p class="muted">Silakan pilih paket untuk menambah kesempatan kocok.</p>
-      <div class="grid">
-        <button class="pkg package-option" data-attempts="5" data-price="25000">5x – Rp 25.000</button>
-        <button class="pkg package-option" data-attempts="12" data-price="50000">12x – Rp 50.000</button>
-        <button class="pkg" id="testModeBtn2">Mode Uji (Premium)</button>
-      </div>
-      <div class="popup-buttons" style="margin-top:10px">
-        <button id="closePaymentPopup">Tutup</button>
-      </div>
+            <div class="package-option" data-attempts="5" data-price="25000">
+                <h4>🎯 Paket 5 Kali Kocok</h4>
+                <p><strong>Harga: Rp 25.000</strong></p>
+                <p>Cocok untuk penggunaan sekali waktu.</p>
+            </div>
+
+            <div class="package-option" data-attempts="12" data-price="50000">
+                <h4>🚀 Paket 12 Kali Kocok</h4>
+                <p><strong>Harga: Rp 50.000</strong></p>
+                <p>Lebih hemat! Ideal untuk pengguna aktif.</p>
+            </div>
+
+            <div class="package-option" id="testModeBtn">
+                <h4>🧪 Mode Uji Coba (Gratis)</h4>
+                <p><strong>Simulasi pembayaran berhasil</strong></p>
+                <p>Untuk testing dan demo.</p>
+            </div>
+
+            <div class="popup-buttons" style="margin-top: 20px;">
+                <button id="closePaymentPopup" class="btn" style="background-color: var(--dark-red); color: var(--white);">
+                    Batal
+                </button>
+            </div>
+        </div>
     </div>
-  </div>  <!-- Popup: Konfirmasi sebelum Snap -->  <div id="confirmPaymentPopup" class="popup-overlay hidden">
-    <div class="popup-content">
-      <h2>Konfirmasi Pembayaran</h2>
-      <p>Anda akan membeli paket <strong><span id="attemptsDisplay">-</span>x</strong> seharga <strong>Rp <span id="priceDisplay">-</span></strong>.</p>
-      <div class="popup-buttons">
-        <button id="confirmRealPayment" class="primary">Lanjut ke Midtrans</button>
-        <button id="cancelConfirm">Batal</button>
-      </div>
+
+    <!-- Popup Konfirmasi Pembayaran -->
+    <div id="confirmPaymentPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h2>Proses Pembayaran</h2>
+            <p id="confirmText">Anda akan membayar <strong>Rp <span id="priceDisplay">0</span></strong> untuk <span id="attemptsDisplay">0</span> kali kocok tambahan.</p>
+            <div class="popup-buttons">
+                <button id="confirmRealPayment" class="btn">Lanjut ke Midtrans</button>
+                <button id="cancelConfirm" class="btn" style="background-color: var(--dark-red); color: var(--white);">Batal</button>
+            </div>
+        </div>
     </div>
-  </div>  <!-- Popup: Pesan umum -->  <div id="messagePopup" class="popup-overlay hidden">
-    <div class="popup-content">
-      <h2 id="messageTitle">Info</h2>
-      <p id="messageText">-</p>
-      <div class="popup-buttons">
-        <button id="closeMessageBtn" class="primary">OK</button>
-      </div>
+
+    <!-- Message Popup -->
+    <div id="messagePopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h2 id="messageTitle">Pemberitahuan</h2>
+            <p id="messageText"></p>
+            <div class="popup-buttons">
+                <button id="closeMessageBtn" class="btn">Tutup</button>
+            </div>
+        </div>
     </div>
-  </div>  <!-- Popup Login User (email/password) -->  <div id="userAuthPopup" class="popup-overlay hidden">
-    <div class="popup-content" style="max-width:520px">
-      <h2>Masuk untuk Lanjut</h2>
-      <p class="muted">Buat akun atau masuk agar status premium & kuota tersimpan.</p>
-      <div class="form-group">
-        <label for="userEmail">Email</label>
-        <input id="userEmail" type="email" placeholder="you@example.com" />
-      </div>
-      <div class="form-group">
-        <label for="userPassword">Password</label>
-        <input id="userPassword" type="password" placeholder="••••••••" />
-      </div>
-      <div class="popup-buttons" style="margin-top:10px">
-        <button id="userRegisterBtn" class="primary">Daftar & Lanjut</button>
-        <button id="userLoginBtn">Masuk</button>
-        <button id="userAuthCloseBtn">Batal</button>
-      </div>
+
+    <!-- Legal Popups -->
+    <div id="termsPopup" class="popup-overlay hidden">
+        <div class="popup-content popup-content-legal">
+            <h2>Syarat & Ketentuan</h2>
+            <p style="text-align:left;">Selamat datang di aplikasi Ramalan Chiam Si...</p>
+            <div class="popup-buttons" style="margin-top:20px;">
+                <button class="btn close-popup-btn">Tutup</button>
+            </div>
+        </div>
     </div>
-  </div>  <!-- Firebase App -->  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, browserLocalPersistence, setPersistence, linkWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
+    <div id="privacyPopup" class="popup-overlay hidden">
+        <div class="popup-content popup-content-legal">
+            <h2>Kebijakan Privasi</h2>
+            <p style="text-align:left;">Kami menghargai privasi Anda...</p>
+            <div class="popup-buttons" style="margin-top:20px;">
+                <button class="btn close-popup-btn">Tutup</button>
+            </div>
+        </div>
+    </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBzYog6EbRLen7pg2aITsf5utEXQUVP3n0",
-      authDomain: "ramalan-chiamsi-df5b0.firebaseapp.com",
-      projectId: "ramalan-chiamsi-df5b0",
-      storageBucket: "ramalan-chiamsi-df5b0.appspot.com",
-      messagingSenderId: "152505108899",
-      appId: "1:152505108899:web:b1e2e90ac2d7e722997216"
-    };
+    <!-- Footer Aplikasi -->
+    <footer>
+        <p>&copy; 2025 Ramalan Chiam Si. All Rights Reserved.</p>
+        <div style="margin-top: 10px;">
+            <a id="termsLink">Syarat & Ketentuan</a> |
+            <a id="privacyLink">Kebijakan Privasi</a> |
+            <a href="mailto:dukungan.chiamsi@email.com">Kontak Kami</a>
+        </div>
+    </footer>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const functions = getFunctions(app);
-    const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Firebase & App Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
-    // ==== DOM ====
-    const nameInput = document.getElementById('nameInput');
-    const shakeBtn = document.getElementById('shakeBtn');
-    const throwBtn = document.getElementById('throwBtn');
-    const shakeResult = document.getElementById('shakeResult');
-    const predictionNumber = document.getElementById('predictionNumber');
-    const throwResult = document.getElementById('throwResult');
-    const throwResultText = document.getElementById('throwResultText');
-    const predictionResult = document.getElementById('predictionResult');
-    const puakpoi1 = document.getElementById('puakpoi1');
-    const puakpoi2 = document.getElementById('puakpoi2');
-    const throwCountElement = document.getElementById('throwCount');
-    const resultNumber = document.getElementById('resultNumber');
-    const sinthioText = document.getElementById('sinthioText');
-    const syairText = document.getElementById('syairText');
-    const selayangPandangText = document.getElementById('selayangPandangText');
-    const pedomanList = document.getElementById('pedomanList');
-    const paymentPopup = document.getElementById('paymentPopup');
-    const confirmPaymentPopup = document.getElementById('confirmPaymentPopup');
-    const closePaymentPopup = document.getElementById('closePaymentPopup');
-    const confirmRealPayment = document.getElementById('confirmRealPayment');
-    const cancelConfirm = document.getElementById('cancelConfirm');
-    const goToPaymentBtn = document.getElementById('goToPayment');
-    const priceDisplay = document.getElementById('priceDisplay');
-    const attemptsDisplay = document.getElementById('attemptsDisplay');
-    const testModeBtn2 = document.getElementById('testModeBtn2');
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzYog6EbRLen7pg2aITsf5utEXQUVP3n0",
+            authDomain: "ramalan-chiamsi-df5b0.firebaseapp.com",
+            projectId: "ramalan-chiamsi-df5b0",
+            storageBucket: "ramalan-chiamsi-df5b0.appspot.com",
+            messagingSenderId: "152505108899",
+            appId: "1:152505108899:web:b1e2e90ac2d7e722997216"
+        };
 
-    // Popup Login User
-    const userAuthPopup = document.getElementById('userAuthPopup');
-    const userEmail = document.getElementById('userEmail');
-    const userPassword = document.getElementById('userPassword');
-    const userRegisterBtn = document.getElementById('userRegisterBtn');
-    const userLoginBtn = document.getElementById('userLoginBtn');
-    const userAuthCloseBtn = document.getElementById('userAuthCloseBtn');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const functions = getFunctions(app);
+        const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
 
-    // Message popup
-    const messagePopup = document.getElementById('messagePopup');
-    const messageTitle = document.getElementById('messageTitle');
-    const messageText = document.getElementById('messageText');
-    const closeMessageBtn = document.getElementById('closeMessageBtn');
-    function showMessage(title, text){ messageTitle.textContent=title; messageText.textContent=text; messagePopup.classList.remove('hidden'); }
-    closeMessageBtn.addEventListener('click',()=>messagePopup.classList.add('hidden'));
+        // DOM Elements
+        const appContainer = document.getElementById('appContainer');
+        const adminLoginSection = document.getElementById('adminLoginSection');
+        const adminCmsSection = document.getElementById('adminCmsSection');
+        const nameInput = document.getElementById('nameInput');
+        const shakeBtn = document.getElementById('shakeBtn');
+        const throwBtn = document.getElementById('throwBtn');
+        const shakeResult = document.getElementById('shakeResult');
+        const predictionNumber = document.getElementById('predictionNumber');
+        const throwResult = document.getElementById('throwResult');
+        const throwResultText = document.getElementById('throwResultText');
+        const predictionResult = document.getElementById('predictionResult');
+        const ciamsiContainer = document.getElementById('ciamsiContainer');
+        const fallingStick = document.getElementById('fallingStick');
+        const puakpois = [document.getElementById('puakpoi1'), document.getElementById('puakpoi2')];
+        const throwCountElement = document.getElementById('throwCount');
+        const resultNumber = document.getElementById('resultNumber');
+        const sinthioText = document.getElementById('sinthioText');
+        const syairText = document.getElementById('syairText');
+        const selayangPandangText = document.getElementById('selayangPandangText');
+        const pedomanList = document.getElementById('pedomanList');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const ramalanNumberSelect = document.getElementById('ramalanNumberSelect');
+        const sinthioInput = document.getElementById('sinthioInput');
+        const syairInput = document.getElementById('syairInput');
+        const selayangPandangInput = document.getElementById('selayangPandangInput');
+        const pedomanInput = document.getElementById('pedomanInput');
+        const saveBtn = document.getElementById('saveBtn');
+        const paymentPopup = document.getElementById('paymentPopup');
+        const confirmPaymentPopup = document.getElementById('confirmPaymentPopup');
+        const closePaymentPopup = document.getElementById('closePaymentPopup');
+        const confirmRealPayment = document.getElementById('confirmRealPayment');
+        const cancelConfirm = document.getElementById('cancelConfirm');
+        const messagePopup = document.getElementById('messagePopup');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        const closeMessageBtn = document.getElementById('closeMessageBtn');
+        const termsPopup = document.getElementById('termsPopup');
+        const privacyPopup = document.getElementById('privacyPopup');
+        const termsLink = document.getElementById('termsLink');
+        const privacyLink = document.getElementById('privacyLink');
+        const closePopupBtns = document.querySelectorAll('.close-popup-btn');
+        const goToPaymentBtn = document.getElementById('goToPayment');
+        const testModeBtn = document.getElementById('testModeBtn');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const attemptsDisplay = document.getElementById('attemptsDisplay');
 
-    // ==== State ====
-    let currentUser = null;
-    let selectedPackage = null;
-    let unsubscribeUserListener = null;
-    let isPremiumUser = false;
-    let freeAttemptsLeft = 2;
-    const maxThrowsFree = 3;
-    let currentPredictionNumberState = null;
-    let throwCount = 0;
+        let currentUser = null;
+        let currentPredictionNumberState = null;
+        let throwCount = 0;
+        const maxThrowsFree = 3;
+        let isPremiumUser = false;
+        let freeAttemptsLeft = 2;
+        let selectedPackage = null;
+        let unsubscribeUserListener = null;
 
-    // ==== Auth persistence + anon flow ====
-    await setPersistence(auth, browserLocalPersistence);
-
-    onAuthStateChanged(auth, async (user)=>{
-      currentUser = user;
-      if (!user){ await signInAnonymously(auth); return; }
-      await setupUserDocAndListener(user.uid);
-      // enable name field logic
-      shakeBtn.disabled = (nameInput.value.trim()==='') || (freeAttemptsLeft<=0 && !isPremiumUser);
-    });
-
-    async function setupUserDocAndListener(uid){
-      if (unsubscribeUserListener) unsubscribeUserListener();
-      const userDocRef = doc(db,'users',uid);
-      const snap = await getDoc(userDocRef);
-      if (!snap.exists()){
-        await setDoc(userDocRef,{ isPremium:false, freeAttemptsLeft:2, createdAt:serverTimestamp() });
-      }
-      unsubscribeUserListener = onSnapshot(userDocRef,(d)=>{
-        if (!d.exists()) return;
-        const data = d.data();
-        isPremiumUser = !!data.isPremium;
-        freeAttemptsLeft = typeof data.freeAttemptsLeft==='number' ? data.freeAttemptsLeft : 0;
-        if (freeAttemptsLeft<=0 && !isPremiumUser){ shakeBtn.disabled = true; }
-      });
-    }
-
-    // ==== Game logic (ringkas) ====
-    function resetState(){
-      if (isPremiumUser || freeAttemptsLeft>0){
-        throwCount = 0; throwCountElement.textContent = throwCount;
-        throwBtn.disabled = true;
-        shakeResult.classList.add('hidden');
-        throwResult.classList.add('hidden');
-        predictionResult.classList.add('hidden');
-        puakpoi1.textContent='-'; puakpoi2.textContent='-';
-        currentPredictionNumberState = null;
-        shakeBtn.disabled = (nameInput.value.trim()==='');
-      } else {
-        showMessage('Akses Dibatasi','Kesempatan uji coba habis. Silakan upgrade.');
-      }
-    }
-
-    nameInput.addEventListener('input',()=>{
-      if (predictionResult.classList.contains('hidden')){
-        shakeBtn.disabled = nameInput.value.trim()==='' || (freeAttemptsLeft<=0 && !isPremiumUser);
-      }
-    });
-
-    shakeBtn.addEventListener('click',()=>{
-      if (freeAttemptsLeft<=0 && !isPremiumUser){ paymentPopup.classList.remove('hidden'); return; }
-      resetState();
-      const container = document.querySelector('.card');
-      container.classList.add('shake-animation');
-      setTimeout(()=>{
-        container.classList.remove('shake-animation');
-        const randomNumber = Math.floor(Math.random()*100)+1;
-        predictionNumber.textContent = randomNumber;
-        currentPredictionNumberState = randomNumber;
-        shakeResult.classList.remove('hidden');
-        throwBtn.disabled = false;
-      },800);
-    });
-
-    throwBtn.addEventListener('click', async ()=>{
-      throwBtn.disabled = true; throwCount++; throwCountElement.textContent = throwCount;
-      puakpoi1.classList.add('throw-animation'); puakpoi2.classList.add('throw-animation');
-      setTimeout(async ()=>{
-        const confirmed = Math.random() > 0.5;
-        puakpoi1.textContent = confirmed ? '凹' : '凸';
-        puakpoi2.textContent = confirmed ? '凸' : '凹';
-        if (confirmed){ await showPrediction(); }
-        else {
-          if (!isPremiumUser && throwCount>=maxThrowsFree){
-            paymentPopup.classList.remove('hidden');
-            throwResultText.textContent = 'Batas lemparan tercapai.';
-          } else {
-            throwResultText.textContent = 'Belum direstui. Coba lagi.';
-            throwBtn.disabled = false;
-          }
-          throwResult.classList.remove('hidden');
+        function showMessage(title, text) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messagePopup.classList.remove('hidden');
         }
-        puakpoi1.classList.remove('throw-animation'); puakpoi2.classList.remove('throw-animation');
-      },850);
-    });
 
-    async function showPrediction(){
-      if (!currentPredictionNumberState) return;
-      const docRef = doc(db,'ramalan',String(currentPredictionNumberState));
-      const snap = await getDoc(docRef);
-      if (snap.exists()){
-        const data = snap.data();
-        resultNumber.textContent = data.nomor || currentPredictionNumberState;
-        sinthioText.textContent = data.sinthio || 'Data belum diisi.';
-        syairText.textContent = data.syair || 'Data belum diisi.';
-        selayangPandangText.textContent = data.selayangPandang || 'Data belum diisi.';
-        pedomanList.innerHTML='';
-        (data.pedoman||[]).forEach(it=>{ const li=document.createElement('li'); li.textContent=it; pedomanList.appendChild(li); });
-        predictionResult.classList.remove('hidden');
-        shakeBtn.disabled = true;
-        if (!isPremiumUser){
-          const userDocRef = doc(db,'users',currentUser.uid);
-          await updateDoc(userDocRef,{ freeAttemptsLeft: increment(-1) });
-          freeAttemptsLeft -= 1;
-          if (freeAttemptsLeft<=0){ setTimeout(()=>paymentPopup.classList.remove('hidden'),1200); }
-          else { shakeBtn.disabled = false; }
+        closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
+
+        async function setupUserAndListener(userId) {
+            if (unsubscribeUserListener) unsubscribeUserListener();
+
+            const userDocRef = doc(db, "users", userId);
+            try {
+                const docSnap = await getDoc(userDocRef);
+                if (!docSnap.exists()) {
+                    await setDoc(userDocRef, { 
+                        isPremium: false, 
+                        freeAttemptsLeft: 2, 
+                        createdAt: serverTimestamp() 
+                    });
+                }
+            } catch (e) {
+                console.error("Gagal inisialisasi user:", e);
+            }
+
+            unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    isPremiumUser = data.isPremium === true;
+                    freeAttemptsLeft = data.freeAttemptsLeft || 2;
+
+                    if (freeAttemptsLeft <= 0 && !isPremiumUser) {
+                        shakeBtn.disabled = true;
+                    }
+                    if (isPremiumUser) {
+                        paymentPopup.classList.add('hidden');
+                    }
+                }
+            });
         }
-      } else {
-        showMessage('Data Kosong',`Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
-        predictionResult.classList.add('hidden');
-        shakeBtn.disabled = false;
-      }
-    }
 
-    // ===== Upgrade / Pembayaran =====
-    function openPaymentOrLogin(){
-      if (!auth.currentUser || auth.currentUser.isAnonymous){ userAuthPopup.classList.remove('hidden'); }
-      else { paymentPopup.classList.remove('hidden'); }
-    }
-    document.getElementById('testModeBtn').addEventListener('click',()=>activateTestMode());
-    testModeBtn2.addEventListener('click',()=>activateTestMode());
-    goToPaymentBtn.addEventListener('click',openPaymentOrLogin);
-
-    document.querySelectorAll('.package-option').forEach(pkg=>{
-      pkg.addEventListener('click',()=>{
-        if (pkg.id==='testModeBtn' || pkg.id==='testModeBtn2'){ activateTestMode(); return; }
-        selectedPackage = { attempts: parseInt(pkg.getAttribute('data-attempts')), price: parseInt(pkg.getAttribute('data-price')) };
-        priceDisplay.textContent = selectedPackage.price.toLocaleString();
-        attemptsDisplay.textContent = selectedPackage.attempts;
-        confirmPaymentPopup.classList.remove('hidden');
-        paymentPopup.classList.add('hidden');
-      });
-    });
-
-    confirmRealPayment.addEventListener('click', async ()=>{
-      if (!auth.currentUser || auth.currentUser.isAnonymous){
-        confirmPaymentPopup.classList.add('hidden');
-        userAuthPopup.classList.remove('hidden');
-        return;
-      }
-      const btn = confirmRealPayment; btn.disabled = true; btn.textContent = 'Memproses...';
-      try {
-        const result = await createTransaction({ name: nameInput.value.trim()||'Pengguna', price: selectedPackage.price, attempts: selectedPackage.attempts });
-        const token = result.data.token;
-        window.snap.pay(token, {
-          onSuccess: async ()=>{ showMessage('Sukses',`Pembayaran berhasil! +${selectedPackage.attempts} kali kocok.`); await addAttempts(selectedPackage.attempts); confirmPaymentPopup.classList.add('hidden'); },
-          onPending: ()=>{ showMessage('Pending','Menunggu konfirmasi pembayaran.'); confirmPaymentPopup.classList.add('hidden'); },
-          onError: (err)=>{ console.error(err); showMessage('Gagal','Pembayaran gagal. Coba lagi.'); },
-          onClose: ()=>{}
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                checkUrlHash();
+            } else {
+                signInAnonymously(auth).catch(error => {
+                    console.error("Gagal login anonim:", error);
+                    showMessage('Error', 'Gagal memuat aplikasi.');
+                });
+            }
         });
-      } catch(e){ console.error(e); showMessage('Error','Gagal memproses pembayaran.'); }
-      finally{ btn.disabled=false; btn.textContent='Lanjut ke Midtrans'; }
-    });
 
-    async function addAttempts(count){
-      if (!auth.currentUser) return;
-      const userDocRef = doc(db,'users',auth.currentUser.uid);
-      await updateDoc(userDocRef,{ freeAttemptsLeft: increment(count), isPremium:true });
-    }
-
-    function activateTestMode(){ showMessage('Mode Uji','🎉 Premium aktif (dev)'); addAttempts(12); paymentPopup.classList.add('hidden'); }
-
-    // Close popups
-    document.getElementById('closePaymentPopup').addEventListener('click',()=>paymentPopup.classList.add('hidden'));
-    cancelConfirm.addEventListener('click',()=>{ confirmPaymentPopup.classList.add('hidden'); paymentPopup.classList.remove('hidden'); });
-
-    // ===== Popup Login User =====
-    userAuthCloseBtn.addEventListener('click',()=>userAuthPopup.classList.add('hidden'));
-
-    userRegisterBtn.addEventListener('click', async ()=>{
-      const email=(userEmail.value||'').trim(); const pass=(userPassword.value||'').trim();
-      if(!email||!pass){ showMessage('Error','Email & password wajib diisi.'); return; }
-      try{
-        if (auth.currentUser && auth.currentUser.isAnonymous){
-          const cred = EmailAuthProvider.credential(email,pass);
-          await linkWithCredential(auth.currentUser,cred);
-        } else {
-          await createUserWithEmailAndPassword(auth,email,pass);
+        function checkUrlHash() {
+            const isAdminPage = window.location.hash === '#admin';
+            if (isAdminPage) {
+                appContainer.classList.add('hidden');
+                if (currentUser && !currentUser.isAnonymous) {
+                    adminCmsSection.classList.remove('hidden');
+                    adminLoginSection.classList.add('hidden');
+                    initCms();
+                } else {
+                    adminLoginSection.classList.remove('hidden');
+                    adminCmsSection.classList.add('hidden');
+                }
+            } else {
+                appContainer.classList.remove('hidden');
+                adminLoginSection.classList.add('hidden');
+                adminCmsSection.classList.add('hidden');
+                if (currentUser && currentUser.isAnonymous) {
+                    setupUserAndListener(currentUser.uid);
+                }
+            }
         }
-        userAuthPopup.classList.add('hidden');
-        paymentPopup.classList.remove('hidden');
-      }catch(e){ showMessage('Gagal Daftar', e.message); }
-    });
 
-    userLoginBtn.addEventListener('click', async ()=>{
-      const email=(userEmail.value||'').trim(); const pass=(userPassword.value||'').trim();
-      if(!email||!pass){ showMessage('Error','Email & password wajib diisi.'); return; }
-      try{
-        if (auth.currentUser && auth.currentUser.isAnonymous){
-          try{ const cred = EmailAuthProvider.credential(email,pass); await linkWithCredential(auth.currentUser,cred); }
-          catch{ await signInWithEmailAndPassword(auth,email,pass); }
-        } else {
-          await signInWithEmailAndPassword(auth,email,pass);
+        window.addEventListener('hashchange', checkUrlHash);
+        window.addEventListener('load', checkUrlHash);
+
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            if (!email || !password) {
+                showMessage('Error', 'Email dan password wajib diisi.');
+                return;
+            }
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => checkUrlHash())
+                .catch(error => showMessage('Login Gagal', error.message));
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.hash = '';
+                checkUrlHash();
+            });
+        });
+
+        async function initCms() {
+            if (ramalanNumberSelect.options.length > 0) return;
+            for (let i = 1; i <= 100; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Nomor ${i}`;
+                ramalanNumberSelect.appendChild(option);
+            }
+            loadRamalanData(1);
         }
-        userAuthPopup.classList.add('hidden');
-        paymentPopup.classList.remove('hidden');
-      }catch(e){ showMessage('Gagal Masuk', e.message); }
-    });
-  </script></body>
+
+        ramalanNumberSelect.addEventListener('change', (e) => loadRamalanData(e.target.value));
+
+        async function loadRamalanData(number) {
+            try {
+                const docRef = doc(db, "ramalan", String(number));
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    sinthioInput.value = data.sinthio || '';
+                    syairInput.value = data.syair || '';
+                    selayangPandangInput.value = data.selayangPandang || '';
+                    pedomanInput.value = (data.pedoman || []).join('\n');
+                } else {
+                    sinthioInput.value = ''; syairInput.value = ''; selayangPandangInput.value = ''; pedomanInput.value = '';
+                }
+            } catch (error) {
+                showMessage('Error', 'Gagal memuat data ramalan.');
+            }
+        }
+
+        saveBtn.addEventListener('click', async () => {
+            const number = ramalanNumberSelect.value;
+            const dataToSave = {
+                nomor: parseInt(number),
+                sinthio: sinthioInput.value,
+                syair: syairInput.value,
+                selayangPandang: selayangPandangInput.value,
+                pedoman: pedomanInput.value.split('\n').filter(line => line.trim() !== '')
+            };
+            try {
+                await setDoc(doc(db, "ramalan", number), dataToSave);
+                showMessage('Sukses', `Data untuk nomor ${number} berhasil disimpan.`);
+            } catch (error) {
+                showMessage('Error', 'Gagal menyimpan data.');
+            }
+        });
+
+        function resetState() {
+            if (isPremiumUser || freeAttemptsLeft > 0) {
+                throwCount = 0;
+                throwCountElement.textContent = throwCount;
+                throwBtn.disabled = true;
+                shakeResult.classList.add('hidden');
+                throwResult.classList.add('hidden');
+                predictionResult.classList.add('hidden');
+                puakpois.forEach(p => p.textContent = '-');
+                currentPredictionNumberState = null;
+                shakeBtn.disabled = (nameInput.value.trim() === '');
+            } else {
+                showMessage('Akses Dibatasi', 'Anda telah menggunakan semua kesempatan uji coba. Silakan upgrade untuk sesi baru.');
+            }
+        }
+
+        nameInput.addEventListener('input', () => {
+            if (predictionResult.classList.contains('hidden')) {
+                shakeBtn.disabled = nameInput.value.trim() === '' || (freeAttemptsLeft <= 0 && !isPremiumUser);
+            }
+        });
+
+        shakeBtn.addEventListener('click', () => {
+            if (freeAttemptsLeft <= 0 && !isPremiumUser) {
+                paymentPopup.classList.remove('hidden');
+                return;
+            }
+
+            resetState();
+
+            ciamsiContainer.classList.add('shake-animation');
+            fallingStick.classList.remove('fall-animation');
+            fallingStick.style.opacity = 0;
+
+            setTimeout(() => {
+                ciamsiContainer.classList.remove('shake-animation');
+                fallingStick.classList.add('fall-animation');
+                const randomNumber = Math.floor(Math.random() * 100) + 1;
+                predictionNumber.textContent = randomNumber;
+                currentPredictionNumberState = randomNumber;
+                shakeResult.classList.remove('hidden');
+                throwBtn.disabled = false;
+            }, 800);
+        });
+
+        throwBtn.addEventListener('click', async () => {
+            throwBtn.disabled = true;
+            throwCount++;
+            throwCountElement.textContent = throwCount;
+
+            puakpois.forEach(poi => {
+                poi.textContent = '';
+                poi.classList.add('throw-animation');
+                setTimeout(() => poi.classList.remove('throw-animation'), 800);
+            });
+
+            setTimeout(async () => {
+                let isConfirmed = false;
+                if (freeAttemptsLeft >= 2) {
+                    isConfirmed = true;
+                    puakpois[0].textContent = '凹';
+                    puakpois[1].textContent = '凸';
+                } else {
+                    const result1 = Math.round(Math.random());
+                    const result2 = Math.round(Math.random());
+                    puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
+                    puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
+                    isConfirmed = result1 !== result2;
+                }
+
+                if (isConfirmed) {
+                    throwResultText.textContent = freeAttemptsLeft >= 2 ? 'Hasil: Direstui Dewa! (Percobaan 1/2)' : 'Hasil: Direstui Dewa!';
+                    throwResult.classList.remove('hidden');
+                    await showPrediction();
+                } else {
+                    if (!isPremiumUser && throwCount >= maxThrowsFree) {
+                        paymentPopup.classList.remove('hidden');
+                        throwResultText.textContent = 'Batas lemparan tercapai.';
+                    } else {
+                        throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
+                        throwBtn.disabled = false;
+                    }
+                    throwResult.classList.remove('hidden');
+                }
+            }, 900);
+        });
+
+        async function showPrediction() {
+            if (!currentPredictionNumberState) return;
+
+            const docRef = doc(db, "ramalan", String(currentPredictionNumberState));
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    resultNumber.textContent = data.nomor || currentPredictionNumberState;
+                    sinthioText.textContent = data.sinthio || 'Data belum diisi.';
+                    syairText.textContent = data.syair || 'Data belum diisi.';
+                    selayangPandangText.textContent = data.selayangPandang || 'Data belum diisi.';
+                    pedomanList.innerHTML = '';
+                    (data.pedoman || []).forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        pedomanList.appendChild(li);
+                    });
+                    predictionResult.classList.remove('hidden');
+                    shakeBtn.disabled = true;
+
+                    if (!isPremiumUser) {
+                        const userDocRef = doc(db, "users", currentUser.uid);
+                        await updateDoc(userDocRef, { freeAttemptsLeft: freeAttemptsLeft - 1 });
+                        freeAttemptsLeft--;
+
+                        if (freeAttemptsLeft <= 0) {
+                            setTimeout(() => {
+                                paymentPopup.classList.remove('hidden');
+                            }, 1500);
+                        } else {
+                            shakeBtn.disabled = false;
+                        }
+                    }
+                } else {
+                    showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
+                    predictionResult.classList.add('hidden');
+                    shakeBtn.disabled = false;
+                }
+            } catch (error) {
+                showMessage('Error', 'Gagal mengambil data.');
+            }
+        }
+
+        // Pilih Paket
+        document.querySelectorAll('.package-option').forEach(pkg => {
+            pkg.addEventListener('click', () => {
+                if (pkg.id === 'testModeBtn') {
+                    activateTestMode();
+                    return;
+                }
+                selectedPackage = {
+                    attempts: parseInt(pkg.getAttribute('data-attempts')),
+                    price: parseInt(pkg.getAttribute('data-price'))
+                };
+                priceDisplay.textContent = selectedPackage.price.toLocaleString();
+                attemptsDisplay.textContent = selectedPackage.attempts;
+                confirmPaymentPopup.classList.remove('hidden');
+                paymentPopup.classList.add('hidden');
+            });
+        });
+
+        confirmRealPayment.addEventListener('click', async () => {
+            const btn = confirmRealPayment;
+            btn.disabled = true;
+            btn.textContent = "Memproses...";
+
+            try {
+                const result = await createTransaction({ 
+                    name: nameInput.value.trim() || 'Pengguna',
+                    price: selectedPackage.price,
+                    attempts: selectedPackage.attempts
+                });
+                const token = result.data.token;
+                window.snap.pay(token, {
+                    onSuccess: async () => {
+                        showMessage('Sukses', 'Pembayaran berhasil! Anda mendapat ' + selectedPackage.attempts + ' kali kocok tambahan.');
+                        await addAttempts(selectedPackage.attempts);
+                        confirmPaymentPopup.classList.add('hidden');
+                    },
+                    onPending: () => {
+                        showMessage('Pending', 'Menunggu konfirmasi pembayaran.');
+                        confirmPaymentPopup.classList.add('hidden');
+                    },
+                    onError: (err) => {
+                        console.error('Error:', err);
+                        showMessage('Gagal', 'Pembayaran gagal. Coba lagi nanti.');
+                    },
+                    onClose: () => {
+                        console.log('Popup ditutup');
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error', 'Gagal memproses pembayaran.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Lanjut ke Midtrans";
+            }
+        });
+
+        cancelConfirm.addEventListener('click', () => {
+            confirmPaymentPopup.classList.add('hidden');
+            paymentPopup.classList.remove('hidden');
+        });
+
+        closePaymentPopup.addEventListener('click', () => {
+            paymentPopup.classList.add('hidden');
+        });
+
+        goToPaymentBtn.addEventListener('click', () => {
+            paymentPopup.classList.remove('hidden');
+        });
+
+        function activateTestMode() {
+            showMessage('Mode Uji Coba', '🎉 Anda sekarang premium! (Mode uji coba)');
+            addAttempts(12);
+            paymentPopup.classList.add('hidden');
+        }
+
+        async function addAttempts(count) {
+            if (currentUser) {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                await updateDoc(userDocRef, { 
+                    freeAttemptsLeft: firebase.firestore.FieldValue.increment(count),
+                    isPremium: true
+                });
+                freeAttemptsLeft += count;
+                isPremiumUser = true;
+                shakeBtn.disabled = false;
+                nameInput.dispatchEvent(new Event('input'));
+            }
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            html2canvas(document.getElementById('predictionCard'), {
+                backgroundColor: '#f8f4e9',
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Ramalan_CiamSi_${nameInput.value.trim().replace(/\s/g, '_') || 'user'}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            });
+        });
+
+        document.getElementById('whatsappShare').addEventListener('click', (e) => {
+            e.preventDefault();
+            const pedomanItems = Array.from(document.querySelectorAll('#pedomanList li')).map(li => `- ${li.textContent}`);
+            const pedomanText = pedomanItems.join('\n');
+            const shareText = `*Ramalan Ciam Si untuk ${nameInput.value.trim() || 'Pengguna'}*\n` +
+                `*Nomor: ${currentPredictionNumberState}*\n\n` +
+                `*Makna Lambang:*\n${sinthioText.textContent}\n\n` +
+                `*Bunyi Syair:*\n${syairText.textContent}\n\n` +
+                `*Selayang Pandang:*\n${selayangPandangText.textContent}\n\n` +
+                `*Pedoman Jawaban:*\n${pedomanText}\n\n` +
+                `Dapatkan ramalan Anda di: ${window.location.origin}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        termsLink.addEventListener('click', () => termsPopup.classList.remove('hidden'));
+        privacyLink.addEventListener('click', () => privacyPopup.classList.remove('hidden'));
+        closePopupBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.target.closest('.popup-overlay').classList.add('hidden');
+            });
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .catch(err => console.error('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
 </html>
