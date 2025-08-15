@@ -387,7 +387,6 @@
         .package-option p {
             margin: 5px 0 0 0;
             font-size: 0.95rem;
-            /* [DIUBAH] Warna teks diubah agar terbaca */
             color: var(--black);
             font-weight: 600;
         }
@@ -651,7 +650,7 @@
     <!-- Firebase & App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, linkWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithCredential, signInWithPopup, linkWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
@@ -1012,30 +1011,33 @@
             });
         });
 
+        // [DIUBAH] Logika login Google diperbaiki untuk menangani error
         googleLoginBtn.addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
-                const result = await signInWithPopup(auth, provider);
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                try {
-                    await linkWithCredential(auth.currentUser, credential);
-                    console.log("Akun anonim berhasil digabung dengan akun Google.");
-                } catch (linkError) {
-                    if (linkError.code === 'auth/credential-already-in-use') {
-                        console.log("Pengguna sudah memiliki akun, tidak perlu digabung.");
-                    } else {
-                        throw linkError;
-                    }
-                }
-                
+                const userCredential = await signInWithPopup(auth, provider);
+                // Jika berhasil login, langsung lanjutkan ke pembayaran
+                console.log("Login Google berhasil:", userCredential.user.uid);
                 loginPopup.classList.add('hidden');
                 confirmPaymentPopup.classList.remove('hidden');
-
             } catch (error) {
-                console.error("Error saat login Google:", error);
-                showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
+                // Tangani error jika akun sudah tertaut
+                if (error.code === 'auth/account-exists-with-different-credential' || error.code === 'auth/credential-already-in-use') {
+                    showMessage('Login Gagal', 'Akun Google ini sudah terdaftar. Silakan coba lagi.');
+                    // Coba login lagi untuk memastikan pengguna masuk dengan akun yang benar
+                    await signInWithPopup(auth, provider);
+                    loginPopup.classList.add('hidden');
+                    confirmPaymentPopup.classList.remove('hidden');
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    console.log("Popup login ditutup oleh pengguna.");
+                }
+                else {
+                    console.error("Error saat login Google:", error);
+                    showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
+                }
             }
         });
+
 
         cancelLoginBtn.addEventListener('click', () => {
             loginPopup.classList.add('hidden');
