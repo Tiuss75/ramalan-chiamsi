@@ -436,7 +436,7 @@
             </div>
             <div style="text-align: center;">
                 <button id="shakeBtn" class="btn" disabled>
-                    <i class="fas fa-spinner fa-spin"></i> Memuat...
+                    <i class="fas fa-hand-point-right"></i> Kocok
                 </button>
             </div>
             <div class="result-container hidden" id="shakeResult" style="text-align:center; margin-top:15px;">
@@ -707,10 +707,9 @@
         let throwCount = 0;
         const maxThrowsFree = 3;
         let isPremiumUser = false;
-        let freeAttemptsLeft = undefined;
+        let freeAttemptsLeft = 2; // Default
         let selectedPackage = null;
         let unsubscribeUserListener = null;
-        let isLoadingUserData = true;
 
         // === Functions ===
         function showMessage(title, text) {
@@ -721,61 +720,62 @@
 
         closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
 
-        function showLoadingState() {
-            shakeBtn.disabled = true;
-            shakeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
-        }
-
-        function resetShakeButton() {
-            if (isLoadingUserData) {
-                showLoadingState();
-                return;
-            }
-            const canShake = nameInput.value.trim() !== '' && 
-                             (isPremiumUser || (freeAttemptsLeft > 0) || isUserAdmin);
-            shakeBtn.disabled = !canShake;
-            shakeBtn.innerHTML = '<i class="fas fa-hand-point-right"></i> Kocok';
-        }
-
         async function setupUserAndListener(user) {
             if (unsubscribeUserListener) unsubscribeUserListener();
             currentUser = user;
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
-            if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
+
+            // ✅ Buat dokumen user SEGERA jika belum ada
+            if (!userDocSnap.exists()) {
+                await setDoc(userDocRef, {
+                    isPremium: false,
+                    freeAttemptsLeft: 2,
+                    createdAt: serverTimestamp(),
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    provider: user.providerData[0]?.providerId || 'anonymous'
+                });
+                console.log("User baru dibuat di Firestore:", user.uid);
+            }
+
+            // Cek apakah user adalah admin
+            const userData = (await getDoc(userDocRef)).data();
+            if (userData && userData.role === 'admin') {
                 isUserAdmin = true;
                 console.log("Admin user has logged in.");
             } else {
                 isUserAdmin = false;
             }
 
+            // Dengarkan perubahan data user
             unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     isPremiumUser = data.isPremium === true;
                     freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
                 } else {
-                    setDoc(userDocRef, { 
-                        isPremium: false, 
-                        freeAttemptsLeft: 2, 
-                        createdAt: serverTimestamp() 
-                    });
                     isPremiumUser = false;
                     freeAttemptsLeft = 2;
                 }
-                isLoadingUserData = false;
-                resetShakeButton();
+                updateUIBasedOnUserState();
             });
+        }
+
+        function updateUIBasedOnUserState() {
+            const canShake = nameInput.value.trim() !== '' && 
+                             (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin);
+            shakeBtn.disabled = !canShake;
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                isLoadingUserData = true;
-                resetShakeButton();
                 await setupUserAndListener(user);
                 checkUrlHash();
             } else {
                 isUserAdmin = false;
+                // Login anonim hanya jika bukan admin
                 signInAnonymously(auth).catch(error => {
                     console.error("Gagal login anonim:", error);
                     showMessage('Error', 'Gagal memuat sesi Anda. Silakan refresh halaman.');
@@ -877,17 +877,16 @@
             predictionResult.classList.add('hidden');
             puakpois.forEach(p => p.textContent = '-');
             currentPredictionNumberState = null;
-            resetShakeButton();
+            updateUIBasedOnUserState();
         }
 
         nameInput.addEventListener('input', () => {
             if (predictionResult.classList.contains('hidden')) {
-                resetShakeButton();
+                updateUIBasedOnUserState();
             }
         });
 
         shakeBtn.addEventListener('click', () => {
-            if (isLoadingUserData) return;
             if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
                 paymentPopup.classList.remove('hidden');
                 return;
@@ -961,7 +960,6 @@
                     if (!isPremiumUser && !isUserAdmin) {
                         const userDocRef = doc(db, "users", currentUser.uid);
                         await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
-                        freeAttemptsLeft--;
                     }
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
@@ -1028,23 +1026,12 @@
                 return;
             }
 
-            if (selectedPackage.price <= 0 || selectedPackage.attempts <= 0) {
-                showMessage('Error', 'Harga atau jumlah kocokan tidak valid.');
-                return;
-            }
-
-            const name = nameInput.value.trim() || currentUser.displayName || 'Pengguna';
-            if (!name || name.length < 2) {
-                showMessage('Error', 'Nama wajib diisi.');
-                return;
-            }
-
             const btn = confirmRealPayment;
             btn.disabled = true;
             btn.textContent = "Memproses...";
             try {
                 const result = await createTransaction({ 
-                    name: name,
+                    name: nameInput.value.trim() || currentUser.displayName || 'Pengguna',
                     price: selectedPackage.price,
                     attempts: selectedPackage.attempts
                 });
@@ -1061,9 +1048,7 @@
                 });
             } catch (error) {
                 console.error('Error memanggil Cloud Function:', error);
-                if (error.code === 'invalid-argument') {
-                    showMessage('Error', 'Data tidak valid. Pastikan paket dan nama sudah benar.');
-                } else if (error.code === 'permission-denied') {
+                if (error.code === 'permission-denied') {
                     showMessage('Error', 'Izin ditolak. Hubungi developer.');
                 } else {
                     showMessage('Error', `Gagal memproses pembayaran: ${error.message}`);
@@ -1088,7 +1073,7 @@
         });
 
         function activateTestMode() {
-            if(currentUser && currentUser.isAnonymous) {
+            if (currentUser && currentUser.isAnonymous) {
                 showMessage('Mode Uji Coba', 'Silakan login dengan Google terlebih dahulu untuk mengaktifkan mode uji coba permanen.');
                 loginPopup.classList.remove('hidden');
                 paymentPopup.classList.add('hidden');
@@ -1107,8 +1092,6 @@
                     freeAttemptsLeft: increment(count),
                     isPremium: true
                 });
-                freeAttemptsLeft = (freeAttemptsLeft || 0) + count;
-                resetShakeButton();
             }
         }
 
