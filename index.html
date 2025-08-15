@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="https://placehold.co/512x512/9c1c26/FFFFFF?text=CS" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Midtrans Snap.js -->
     <script type="text/javascript"
         src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="SB-Mid-client-hCnSsq93YoH_kxLO"></script>
@@ -64,6 +65,17 @@
             text-shadow: 0 3px 5px rgba(0,0,0,.7);
             cursor: pointer;
             user-select: none;
+        }
+        .menu {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .menu .btn {
+            background-color: var(--dark-gold);
+            color: var(--black);
+            font-size: 1rem;
+            padding: 10px 20px;
         }
         .step {
             background: rgba(122,10,20,.6);
@@ -370,6 +382,11 @@
 <body>
     <!-- Main App Container -->
     <div id="appContainer" class="container">
+        <!-- Menu Tambahan -->
+        <div class="menu">
+            <button id="goToPayment" class="btn"><i class="fas fa-crown"></i> Upgrade Sekarang</button>
+        </div>
+
         <div class="header">
             <h1>Ramalan Chiam Si</h1>
             <p>Petunjuk ilahi untuk langkah hidup Anda</p>
@@ -503,7 +520,7 @@
     <div id="paymentPopup" class="popup-overlay hidden">
         <div class="popup-content">
             <h2>Tingkatkan Pengalaman Anda!</h2>
-            <p>Anda telah menggunakan kesempatan uji coba. Untuk melanjutkan sesi baru, silakan upgrade ke paket premium.</p>
+            <p>Anda telah menggunakan semua kesempatan uji coba gratis. Untuk melanjutkan tanpa batas, silakan upgrade ke paket premium.</p>
             <div class="popup-buttons">
                 <button id="upgradeBtn" class="btn">Upgrade Sekarang</button>
                 <button id="closePopupBtn" class="btn" style="background-color: var(--dark-red); color: var(--white);">Nanti Saja</button>
@@ -558,13 +575,14 @@
         </div>
     </footer>
 
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
+    <!-- Firebase & App Logic -->
     <script type="module">
-        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
         const firebaseConfig = {
@@ -622,13 +640,14 @@
         const termsLink = document.getElementById('termsLink');
         const privacyLink = document.getElementById('privacyLink');
         const closePopupBtns = document.querySelectorAll('.close-popup-btn');
+        const goToPaymentBtn = document.getElementById('goToPayment');
 
         let currentUser = null;
         let currentPredictionNumberState = null;
         let throwCount = 0;
         const maxThrowsFree = 3;
         let isPremiumUser = false;
-        let hasHadFreeSuccess = false;
+        let freeAttemptsLeft = 2;
         let unsubscribeUserListener = null;
 
         function showMessage(title, text) {
@@ -646,7 +665,11 @@
             try {
                 const docSnap = await getDoc(userDocRef);
                 if (!docSnap.exists()) {
-                    await setDoc(userDocRef, { isPremium: false, hasHadFreeSuccess: false, createdAt: new Date() });
+                    await setDoc(userDocRef, { 
+                        isPremium: false, 
+                        freeAttemptsLeft: 2, 
+                        createdAt: serverTimestamp() 
+                    });
                 }
             } catch (e) {
                 console.error("Gagal inisialisasi user:", e);
@@ -656,11 +679,11 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     isPremiumUser = data.isPremium === true;
-                    hasHadFreeSuccess = data.hasHadFreeSuccess === true;
+                    freeAttemptsLeft = data.freeAttemptsLeft || 2;
 
-                    if (hasHadFreeSuccess && !isPremiumUser) {
+                    if (freeAttemptsLeft <= 0 && !isPremiumUser) {
                         shakeBtn.disabled = true;
-                        showMessage('Uji Coba Selesai', 'Anda telah menggunakan kesempatan uji coba. Silakan upgrade untuk sesi baru.');
+                        showMessage('Uji Coba Selesai', 'Anda telah menggunakan semua kesempatan uji coba. Silakan upgrade untuk sesi baru.');
                     }
                     if (isPremiumUser) {
                         paymentPopup.classList.add('hidden');
@@ -785,18 +808,18 @@
                 currentPredictionNumberState = null;
                 shakeBtn.disabled = (nameInput.value.trim() === '');
             } else {
-                showMessage('Akses Dibatasi', 'Anda telah menggunakan uji coba. Silakan upgrade untuk sesi baru.');
+                showMessage('Akses Dibatasi', 'Anda telah menggunakan semua kesempatan uji coba. Silakan upgrade untuk sesi baru.');
             }
         }
 
         nameInput.addEventListener('input', () => {
-            if (predictionResult.classList.contains('hidden') && !hasHadFreeSuccess) {
+            if (predictionResult.classList.contains('hidden') && freeAttemptsLeft > 0) {
                 shakeBtn.disabled = nameInput.value.trim() === '';
             }
         });
 
         shakeBtn.addEventListener('click', () => {
-            if (hasHadFreeSuccess && !isPremiumUser) {
+            if (freeAttemptsLeft <= 0 && !isPremiumUser) {
                 paymentPopup.classList.remove('hidden');
                 return;
             }
@@ -831,7 +854,7 @@
 
             setTimeout(async () => {
                 let isConfirmed = false;
-                if (!hasHadFreeSuccess) {
+                if (freeAttemptsLeft >= 2) {
                     isConfirmed = true;
                     puakpois[0].textContent = '凹';
                     puakpois[1].textContent = '凸';
@@ -844,15 +867,15 @@
                 }
 
                 if (isConfirmed) {
-                    throwResultText.textContent = !hasHadFreeSuccess ? 'Hasil: Direstui Dewa! (Percobaan Pertama)' : 'Hasil: Direstui Dewa!';
+                    throwResultText.textContent = freeAttemptsLeft >= 2 ? 'Hasil: Direstui Dewa! (Percobaan 1/2)' : 'Hasil: Direstui Dewa!';
                     throwResult.classList.remove('hidden');
                     await showPrediction();
                 } else {
                     if (!isPremiumUser && throwCount >= maxThrowsFree) {
                         paymentPopup.classList.remove('hidden');
-                        throwResultText.textContent = 'Batas lemparan tercapai. Silakan upgrade.';
+                        throwResultText.textContent = 'Batas lemparan tercapai.';
                     } else {
-                        throwResultText.textContent = 'Hasil: Belum direstui. Coba lempar lagi.';
+                        throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
                         throwBtn.disabled = false;
                     }
                     throwResult.classList.remove('hidden');
@@ -881,16 +904,16 @@
                     predictionResult.classList.remove('hidden');
                     shakeBtn.disabled = true;
 
-                    if (!hasHadFreeSuccess && currentUser && !isPremiumUser) {
+                    if (!isPremiumUser) {
                         const userDocRef = doc(db, "users", currentUser.uid);
-                        await updateDoc(userDocRef, { hasHadFreeSuccess: true });
-                        hasHadFreeSuccess = true;
+                        await updateDoc(userDocRef, { freeAttemptsLeft: freeAttemptsLeft - 1 });
+                        freeAttemptsLeft--;
 
-                        setTimeout(() => {
-                            if (!isPremiumUser) {
+                        if (freeAttemptsLeft <= 0) {
+                            setTimeout(() => {
                                 paymentPopup.classList.remove('hidden');
-                            }
-                        }, 1500);
+                            }, 1500);
+                        }
                     }
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
@@ -932,9 +955,18 @@
         closePopupBtn.addEventListener('click', () => paymentPopup.classList.add('hidden'));
 
         document.getElementById('upgradeBtn').addEventListener('click', async () => {
+            processPayment();
+        });
+
+        goToPaymentBtn.addEventListener('click', async () => {
+            processPayment();
+        });
+
+        async function processPayment() {
             const upgradeBtn = document.getElementById('upgradeBtn');
             upgradeBtn.disabled = true;
             upgradeBtn.textContent = "Memproses...";
+
             try {
                 const result = await createTransaction({ name: nameInput.value.trim() || 'Pengguna' });
                 const token = result.data.token;
@@ -947,7 +979,8 @@
                         showMessage('Pending', 'Menunggu konfirmasi pembayaran.');
                         paymentPopup.classList.add('hidden');
                     },
-                    onError: () => {
+                    onError: (err) => {
+                        console.error('Error pembayaran:', err);
                         showMessage('Gagal', 'Pembayaran gagal. Silakan coba lagi.');
                     },
                     onClose: () => {
@@ -955,12 +988,13 @@
                     }
                 });
             } catch (error) {
-                showMessage('Error', 'Gagal memproses pembayaran.');
+                console.error('Error saat membuat transaksi:', error);
+                showMessage('Error', 'Gagal memproses pembayaran. Cek koneksi atau coba lagi nanti.');
             } finally {
                 upgradeBtn.disabled = false;
                 upgradeBtn.textContent = "Upgrade Sekarang";
             }
-        });
+        }
 
         termsLink.addEventListener('click', () => termsPopup.classList.remove('hidden'));
         privacyLink.addEventListener('click', () => privacyPopup.classList.remove('hidden'));
