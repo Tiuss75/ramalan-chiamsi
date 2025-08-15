@@ -12,7 +12,7 @@
     <!-- Midtrans Snap.js -->
     <script type="text/javascript"
         src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="SB-Mid-client-hCnSsq93YoH_kxLO"></script>
+        data-client-key="SB-Mid-client-hCnSsq93YoH_kXLO"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;600;700&display=swap');
         :root {
@@ -436,7 +436,7 @@
             </div>
             <div style="text-align: center;">
                 <button id="shakeBtn" class="btn" disabled>
-                    <i class="fas fa-hand-point-right"></i> Kocok
+                    <i class="fas fa-spinner fa-spin"></i> Memuat...
                 </button>
             </div>
             <div class="result-container hidden" id="shakeResult" style="text-align:center; margin-top:15px;">
@@ -707,9 +707,10 @@
         let throwCount = 0;
         const maxThrowsFree = 3;
         let isPremiumUser = false;
-        let freeAttemptsLeft = 2; // Default
+        let freeAttemptsLeft = undefined;
         let selectedPackage = null;
         let unsubscribeUserListener = null;
+        let isLoadingUserData = true;
 
         // === Functions ===
         function showMessage(title, text) {
@@ -720,62 +721,61 @@
 
         closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
 
+        function showLoadingState() {
+            shakeBtn.disabled = true;
+            shakeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+        }
+
+        function resetShakeButton() {
+            if (isLoadingUserData) {
+                showLoadingState();
+                return;
+            }
+            const canShake = nameInput.value.trim() !== '' && 
+                             (isPremiumUser || (freeAttemptsLeft > 0) || isUserAdmin);
+            shakeBtn.disabled = !canShake;
+            shakeBtn.innerHTML = '<i class="fas fa-hand-point-right"></i> Kocok';
+        }
+
         async function setupUserAndListener(user) {
             if (unsubscribeUserListener) unsubscribeUserListener();
             currentUser = user;
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
-
-            // ✅ Buat dokumen user SEGERA jika belum ada
-            if (!userDocSnap.exists()) {
-                await setDoc(userDocRef, {
-                    isPremium: false,
-                    freeAttemptsLeft: 2,
-                    createdAt: serverTimestamp(),
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    provider: user.providerData[0]?.providerId || 'anonymous'
-                });
-                console.log("User baru dibuat di Firestore:", user.uid);
-            }
-
-            // Cek apakah user adalah admin
-            const userData = (await getDoc(userDocRef)).data();
-            if (userData && userData.role === 'admin') {
+            if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
                 isUserAdmin = true;
                 console.log("Admin user has logged in.");
             } else {
                 isUserAdmin = false;
             }
 
-            // Dengarkan perubahan data user
             unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     isPremiumUser = data.isPremium === true;
                     freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
                 } else {
+                    setDoc(userDocRef, { 
+                        isPremium: false, 
+                        freeAttemptsLeft: 2, 
+                        createdAt: serverTimestamp() 
+                    });
                     isPremiumUser = false;
                     freeAttemptsLeft = 2;
                 }
-                updateUIBasedOnUserState();
+                isLoadingUserData = false;
+                resetShakeButton();
             });
-        }
-
-        function updateUIBasedOnUserState() {
-            const canShake = nameInput.value.trim() !== '' && 
-                             (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin);
-            shakeBtn.disabled = !canShake;
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                isLoadingUserData = true;
+                resetShakeButton();
                 await setupUserAndListener(user);
                 checkUrlHash();
             } else {
                 isUserAdmin = false;
-                // Login anonim hanya jika bukan admin
                 signInAnonymously(auth).catch(error => {
                     console.error("Gagal login anonim:", error);
                     showMessage('Error', 'Gagal memuat sesi Anda. Silakan refresh halaman.');
@@ -877,16 +877,17 @@
             predictionResult.classList.add('hidden');
             puakpois.forEach(p => p.textContent = '-');
             currentPredictionNumberState = null;
-            updateUIBasedOnUserState();
+            resetShakeButton();
         }
 
         nameInput.addEventListener('input', () => {
             if (predictionResult.classList.contains('hidden')) {
-                updateUIBasedOnUserState();
+                resetShakeButton();
             }
         });
 
         shakeBtn.addEventListener('click', () => {
+            if (isLoadingUserData) return;
             if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
                 paymentPopup.classList.remove('hidden');
                 return;
@@ -960,6 +961,7 @@
                     if (!isPremiumUser && !isUserAdmin) {
                         const userDocRef = doc(db, "users", currentUser.uid);
                         await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
+                        freeAttemptsLeft--;
                     }
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
@@ -999,7 +1001,7 @@
                 loginPopup.classList.add('hidden');
                 confirmPaymentPopup.classList.remove('hidden');
             } catch (error) {
-                if (error.code === 'auth/account-exists-with-different-credential') {
+                if (error.code === 'auth/account-exists-with-different-credential' || error.code === 'auth/credential-already-in-use') {
                     showMessage('Login Gagal', 'Akun Google ini sudah terdaftar. Silakan coba lagi.');
                 } else if (error.code === 'auth/popup-closed-by-user') {
                     console.log("Popup login ditutup oleh pengguna.");
@@ -1026,12 +1028,23 @@
                 return;
             }
 
+            if (selectedPackage.price <= 0 || selectedPackage.attempts <= 0) {
+                showMessage('Error', 'Harga atau jumlah kocokan tidak valid.');
+                return;
+            }
+
+            const name = nameInput.value.trim() || currentUser.displayName || 'Pengguna';
+            if (!name || name.length < 2) {
+                showMessage('Error', 'Nama wajib diisi.');
+                return;
+            }
+
             const btn = confirmRealPayment;
             btn.disabled = true;
             btn.textContent = "Memproses...";
             try {
                 const result = await createTransaction({ 
-                    name: nameInput.value.trim() || currentUser.displayName || 'Pengguna',
+                    name: name,
                     price: selectedPackage.price,
                     attempts: selectedPackage.attempts
                 });
@@ -1048,7 +1061,9 @@
                 });
             } catch (error) {
                 console.error('Error memanggil Cloud Function:', error);
-                if (error.code === 'permission-denied') {
+                if (error.code === 'invalid-argument') {
+                    showMessage('Error', 'Data tidak valid. Pastikan paket dan nama sudah benar.');
+                } else if (error.code === 'permission-denied') {
                     showMessage('Error', 'Izin ditolak. Hubungi developer.');
                 } else {
                     showMessage('Error', `Gagal memproses pembayaran: ${error.message}`);
@@ -1073,7 +1088,7 @@
         });
 
         function activateTestMode() {
-            if (currentUser && currentUser.isAnonymous) {
+            if(currentUser && currentUser.isAnonymous) {
                 showMessage('Mode Uji Coba', 'Silakan login dengan Google terlebih dahulu untuk mengaktifkan mode uji coba permanen.');
                 loginPopup.classList.remove('hidden');
                 paymentPopup.classList.add('hidden');
@@ -1092,6 +1107,8 @@
                     freeAttemptsLeft: increment(count),
                     isPremium: true
                 });
+                freeAttemptsLeft = (freeAttemptsLeft || 0) + count;
+                resetShakeButton();
             }
         }
 
