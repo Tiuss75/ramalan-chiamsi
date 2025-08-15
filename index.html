@@ -315,14 +315,23 @@
                     }
                     predictionResult.classList.remove('hidden');
 
+                    // **PERBAIKAN LOGIKA**
+                    // Nonaktifkan tombol setelah hasil muncul
+                    shakeBtn.disabled = true;
+                    throwBtn.disabled = true;
+
                     if (!hasHadFreeSuccess && currentUser) {
                         const userDocRef = doc(db, "users", currentUser.uid);
                         await updateDoc(userDocRef, { hasHadFreeSuccess: true });
-                        showMessage('Kesempatan Gratis Digunakan', 'Anda telah menggunakan kesempatan gratis Anda. Untuk ramalan berikutnya, aturan normal (batas 3x lemparan) akan berlaku.');
+                        showMessage('Kesempatan Gratis Digunakan', 'Anda telah menggunakan kesempatan gratis Anda. Untuk memulai sesi baru, silakan kocok tabung kembali.');
+                        shakeBtn.disabled = false; // Izinkan kocok lagi untuk sesi baru
                     }
                 } else {
                     showMessage('Data Kosong', `Data untuk ramalan nomor ${currentPredictionNumberState} belum diisi di CMS.`);
                     predictionResult.classList.add('hidden');
+                    // Izinkan coba lagi jika data kosong
+                    shakeBtn.disabled = false;
+                    throwBtn.disabled = true;
                 }
             } catch (error) {
                 showMessage('Error', 'Gagal mengambil data dari server.');
