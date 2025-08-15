@@ -634,7 +634,7 @@
     <!-- Firebase & App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithCredential, signInWithPopup, linkWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
         const firebaseConfig = {
@@ -707,10 +707,10 @@
         let throwCount = 0;
         const maxThrowsFree = 3;
         let isPremiumUser = false;
-        let freeAttemptsLeft = undefined; // ✅ Ubah: jangan set default 2
+        let freeAttemptsLeft = undefined;
         let selectedPackage = null;
         let unsubscribeUserListener = null;
-        let isLoadingUserData = true; // ✅ Tambahkan: blokir aksi sebelum data datang
+        let isLoadingUserData = true;
 
         // === Functions ===
         function showMessage(title, text) {
@@ -753,7 +753,7 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     isPremiumUser = data.isPremium === true;
-                    freeAttemptsLeft = data.freeAttemptsLeft ?? 2; // Default hanya jika tidak ada
+                    freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
                 } else {
                     setDoc(userDocRef, { 
                         isPremium: false, 
@@ -763,15 +763,15 @@
                     isPremiumUser = false;
                     freeAttemptsLeft = 2;
                 }
-                isLoadingUserData = false; // ✅ Data selesai dimuat
-                resetShakeButton(); // Update UI
+                isLoadingUserData = false;
+                resetShakeButton();
             });
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 isLoadingUserData = true;
-                resetShakeButton(); // Tampilkan loading
+                resetShakeButton();
                 await setupUserAndListener(user);
                 checkUrlHash();
             } else {
@@ -877,7 +877,7 @@
             predictionResult.classList.add('hidden');
             puakpois.forEach(p => p.textContent = '-');
             currentPredictionNumberState = null;
-            resetShakeButton(); // Update tombol kocok
+            resetShakeButton();
         }
 
         nameInput.addEventListener('input', () => {
@@ -887,8 +887,7 @@
         });
 
         shakeBtn.addEventListener('click', () => {
-            if (isLoadingUserData) return; // ✅ Blokir jika masih loading
-
+            if (isLoadingUserData) return;
             if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
                 paymentPopup.classList.remove('hidden');
                 return;
@@ -962,7 +961,7 @@
                     if (!isPremiumUser && !isUserAdmin) {
                         const userDocRef = doc(db, "users", currentUser.uid);
                         await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
-                        freeAttemptsLeft--; // Update lokal
+                        freeAttemptsLeft--;
                     }
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
@@ -1023,12 +1022,29 @@
                 showMessage('Error', 'Anda harus login untuk melakukan pembayaran.');
                 return;
             }
+
+            if (!selectedPackage || !selectedPackage.price || !selectedPackage.attempts) {
+                showMessage('Error', 'Paket tidak valid. Silakan pilih paket lagi.');
+                return;
+            }
+
+            if (selectedPackage.price <= 0 || selectedPackage.attempts <= 0) {
+                showMessage('Error', 'Harga atau jumlah kocokan tidak valid.');
+                return;
+            }
+
+            const name = nameInput.value.trim() || currentUser.displayName || 'Pengguna';
+            if (!name || name.length < 2) {
+                showMessage('Error', 'Nama wajib diisi.');
+                return;
+            }
+
             const btn = confirmRealPayment;
             btn.disabled = true;
             btn.textContent = "Memproses...";
             try {
                 const result = await createTransaction({ 
-                    name: nameInput.value.trim() || currentUser.displayName || 'Pengguna',
+                    name: name,
                     price: selectedPackage.price,
                     attempts: selectedPackage.attempts
                 });
@@ -1045,8 +1061,10 @@
                 });
             } catch (error) {
                 console.error('Error memanggil Cloud Function:', error);
-                if(error.message.includes('permission-denied')){
-                    showMessage('Error', 'Gagal memproses pembayaran: Izin ditolak. Hubungi developer untuk mengatur izin Cloud Function.');
+                if (error.code === 'invalid-argument') {
+                    showMessage('Error', 'Data tidak valid. Pastikan paket dan nama sudah benar.');
+                } else if (error.code === 'permission-denied') {
+                    showMessage('Error', 'Izin ditolak. Hubungi developer.');
                 } else {
                     showMessage('Error', `Gagal memproses pembayaran: ${error.message}`);
                 }
@@ -1089,7 +1107,7 @@
                     freeAttemptsLeft: increment(count),
                     isPremium: true
                 });
-                freeAttemptsLeft += count; // Update lokal
+                freeAttemptsLeft = (freeAttemptsLeft || 0) + count;
                 resetShakeButton();
             }
         }
