@@ -418,7 +418,6 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setupUserAndListener(user);
-                // Aktifkan tombol paket setelah user siap
                 document.querySelectorAll('.package-option').forEach(pkg => {
                     pkg.classList.remove('disabled');
                 });
