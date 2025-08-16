@@ -12,7 +12,7 @@
     <script type="text/javascript"
         src="https://app.midtrans.com/snap/snap.js" 
         data-client-key="SB-Mid-client-hCnSsq93YoH_kXLO"></script> 
-        <style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;600;700&display=swap');
         :root {
             --primary-red: #9c1c26;
@@ -428,10 +428,8 @@
         </div>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
-<script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // PERBAIKAN: Menambahkan linkWithPopup
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, linkWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
@@ -914,6 +912,5 @@
             });
         }
     </script>
-        
 </body>
 </html>
