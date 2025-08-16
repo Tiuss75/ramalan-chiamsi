@@ -346,7 +346,7 @@
             </div>
         </div>
     </div>
-   <div id="adminLoginSection" class="admin-section hidden">
+    <div id="adminLoginSection" class="admin-section hidden">
         <div class="admin-form">
             <h2>Login Admin</h2>
             <p style="text-align: center; margin-bottom: 20px;">Silakan login dengan akun Google yang terdaftar sebagai admin untuk mengakses CMS.</p>
@@ -431,7 +431,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, linkWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // PERBAIKAN FINAL: Menambahkan signInWithPopup untuk login admin
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, linkWithPopup, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
@@ -454,6 +455,7 @@
         const appContainer = document.getElementById('appContainer');
         const adminLoginSection = document.getElementById('adminLoginSection');
         const adminCmsSection = document.getElementById('adminCmsSection');
+        const adminGoogleLoginBtn = document.getElementById('adminGoogleLoginBtn');
         const nameInput = document.getElementById('nameInput');
         const shakeBtn = document.getElementById('shakeBtn');
         const throwBtn = document.getElementById('throwBtn');
@@ -471,7 +473,6 @@
         const syairText = document.getElementById('syairText');
         const selayangPandangText = document.getElementById('selayangPandangText');
         const pedomanList = document.getElementById('pedomanList');
-        const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const ramalanNumberSelect = document.getElementById('ramalanNumberSelect');
         const sinthioInput = document.getElementById('sinthioInput');
@@ -499,15 +500,7 @@
         const loginPopup = document.getElementById('loginPopup');
         const googleLoginBtn = document.getElementById('googleLoginBtn');
         const cancelLoginBtn = document.getElementById('cancelLoginBtn');
-const adminGoogleLoginBtn = document.getElementById('adminGoogleLoginBtn');
 
-adminGoogleLoginBtn.addEventListener('click', () => {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider).catch(error => {
-                console.error("Gagal login admin dengan Google:", error);
-                showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
-            });
-        });
         // === App State ===
         let currentUser = null;
         let isUserAdmin = false;
@@ -547,8 +540,11 @@ adminGoogleLoginBtn.addEventListener('click', () => {
                 });
             }
 
-            const userData = (await getDoc(userDocRef)).data();
-            isUserAdmin = userData?.role === 'admin';
+            // Cek status admin dengan melihat ke koleksi 'admins'
+            const adminDocRef = doc(db, "admins", user.uid);
+            const adminDocSnap = await getDoc(adminDocRef);
+            isUserAdmin = adminDocSnap.exists();
+            
             console.log(`User: ${user.uid}, isAdmin: ${isUserAdmin}`);
 
             checkUrlHash();
@@ -606,22 +602,21 @@ adminGoogleLoginBtn.addEventListener('click', () => {
         
         window.addEventListener('hashchange', checkUrlHash);
         document.addEventListener('DOMContentLoaded', checkUrlHash);
-
-        loginBtn.addEventListener('click', async () => {
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showMessage('Sukses', 'Login admin berhasil.');
-            } catch(error) {
-                showMessage('Login Gagal', error.message);
-            }
+        
+        // Logika untuk tombol login admin yang baru
+        adminGoogleLoginBtn.addEventListener('click', () => {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).catch(error => {
+                console.error("Gagal login admin dengan Google:", error);
+                showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
+            });
         });
 
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
                 isUserAdmin = false;
                 window.location.hash = '';
+                window.location.reload(); // Reload untuk memastikan state bersih
             });
         });
 
@@ -653,7 +648,7 @@ adminGoogleLoginBtn.addEventListener('click', () => {
                 }
             } catch (error) {
                 console.error("Gagal memuat data ramalan:", error);
-                showMessage('Error', 'Gagal memuat data ramalan. Cek Firestore Security Rules Anda.');
+                showMessage('Error', 'Gagal memuat data ramalan.');
             }
         }
 
@@ -671,7 +666,7 @@ adminGoogleLoginBtn.addEventListener('click', () => {
                 showMessage('Sukses', `Data untuk nomor ${number} berhasil disimpan.`);
             } catch (error) {
                 console.error("Save error:", error);
-                showMessage('Error', 'Gagal menyimpan data. Pastikan Anda login sebagai admin dan cek aturan Firestore.');
+                showMessage('Error', 'Gagal menyimpan data.');
             }
         });
 
@@ -774,7 +769,7 @@ adminGoogleLoginBtn.addEventListener('click', () => {
                 }
             } catch (error) {
                 console.error("Gagal mengambil data ramalan:", error);
-                showMessage('Error', 'Gagal memuat data. Pastikan koneksi internet Anda stabil dan coba lagi.');
+                showMessage('Error', 'Gagal memuat data.');
             }
         }
         
