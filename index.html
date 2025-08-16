@@ -52,6 +52,7 @@
             width: 100%; padding: 12px 20px; border-radius: 30px; border: 2px solid var(--dark-gold);
             background-color: var(--light-gold); color: var(--black); font-size: 1.1rem;
         }
+        .package-option.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .ciamsi-shaker-container { display: flex; justify-content: center; align-items: flex-end; height: 220px; position: relative; margin: 20px 0; }
         .ciamsi-container { width: 100px; height: 180px; position: relative; }
         .ciamsi-body {
@@ -229,11 +230,11 @@
         <div class="popup-content" style="max-width: 600px;">
             <h2>Upgrade ke Premium</h2>
             <p>Pilih paket untuk melanjutkan ramalan tanpa batas:</p>
-            <div class="package-option" data-attempts="5" data-price="25000">
+            <div class="package-option disabled" data-attempts="5" data-price="25000">
                 <h4>🎯 Paket 5 Kali Kocok</h4>
                 <p><strong>Harga: Rp 25.000</strong></p><p>Cocok untuk penggunaan sekali waktu.</p>
             </div>
-            <div class="package-option" data-attempts="12" data-price="50000">
+            <div class="package-option disabled" data-attempts="12" data-price="50000">
                 <h4>🚀 Paket 12 Kali Kocok</h4>
                 <p><strong>Harga: Rp 50.000</strong></p><p>Lebih hemat! Ideal untuk pengguna aktif.</p>
             </div>
@@ -279,8 +280,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // PERBAIKAN FINAL: Menambahkan signInWithPopup untuk login admin
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, linkWithPopup, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, linkWithPopup, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
@@ -417,8 +417,11 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log("Auth state changed, user:", user.uid, "isAnonymous:", user.isAnonymous);
                 setupUserAndListener(user);
+                // Aktifkan tombol paket setelah user siap
+                document.querySelectorAll('.package-option').forEach(pkg => {
+                    pkg.classList.remove('disabled');
+                });
             } else {
                 isUserAdmin = false;
                 signInAnonymously(auth).catch(error => {
