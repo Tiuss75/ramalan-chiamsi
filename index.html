@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ramalan Chiam Si - PWA</title>
+    <title>Ramalan Chiam Si</title>
     <meta name="theme-color" content="#9c1c26">
     <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -11,288 +11,146 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="text/javascript"
         src="https://app.midtrans.com/snap/snap.js" 
-        data-client-key="SB-Mid-client-hCnSsq93YoH_kXLO"></script> 
+        data-client-key="SB-Mid-client-hCnSsq93YoH_kXLO"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;600;700&display=swap');
-        :root {
-            --primary-red: #9c1c26; --dark-red: #7a0a14; --gold: #d4af37; --light-gold: #f8ecc2;
-            --dark-gold: #b8860b; --black: #2c2416; --white: #f8f4e9;
-            --font-main: 'Inter', sans-serif; --font-display: 'Noto Serif SC', serif;
+        /* CSS yang sama seperti sebelumnya */
+        /* ... (tetap gunakan CSS yang Anda miliki) ... */
+        
+        /* Tambahan untuk form login/register */
+        .auth-form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: rgba(44,36,22,.85);
+            border-radius: 15px;
+            border: 2px solid var(--gold);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: var(--font-main); background-color: var(--primary-red);
-            background-image: linear-gradient(135deg, rgba(122,10,20,.8), rgba(28,5,7,.9));
-            color: var(--white); min-height: 100vh; display: flex; flex-direction: column;
-            align-items: center; padding: 20px;
+        .auth-form h2 {
+            text-align: center;
+            color: var(--gold);
+            margin-bottom: 20px;
         }
-        .container {
-            max-width: 800px; width: 100%; background: rgba(44,36,22,.85);
-            border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,.6);
-            border: 3px solid var(--gold); backdrop-filter: blur(5px);
+        .auth-form input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid var(--dark-gold);
+            background: var(--light-gold);
+            color: var(--black);
         }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 {
-            font-family: var(--font-display); font-size: 2.5rem; color: var(--gold);
-            text-shadow: 0 3px 5px rgba(0,0,0,.7); cursor: pointer; user-select: none;
+        .auth-form button {
+            width: 100%;
+            margin-top: 15px;
         }
-        .menu { display: flex; justify-content: center; margin-bottom: 20px; }
-        .menu .btn { background-color: var(--dark-gold); color: var(--black); font-size: 1rem; padding: 10px 20px; }
-        .step {
-            background: rgba(122,10,20,.6); border-radius: 15px; padding: 20px;
-            margin-bottom: 25px; border: 2px solid var(--dark-gold);
+        .auth-switch {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--light-gold);
         }
-        .step-title { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; color: var(--gold); }
-        .step-title i {
-            font-size: 1.5rem; width: 40px; height: 40px; display: flex; align-items: center;
-            justify-content: center; border-radius: 50%; background-color: var(--black); border: 2px solid var(--gold);
+        .auth-switch a {
+            color: var(--gold);
+            cursor: pointer;
+            text-decoration: underline;
         }
-        .step-title h2 { font-size: 1.5rem; }
-        .name-input {
-            width: 100%; padding: 12px 20px; border-radius: 30px; border: 2px solid var(--dark-gold);
-            background-color: var(--light-gold); color: var(--black); font-size: 1.1rem;
+        .user-menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
         }
-        .package-option.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-        .ciamsi-shaker-container { display: flex; justify-content: center; align-items: flex-end; height: 220px; position: relative; margin: 20px 0; }
-        .ciamsi-container { width: 100px; height: 180px; position: relative; }
-        .ciamsi-body {
-            width: 100%; height: 100%; background: linear-gradient(145deg, #6d1a21, #a8323c);
-            border-radius: 15px 15px 10px 10px; border: 4px solid #501015;
-            box-shadow: inset 0 0 15px rgba(0,0,0,.5), 0 10px 20px rgba(0,0,0,.4);
-            position: absolute; bottom: 0; display: flex; justify-content: center; align-items: center;
-        }
-        .ciamsi-logo { font-family: var(--font-display); font-size: 50px; color: var(--gold); text-shadow: 0 0 10px rgba(212,175,55,.5); }
-        .falling-stick {
-            width: 8px; height: 130px; background: linear-gradient(#deb887, #b8860b);
-            border: 1px solid #8B4513; border-radius: 5px; position: absolute;
-            bottom: 180px; opacity: 0; transform-origin: bottom center;
-        }
-        .shake-animation { animation: container-shake .8s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes container-shake { 10%,90%{transform:translate3d(-1px,0,0) rotate(-1deg)} 20%,80%{transform:translate3d(2px,0,0) rotate(2deg)} 30%,50%,70%{transform:translate3d(-4px,0,0) rotate(-4deg)} 40%,60%{transform:translate3d(4px,0,0) rotate(4deg)} }
-        .fall-animation { animation: stick-fall 1s forwards ease-in; }
-        @keyframes stick-fall { 0%{opacity:1;transform:translateY(-180px) translateX(20px) rotate(0)} 100%{opacity:1;transform:translateY(220px) translateX(70px) rotate(110deg)} }
-        .puak-poi-container { display: flex; justify-content: center; gap: 40px; margin: 30px 0; }
-        .puak-poi {
-            width: 70px; height: 35px; background: #d2b48c; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; font-size: 1.8rem;
-            color: var(--black); font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,.3);
-        }
-        .throw-animation { animation: throw .8s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes throw { 0%{transform:translateY(0) rotate(0)} 30%{transform:translateY(-80px) rotate(180deg)} 70%{transform:translateY(40px) rotate(360deg)} 100%{transform:translateY(0) rotate(720deg)} }
-        .btn {
-            background: var(--gold); color: var(--black); border: none; padding: 12px 25px; font-size: 1.1rem;
-            font-weight: 600; border-radius: 50px; cursor: pointer; transition: all .3s ease;
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,.3); text-decoration: none;
-        }
-        .btn:hover { background: var(--light-gold); transform: translateY(-3px); }
-        .btn:disabled { background: #777; color: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-        .prediction-card {
-            background: var(--white); color: var(--black); border-radius: 15px;
-            padding: 25px; margin: 30px 0; border: 3px solid var(--gold);
-        }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--light-gold); }
-        .card-title { font-size: 1.5rem; color: var(--primary-red); font-weight: 700; }
-        .card-number {
-            background: var(--gold); color: var(--black); width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700;
-        }
-        .prediction-section { margin-bottom: 15px; }
-        .prediction-section h3 {
-            font-family: var(--font-display); color: var(--dark-red); margin-bottom: 8px;
-            border-bottom: 1px solid var(--light-gold); padding-bottom: 5px;
-        }
-        .prediction-section p, .prediction-section ul { white-space: pre-wrap; line-height: 1.6; }
-        .pedoman-jawaban ul { list-style: none; padding-left: 0; }
-        .pedoman-jawaban li { margin-bottom: 5px; }
-        .action-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-        .whatsapp-share { background: #25D366; color: #fff; }
-        .whatsapp-share:hover { background: #128c7e; }
-        .download-btn { background-color: var(--dark-red); color: var(--white); }
-        .hidden { display: none !important; }
-        .admin-section, .popup-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.7);
-            backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center;
-            z-index: 1000; padding: 20px;
-        }
-        .admin-form, .popup-content {
-            background: var(--white); color: var(--black); padding: 30px; border-radius: 15px;
-            width: 100%; max-width: 500px; box-shadow: 0 0 20px rgba(0,0,0,.5); text-align: left;
-        }
-        .popup-content-legal { max-height: 80vh; overflow-y: auto; }
-        .admin-form h2, .popup-content h2 { color: var(--dark-red); margin-bottom: 20px; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
-        .form-group textarea { min-height: 100px; resize: vertical; }
-        .popup-content p { margin-bottom: 20px; text-align: center; line-height: 1.5; }
-        .popup-buttons { display: flex; justify-content: center; gap: 15px; flex-direction: column; }
-        .package-option {
-            border: 2px solid var(--gold); padding: 15px; border-radius: 10px; text-align: left;
-            background: rgba(212,175,55,0.1); cursor: pointer; transition: all 0.3s;
-        }
-        .package-option:hover { background: rgba(212,175,55,0.2); transform: translateY(-2px); }
-        .package-option h4 { margin: 0 0 5px 0; color: var(--dark-red); font-weight: 700; }
-        .package-option p { margin: 5px 0 0 0; font-size: 0.95rem; color: var(--black); font-weight: 600; }
-        footer {
-            text-align: center; color: rgba(255,255,255,.7); margin-top: 30px;
-            padding: 20px; border-top: 1px solid var(--dark-gold);
-        }
-        footer a { color: var(--light-gold); margin: 0 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="appContainer" class="container">
-        <div class="menu">
-            <button id="goToPayment" class="btn"><i class="fas fa-crown"></i> Upgrade Sekarang</button>
+    <!-- Main App Container (default hidden) -->
+    <div id="appContainer" class="container hidden">
+        <div class="user-menu">
+            <span id="userEmailDisplay" style="color: var(--gold);"></span>
+            <button id="logoutBtn" class="btn" style="padding: 8px 15px;"><i class="fas fa-sign-out-alt"></i></button>
         </div>
-        <div class="header">
-            <h1>Ramalan Chiam Si</h1>
-            <p>Petunjuk ilahi untuk langkah hidup Anda</p>
-        </div>
-        <div class="step">
-            <div class="step-title"><i class="fas fa-user"></i><h2>Data Diri</h2></div>
-            <input type="text" id="nameInput" placeholder="Ketik nama Anda..." class="name-input">
-        </div>
-        <div class="step">
-            <div class="step-title"><i class="fas fa-praying-hands"></i><h2>Kocok Tabung</h2></div>
-            <p>Fokuskan pikiran, lalu kocok tabung untuk mendapat nomor ramalan.</p>
-            <div class="ciamsi-shaker-container">
-                <div class="ciamsi-container" id="ciamsiContainer"><div class="ciamsi-body"><div class="ciamsi-logo">簽</div></div></div>
-                <div class="falling-stick" id="fallingStick"></div>
-            </div>
-            <div style="text-align: center;"><button id="shakeBtn" class="btn" disabled><i class="fas fa-hand-point-right"></i> Kocok</button></div>
-            <div class="result-container hidden" id="shakeResult" style="text-align:center; margin-top:15px;">
-                <p>Anda mendapatkan nomor ramalan:</p>
-                <div class="result-number" id="predictionNumber" style="font-size: 2rem; font-weight: bold; color: var(--gold);">-</div>
-            </div>
-        </div>
-        <div class="step">
-            <div class="step-title"><i class="fas fa-moon"></i><h2>Lempar Puak Poi</h2></div>
-            <p>Lemparkan Puak Poi untuk memohon restu dewa.</p>
-            <div class="puak-poi-container">
-                <div class="puak-poi" id="puakpoi1">-</div>
-                <div class="puak-poi" id="puakpoi2">-</div>
-            </div>
-            <div class="throw-counter" style="text-align:center; margin-bottom:15px;">Lemparan ke: <span id="throwCount">0</span>/3</div>
-            <div style="text-align: center;"><button id="throwBtn" class="btn" disabled><i class="fas fa-hand-point-right"></i> Lempar</button></div>
-            <div class="result-container hidden" id="throwResult" style="text-align:center; margin-top:15px;"><p id="throwResultText">Hasil lemparan: -</p></div>
-        </div>
-        <div class="hidden" id="predictionResult">
-            <div class="prediction-card" id="predictionCard">
-                <div class="card-header">
-                    <div class="card-title">Hasil Ramalan</div>
-                    <div class="card-number" id="resultNumber">-</div>
-                </div>
-                <div class="prediction-section"><h3>Makna Lambang</h3><p id="sinthioText">-</p></div>
-                <div class="prediction-section"><h3>Bunyi Syair</h3><p id="syairText">-</p></div>
-                <div class="prediction-section"><h3>Selayang Pandang</h3><p id="selayangPandangText">-</p></div>
-                <div class="prediction-section pedoman-jawaban"><h3>Pedoman Jawaban</h3><ul id="pedomanList"></ul></div>
-            </div>
-            <div class="action-buttons">
-                <a href="#" class="btn whatsapp-share" id="whatsappShare"><i class="fab fa-whatsapp"></i> Bagikan</a>
-                <button class="btn download-btn" id="downloadBtn"><i class="fas fa-download"></i> Unduh</button>
-            </div>
-        </div>
+        
+        <!-- Konten aplikasi utama -->
+        <!-- ... (tetap gunakan konten yang sama) ... -->
     </div>
-    <div id="adminLoginSection" class="admin-section hidden">
-        <div class="admin-form">
-            <h2>Login Admin</h2>
-            <p style="text-align: center; margin-bottom: 20px;">Silakan login dengan akun Google yang terdaftar sebagai admin untuk mengakses CMS.</p>
-            <button id="adminGoogleLoginBtn" class="btn" style="background-color: #4285F4; color: white; width: 100%;">
-                <i class="fab fa-google"></i> Login Admin dengan Google
-            </button>
-        </div>
-    </div>
-    <div id="adminCmsSection" class="container hidden" style="margin-top: 20px;">
-        <h2>CMS Ramalan Chiam Si <button id="logoutBtn" class="btn" style="float: right;">Logout</button></h2>
-        <div class="form-group"><label for="ramalanNumberSelect">Pilih Nomor Ramalan</label><select id="ramalanNumberSelect"></select></div>
-        <div class="form-group"><label for="sinthioInput">Makna Lambang</label><textarea id="sinthioInput"></textarea></div>
-        <div class="form-group"><label for="syairInput">Bunyi Syair</label><textarea id="syairInput"></textarea></div>
-        <div class="form-group"><label for="selayangPandangInput">Selayang Pandang</label><textarea id="selayangPandangInput"></textarea></div>
-        <div class="form-group">
-            <label for="pedomanInput">Pedoman Jawaban (satu per baris)</label>
-            <textarea id="pedomanInput" placeholder="PERDAGANGAN BERJALAN BIASA&#10;MENCARI HARTA BANYAK KOSONG"></textarea>
-        </div>
-        <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
-    </div>
-    <div id="loginPopup" class="popup-overlay hidden">
-        <div class="popup-content">
-            <h2>Login untuk Lanjut</h2>
-            <p>Untuk menyimpan status premium Anda secara permanen, silakan login dengan akun Google.</p>
-            <div class="popup-buttons">
-                <button id="googleLoginBtn" class="btn" style="background-color: #4285F4; color: white; width: 100%;"><i class="fab fa-google"></i> Login dengan Google</button>
-                <button id="cancelLoginBtn" class="btn" style="background-color: var(--dark-red); color: var(--white); width: 100%;">Batal</button>
-            </div>
-        </div>
-    </div>
-    <div id="paymentPopup" class="popup-overlay hidden">
-        <div class="popup-content" style="max-width: 600px;">
-            <h2>Upgrade ke Premium</h2>
-            <p>Pilih paket untuk melanjutkan ramalan tanpa batas:</p>
-            <div class="package-option disabled" data-attempts="5" data-price="25000">
-                <h4>🎯 Paket 5 Kali Kocok</h4>
-                <p><strong>Harga: Rp 25.000</strong></p><p>Cocok untuk penggunaan sekali waktu.</p>
-            </div>
-            <div class="package-option disabled" data-attempts="12" data-price="50000">
-                <h4>🚀 Paket 12 Kali Kocok</h4>
-                <p><strong>Harga: Rp 50.000</strong></p><p>Lebih hemat! Ideal untuk pengguna aktif.</p>
-            </div>
-            <div class="popup-buttons" style="margin-top: 20px;"><button id="closePaymentPopup" class="btn" style="background-color: var(--dark-red); color: var(--white);">Batal</button></div>
-        </div>
-    </div>
-    <div id="confirmPaymentPopup" class="popup-overlay hidden">
-        <div class="popup-content">
-            <h2>Proses Pembayaran</h2>
-            <p id="confirmText">Anda akan membayar <strong>Rp <span id="priceDisplay">0</span></strong> untuk <span id="attemptsDisplay">0</span> kali kocok tambahan.</p>
-            <div class="popup-buttons">
-                <button id="confirmRealPayment" class="btn">Lanjut ke Midtrans</button>
-                <button id="cancelConfirm" class="btn" style="background-color: var(--dark-red); color: var(--white);">Batal</button>
-            </div>
-        </div>
-    </div>
-    <div id="messagePopup" class="popup-overlay hidden">
-        <div class="popup-content">
-            <h2 id="messageTitle">Pemberitahuan</h2><p id="messageText"></p>
-            <div class="popup-buttons"><button id="closeMessageBtn" class="btn">Tutup</button></div>
-        </div>
-    </div>
-    <div id="termsPopup" class="popup-overlay hidden">
-        <div class="popup-content popup-content-legal">
-            <h2>Syarat & Ketentuan</h2>
-            <p style="text-align:left;">Selamat datang di aplikasi Ramalan Chiam Si. Dengan menggunakan aplikasi ini, Anda setuju untuk mematuhi syarat dan ketentuan berikut:</p><h4 style="text-align:left; margin-top:15px;">1. Tujuan Aplikasi</h4><p style="text-align:left;">Aplikasi ini disediakan untuk tujuan hiburan, refleksi diri, dan pelestarian budaya. Hasil yang diberikan tidak boleh dianggap sebagai nasihat profesional (keuangan, hukum, medis, dll.) dan tidak dijamin akurat 100%.</p><h4 style="text-align:left; margin-top:15px;">2. Layanan Berbayar</h4><p style="text-align:left;">Kami menawarkan akses premium berbayar untuk penggunaan tanpa batas. Pembayaran diproses melalui Midtrans. Semua transaksi bersifat final dan tidak dapat dikembalikan (non-refundable) setelah pembayaran berhasil.</p><h4 style="text-align:left; margin-top:15px;">3. Batasan Tanggung Jawab</h4><p style="text-align:left;">Pengembang tidak bertanggung jawab atas keputusan atau tindakan apa pun yang Anda ambil berdasarkan interpretasi dari hasil yang diberikan oleh aplikasi ini.</p>
-            <div class="popup-buttons" style="margin-top:20px;"><button class="btn close-popup-btn">Tutup</button></div>
-        </div>
-    </div>
-    <div id="privacyPopup" class="popup-overlay hidden">
-        <div class="popup-content popup-content-legal">
-            <h2>Kebijakan Privasi</h2>
-            <p style="text-align:left;">Kami menghargai privasi Anda. Dokumen ini menjelaskan bagaimana kami mengumpulkan dan menggunakan data Anda.</p><h4 style="text-align:left; margin-top:15px;">1. Data yang Kami Kumpulkan</h4><p style="text-align:left;">Aplikasi ini menggunakan Firebase Anonymous Authentication dan Google Sign-In. Kami mengumpulkan User ID yang dibuat secara otomatis. Kami tidak mengumpulkan data pribadi selain dari profil Google Anda (nama, email, foto profil) saat Anda login.</p><h4 style="text-align:left; margin-top:15px;">2. Penggunaan Data</h4><p style="text-align:left;">User ID digunakan untuk membedakan antara pengguna gratis dan premium, serta untuk melacak status pembelian dan jatah kocokan. Data ini disimpan dengan aman di server Firebase dan tidak akan dibagikan kepada pihak ketiga.</p>
-            <div class="popup-buttons" style="margin-top:20px;"><button class="btn close-popup-btn">Tutup</button></div>
-        </div>
-    </div>
-    <footer>
-        <p>&copy; 2025 Ramalan Chiam Si. All Rights Reserved.</p>
-        <div style="margin-top: 10px;">
-            <a id="termsLink">Syarat & Ketentuan</a> | <a id="privacyLink">Kebijakan Privasi</a> | <a href="mailto:ramalanchiamsi@gmail.com">Kontak Kami</a>
-        </div>
-    </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, linkWithPopup, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
-       const firebaseConfig = {
-  apiKey: "AIzaSyA93UxOEya10fRfOPpbOT4PfSmA_aaQx-E",
-  authDomain: "siamsi-3dd65.firebaseapp.com",
-  projectId: "siamsi-3dd65",
-  storageBucket: "siamsi-3dd65.firebasestorage.app",
-  messagingSenderId: "675720995739",
-  appId: "1:675720995739:web:1af5223781df968289373e",
-  measurementId: "G-P5TVSQ6V7X"
-};
+    <!-- Admin CMS Section (default hidden) -->
+    <div id="adminCmsSection" class="container hidden">
+        <h2>CMS Ramalan Chiam Si <button id="adminLogoutBtn" class="btn" style="float: right;">Logout</button></h2>
+        <!-- ... (konten CMS admin yang sama) ... -->
+    </div>
+
+    <!-- Auth Forms -->
+    <div id="authContainer">
+        <!-- Form Login User -->
+        <div id="userLoginForm" class="auth-form">
+            <h2>Login Pengguna</h2>
+            <div id="loginError" style="color: #ff6b6b; margin-bottom: 15px;"></div>
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button id="userLoginBtn" class="btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button id="googleLoginBtn" class="btn" style="background-color: #4285F4; color: white;">
+                <i class="fab fa-google"></i> Login dengan Google
+            </button>
+            <div class="auth-switch">Belum punya akun? <a id="showRegister">Daftar disini</a></div>
+        </div>
+
+        <!-- Form Register User -->
+        <div id="userRegisterForm" class="auth-form hidden">
+            <h2>Daftar Akun Baru</h2>
+            <div id="registerError" style="color: #ff6b6b; margin-bottom: 15px;"></div>
+            <input type="text" id="registerName" placeholder="Nama Lengkap">
+            <input type="email" id="registerEmail" placeholder="Email">
+            <input type="password" id="registerPassword" placeholder="Password (min. 6 karakter)">
+            <button id="userRegisterBtn" class="btn"><i class="fas fa-user-plus"></i> Daftar</button>
+            <div class="auth-switch">Sudah punya akun? <a id="showLogin">Login disini</a></div>
+        </div>
+
+        <!-- Form Login Admin -->
+        <div id="adminLoginForm" class="auth-form hidden">
+            <h2>Login Admin</h2>
+            <div id="adminLoginError" style="color: #ff6b6b; margin-bottom: 15px;"></div>
+            <input type="email" id="adminEmail" placeholder="Email Admin">
+            <input type="password" id="adminPassword" placeholder="Password">
+            <button id="adminLoginBtn" class="btn"><i class="fas fa-lock"></i> Login Admin</button>
+            <div class="auth-switch">Login sebagai <a id="showUserLogin">pengguna biasa</a></div>
+        </div>
+    </div>
+
+    <!-- Popup dan komponen lainnya -->
+    <!-- ... (tetap gunakan popup yang sama) ... -->
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            onSnapshot,
+            serverTimestamp,
+            increment 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA93UxOEya10fRfOPpbOT4PfSmA_aaQx-E",
+            authDomain: "siamsi-3dd65.firebaseapp.com",
+            projectId: "siamsi-3dd65",
+            storageBucket: "siamsi-3dd65.appspot.com",
+            messagingSenderId: "675720995739",
+            appId: "1:675720995739:web:1af5223781df968289373e"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -302,466 +160,262 @@
 
         // === DOM Elements ===
         const appContainer = document.getElementById('appContainer');
-        const adminLoginSection = document.getElementById('adminLoginSection');
+        const authContainer = document.getElementById('authContainer');
         const adminCmsSection = document.getElementById('adminCmsSection');
-        const adminGoogleLoginBtn = document.getElementById('adminGoogleLoginBtn');
-        const nameInput = document.getElementById('nameInput');
-        const shakeBtn = document.getElementById('shakeBtn');
-        const throwBtn = document.getElementById('throwBtn');
-        const shakeResult = document.getElementById('shakeResult');
-        const predictionNumber = document.getElementById('predictionNumber');
-        const throwResult = document.getElementById('throwResult');
-        const throwResultText = document.getElementById('throwResultText');
-        const predictionResult = document.getElementById('predictionResult');
-        const ciamsiContainer = document.getElementById('ciamsiContainer');
-        const fallingStick = document.getElementById('fallingStick');
-        const puakpois = [document.getElementById('puakpoi1'), document.getElementById('puakpoi2')];
-        const throwCountElement = document.getElementById('throwCount');
-        const resultNumber = document.getElementById('resultNumber');
-        const sinthioText = document.getElementById('sinthioText');
-        const syairText = document.getElementById('syairText');
-        const selayangPandangText = document.getElementById('selayangPandangText');
-        const pedomanList = document.getElementById('pedomanList');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const ramalanNumberSelect = document.getElementById('ramalanNumberSelect');
-        const sinthioInput = document.getElementById('sinthioInput');
-        const syairInput = document.getElementById('syairInput');
-        const selayangPandangInput = document.getElementById('selayangPandangInput');
-        const pedomanInput = document.getElementById('pedomanInput');
-        const saveBtn = document.getElementById('saveBtn');
-        const paymentPopup = document.getElementById('paymentPopup');
-        const confirmPaymentPopup = document.getElementById('confirmPaymentPopup');
-        const closePaymentPopup = document.getElementById('closePaymentPopup');
-        const confirmRealPayment = document.getElementById('confirmRealPayment');
-        const cancelConfirm = document.getElementById('cancelConfirm');
-        const messagePopup = document.getElementById('messagePopup');
-        const messageTitle = document.getElementById('messageTitle');
-        const messageText = document.getElementById('messageText');
-        const closeMessageBtn = document.getElementById('closeMessageBtn');
-        const termsPopup = document.getElementById('termsPopup');
-        const privacyPopup = document.getElementById('privacyPopup');
-        const termsLink = document.getElementById('termsLink');
-        const privacyLink = document.getElementById('privacyLink');
-        const closePopupBtns = document.querySelectorAll('.close-popup-btn');
-        const goToPaymentBtn = document.getElementById('goToPayment');
-        const priceDisplay = document.getElementById('priceDisplay');
-        const attemptsDisplay = document.getElementById('attemptsDisplay');
-        const loginPopup = document.getElementById('loginPopup');
+        const userLoginForm = document.getElementById('userLoginForm');
+        const userRegisterForm = document.getElementById('userRegisterForm');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const userLoginBtn = document.getElementById('userLoginBtn');
+        const registerName = document.getElementById('registerName');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const userRegisterBtn = document.getElementById('userRegisterBtn');
+        const adminEmail = document.getElementById('adminEmail');
+        const adminPassword = document.getElementById('adminPassword');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
         const googleLoginBtn = document.getElementById('googleLoginBtn');
-        const cancelLoginBtn = document.getElementById('cancelLoginBtn');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const showUserLogin = document.getElementById('showUserLogin');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
 
         // === App State ===
         let currentUser = null;
         let isUserAdmin = false;
-        let currentPredictionNumberState = null;
-        let throwCount = 0;
-        const maxThrowsFree = 3;
-        let isPremiumUser = false;
-        let freeAttemptsLeft = 2; // Default
-        let selectedPackage = null;
         let unsubscribeUserListener = null;
 
-        // === Functions ===
-        function showMessage(title, text) {
-            messageTitle.textContent = title;
-            messageText.textContent = text;
-            messagePopup.classList.remove('hidden');
+        // === Auth Functions ===
+        async function handleUserLogin(email, password) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                await setupUserAndListener(userCredential.user);
+                showAppContent();
+            } catch (error) {
+                document.getElementById('loginError').textContent = getAuthErrorMessage(error.code);
+                console.error("Login error:", error);
+            }
         }
 
-        closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
+        async function handleAdminLogin(email, password) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const adminDoc = await getDoc(doc(db, "admins", userCredential.user.uid));
+                
+                if (!adminDoc.exists()) {
+                    await auth.signOut();
+                    throw new Error("Anda bukan admin yang terdaftar");
+                }
+                
+                isUserAdmin = true;
+                showAdminCMS();
+            } catch (error) {
+                document.getElementById('adminLoginError').textContent = getAuthErrorMessage(error.code);
+                console.error("Admin login error:", error);
+            }
+        }
 
+        async function handleUserRegister(name, email, password) {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Simpan data user tambahan
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    name: name,
+                    email: email,
+                    isPremium: false,
+                    freeAttemptsLeft: 2,
+                    createdAt: serverTimestamp(),
+                    lastLogin: serverTimestamp()
+                });
+                
+                await setupUserAndListener(userCredential.user);
+                showAppContent();
+            } catch (error) {
+                document.getElementById('registerError').textContent = getAuthErrorMessage(error.code);
+                console.error("Registration error:", error);
+            }
+        }
+
+        async function handleGoogleLogin() {
+            try {
+                const provider = new GoogleAuthProvider();
+                const userCredential = await signInWithPopup(auth, provider);
+                
+                // Cek apakah user sudah terdaftar sebelumnya
+                const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+                
+                if (!userDoc.exists()) {
+                    // Simpan data user baru
+                    await setDoc(doc(db, "users", userCredential.user.uid), {
+                        name: userCredential.user.displayName,
+                        email: userCredential.user.email,
+                        isPremium: false,
+                        freeAttemptsLeft: 2,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp(),
+                        photoURL: userCredential.user.photoURL
+                    });
+                }
+                
+                await setupUserAndListener(userCredential.user);
+                showAppContent();
+            } catch (error) {
+                document.getElementById('loginError').textContent = getAuthErrorMessage(error.code);
+                console.error("Google login error:", error);
+            }
+        }
+
+        function getAuthErrorMessage(errorCode) {
+            switch(errorCode) {
+                case 'auth/invalid-email': return 'Email tidak valid';
+                case 'auth/user-disabled': return 'Akun dinonaktifkan';
+                case 'auth/user-not-found': return 'Akun tidak ditemukan';
+                case 'auth/wrong-password': return 'Password salah';
+                case 'auth/email-already-in-use': return 'Email sudah terdaftar';
+                case 'auth/weak-password': return 'Password terlalu lemah (min. 6 karakter)';
+                case 'auth/operation-not-allowed': return 'Operasi tidak diizinkan';
+                case 'auth/too-many-requests': return 'Terlalu banyak percobaan gagal. Coba lagi nanti';
+                default: return 'Terjadi kesalahan. Silakan coba lagi';
+            }
+        }
+
+        // === UI Functions ===
+        function showLoginForm() {
+            userLoginForm.classList.remove('hidden');
+            userRegisterForm.classList.add('hidden');
+            adminLoginForm.classList.add('hidden');
+        }
+
+        function showRegisterForm() {
+            userLoginForm.classList.add('hidden');
+            userRegisterForm.classList.remove('hidden');
+            adminLoginForm.classList.add('hidden');
+        }
+
+        function showAdminLoginForm() {
+            userLoginForm.classList.add('hidden');
+            userRegisterForm.classList.add('hidden');
+            adminLoginForm.classList.remove('hidden');
+        }
+
+        function showAppContent() {
+            authContainer.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            adminCmsSection.classList.add('hidden');
+        }
+
+        function showAdminCMS() {
+            authContainer.classList.add('hidden');
+            appContainer.classList.add('hidden');
+            adminCmsSection.classList.remove('hidden');
+        }
+
+        function showAuthForms() {
+            authContainer.classList.remove('hidden');
+            appContainer.classList.add('hidden');
+            adminCmsSection.classList.add('hidden');
+            showLoginForm();
+        }
+
+        // === User Management ===
         async function setupUserAndListener(user) {
             if (unsubscribeUserListener) unsubscribeUserListener();
             
             currentUser = user;
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnap = await getDoc(userDocRef);
-
-            if (!userDocSnap.exists()) {
-                await setDoc(userDocRef, {
-                    isPremium: false,
-                    freeAttemptsLeft: 2,
-                    createdAt: serverTimestamp(),
-                    email: user.email || null,
-                    displayName: user.displayName || 'Anonymous User',
-                    photoURL: user.photoURL || null,
-                    provider: user.providerData[0]?.providerId || 'anonymous'
-                });
-            }
-
-            const adminDocRef = doc(db, "admins", user.uid);
-            const adminDocSnap = await getDoc(adminDocRef);
-            isUserAdmin = adminDocSnap.exists();
+            userEmailDisplay.textContent = user.email || 'Pengguna';
             
-            console.log(`User: ${user.uid}, isAdmin: ${isUserAdmin}`);
-
-            checkUrlHash();
-
-            unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    isPremiumUser = data.isPremium === true;
-                    freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
-                } else {
-                    isPremiumUser = false;
-                    freeAttemptsLeft = 2;
-                }
-                updateUIBasedOnUserState();
-            });
+            // Cek apakah user adalah admin
+            const adminDoc = await getDoc(doc(db, "admins", user.uid));
+            isUserAdmin = adminDoc.exists();
+            
+            if (isUserAdmin) {
+                showAdminCMS();
+            } else {
+                showAppContent();
+                
+                // Setup listener untuk perubahan data user
+                unsubscribeUserListener = onSnapshot(doc(db, "users", user.uid), (doc) => {
+                    if (doc.exists()) {
+                        const userData = doc.data();
+                        updateUIBasedOnUserState(userData);
+                    }
+                });
+            }
         }
-        
-        function updateUIBasedOnUserState() {
+
+        function updateUIBasedOnUserState(userData) {
+            // Update UI berdasarkan status user (premium/free)
             const canShake = nameInput.value.trim() !== '' && 
-                             (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin);
+                            (userData.isPremium || userData.freeAttemptsLeft > 0);
             shakeBtn.disabled = !canShake;
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setupUserAndListener(user);
-                document.querySelectorAll('.package-option').forEach(pkg => {
-                    pkg.classList.remove('disabled');
-                });
-            } else {
-                isUserAdmin = false;
-                signInAnonymously(auth).catch(error => {
-                    console.error("Gagal login anonim:", error);
-                    showMessage('Error', 'Gagal memuat sesi Anda. Silakan refresh halaman.');
-                });
-            }
-        });
-
-        function checkUrlHash() {
-            const isAdminPage = window.location.hash === '#admin';
-            if (isAdminPage) {
-                appContainer.classList.add('hidden');
-                if (isUserAdmin) {
-                    adminCmsSection.classList.remove('hidden');
-                    adminLoginSection.classList.add('hidden');
-                    initCms();
-                } else {
-                    adminLoginSection.classList.remove('hidden');
-                    adminCmsSection.classList.add('hidden');
-                }
-            } else {
-                appContainer.classList.remove('hidden');
-                adminLoginSection.classList.add('hidden');
-                adminCmsSection.classList.add('hidden');
+            
+            // Update tampilan untuk user premium
+            if (userData.isPremium) {
+                document.querySelector('.menu .btn').textContent = "Akun Premium";
             }
         }
-        
-        window.addEventListener('hashchange', checkUrlHash);
-        document.addEventListener('DOMContentLoaded', checkUrlHash);
-        
-        adminGoogleLoginBtn.addEventListener('click', () => {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider).catch(error => {
-                console.error("Gagal login admin dengan Google:", error);
-                showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
-            });
+
+        // === Event Listeners ===
+        userLoginBtn.addEventListener('click', () => {
+            if (!loginEmail.value || !loginPassword.value) {
+                document.getElementById('loginError').textContent = 'Email dan password harus diisi';
+                return;
+            }
+            handleUserLogin(loginEmail.value, loginPassword.value);
         });
+
+        adminLoginBtn.addEventListener('click', () => {
+            if (!adminEmail.value || !adminPassword.value) {
+                document.getElementById('adminLoginError').textContent = 'Email dan password harus diisi';
+                return;
+            }
+            handleAdminLogin(adminEmail.value, adminPassword.value);
+        });
+
+        userRegisterBtn.addEventListener('click', () => {
+            if (!registerName.value || !registerEmail.value || !registerPassword.value) {
+                document.getElementById('registerError').textContent = 'Semua field harus diisi';
+                return;
+            }
+            if (registerPassword.value.length < 6) {
+                document.getElementById('registerError').textContent = 'Password minimal 6 karakter';
+                return;
+            }
+            handleUserRegister(registerName.value, registerEmail.value, registerPassword.value);
+        });
+
+        googleLoginBtn.addEventListener('click', handleGoogleLogin);
+
+        showRegister.addEventListener('click', showRegisterForm);
+        showLogin.addEventListener('click', showLoginForm);
+        showUserLogin.addEventListener('click', showLoginForm);
 
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
-                isUserAdmin = false;
-                window.location.hash = '';
-                window.location.reload();
+                showAuthForms();
             });
         });
 
-        async function initCms() {
-            if (ramalanNumberSelect.options.length > 0) return;
-            for (let i = 1; i <= 100; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `Nomor ${i}`;
-                ramalanNumberSelect.appendChild(option);
-            }
-            loadRamalanData(1);
-        }
-
-        ramalanNumberSelect.addEventListener('change', (e) => loadRamalanData(e.target.value));
-
-        async function loadRamalanData(number) {
-            try {
-                const docRef = doc(db, "ramalan", String(number));
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    sinthioInput.value = data.sinthio || '';
-                    syairInput.value = data.syair || '';
-                    selayangPandangInput.value = data.selayangPandang || '';
-                    pedomanInput.value = (data.pedoman || []).join('\n');
-                } else {
-                    sinthioInput.value = ''; syairInput.value = ''; selayangPandangInput.value = ''; pedomanInput.value = '';
-                }
-            } catch (error) {
-                console.error("Gagal memuat data ramalan:", error);
-                showMessage('Error', 'Gagal memuat data ramalan.');
-            }
-        }
-
-        saveBtn.addEventListener('click', async () => {
-            const number = ramalanNumberSelect.value;
-            const dataToSave = {
-                nomor: parseInt(number),
-                sinthio: sinthioInput.value,
-                syair: syairInput.value,
-                selayangPandang: selayangPandangInput.value,
-                pedoman: pedomanInput.value.split('\n').filter(line => line.trim() !== '')
-            };
-            try {
-                await setDoc(doc(db, "ramalan", number), dataToSave);
-                showMessage('Sukses', `Data untuk nomor ${number} berhasil disimpan.`);
-            } catch (error) {
-                console.error("Save error:", error);
-                showMessage('Error', 'Gagal menyimpan data.');
-            }
-        });
-
-        function resetState() {
-            throwCount = 0;
-            throwCountElement.textContent = throwCount;
-            throwBtn.disabled = true;
-            shakeResult.classList.add('hidden');
-            throwResult.classList.add('hidden');
-            predictionResult.classList.add('hidden');
-            puakpois.forEach(p => p.textContent = '-');
-            currentPredictionNumberState = null;
-            updateUIBasedOnUserState();
-        }
-
-        nameInput.addEventListener('input', () => {
-            if (predictionResult.classList.contains('hidden')) {
-                updateUIBasedOnUserState();
-            }
-        });
-
-        shakeBtn.addEventListener('click', () => {
-            if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
-                paymentPopup.classList.remove('hidden');
-                return;
-            }
-            resetState();
-            ciamsiContainer.classList.add('shake-animation');
-            fallingStick.classList.remove('fall-animation');
-            fallingStick.style.opacity = 0;
-            setTimeout(() => {
-                ciamsiContainer.classList.remove('shake-animation');
-                fallingStick.classList.add('fall-animation');
-                const randomNumber = Math.floor(Math.random() * 100) + 1;
-                predictionNumber.textContent = randomNumber;
-                currentPredictionNumberState = randomNumber;
-                shakeResult.classList.remove('hidden');
-                throwBtn.disabled = false;
-            }, 800);
-        });
-
-        throwBtn.addEventListener('click', async () => {
-            throwBtn.disabled = true;
-            throwCount++;
-            throwCountElement.textContent = throwCount;
-            puakpois.forEach(poi => {
-                poi.textContent = '';
-                poi.classList.add('throw-animation');
-                setTimeout(() => poi.classList.remove('throw-animation'), 800);
-            });
-            setTimeout(async () => {
-                const result1 = Math.round(Math.random());
-                const result2 = Math.round(Math.random());
-                puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
-                puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
-                const isConfirmed = result1 !== result2;
-                if (isConfirmed) {
-                    throwResultText.textContent = 'Hasil: Direstui Dewa!';
-                    throwResult.classList.remove('hidden');
-                    await showPrediction();
-                } else {
-                    if (!isPremiumUser && throwCount >= maxThrowsFree && !isUserAdmin) {
-                        throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
-                        throwBtn.disabled = true;
-                    } else {
-                        throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
-                        throwBtn.disabled = false;
-                    }
-                    throwResult.classList.remove('hidden');
-                }
-            }, 900);
-        });
-
-        async function showPrediction() {
-            if (!currentPredictionNumberState) return;
-            const docRef = doc(db, "ramalan", String(currentPredictionNumberState));
-            try {
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    resultNumber.textContent = data.nomor || currentPredictionNumberState;
-                    sinthioText.textContent = data.sinthio || 'Data belum diisi.';
-                    syairText.textContent = data.syair || 'Data belum diisi.';
-                    selayangPandangText.textContent = data.selayangPandang || 'Data belum diisi.';
-                    pedomanList.innerHTML = '';
-                    (data.pedoman || []).forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item;
-                        pedomanList.appendChild(li);
-                    });
-                    predictionResult.classList.remove('hidden');
-                    shakeBtn.disabled = true;
-                    if (!isPremiumUser && !isUserAdmin) {
-                        const userDocRef = doc(db, "users", currentUser.uid);
-                        await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
-                    }
-                } else {
-                    showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
-                    resetState();
-                }
-            } catch (error) {
-                console.error("Gagal mengambil data ramalan:", error);
-                showMessage('Error', 'Gagal memuat data.');
-            }
-        }
-        
-        document.querySelectorAll('.package-option').forEach(pkg => {
-            pkg.addEventListener('click', () => {
-                selectedPackage = {
-                    attempts: parseInt(pkg.getAttribute('data-attempts')),
-                    price: parseInt(pkg.getAttribute('data-price'))
-                };
-                priceDisplay.textContent = selectedPackage.price.toLocaleString();
-                attemptsDisplay.textContent = selectedPackage.attempts;
-
-                if (currentUser && currentUser.isAnonymous) {
-                    loginPopup.classList.remove('hidden');
-                } else {
-                    confirmPaymentPopup.classList.remove('hidden');
-                }
-                paymentPopup.classList.add('hidden');
+        adminLogoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                showAuthForms();
             });
         });
 
-        googleLoginBtn.addEventListener('click', async () => {
-            const provider = new GoogleAuthProvider();
-            try {
-                if (!auth.currentUser || !auth.currentUser.isAnonymous) {
-                    showMessage('Info', 'Anda sudah login dengan akun permanen.');
-                    return;
-                }
-                
-                const result = await linkWithPopup(auth.currentUser, provider);
-                const user = result.user;
-                console.log("Akun anonim berhasil di-link dengan Google:", user.uid);
-                
-                const userDocRef = doc(db, "users", user.uid);
-                await updateDoc(userDocRef, {
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    provider: 'google.com'
-                });
-                
-                loginPopup.classList.add('hidden');
-                confirmPaymentPopup.classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Error saat menautkan akun Google:", error);
-                if (error.code === 'auth/credential-already-in-use' || error.code === 'auth/email-already-in-use') {
-                     showMessage('Login Gagal', 'Akun Google ini sudah tertaut dengan pengguna lain.');
-                } else {
-                    showMessage('Login Gagal', 'Terjadi kesalahan saat mencoba login dengan Google.');
-                }
+        // === Initialize App ===
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setupUserAndListener(user);
+            } else {
+                showAuthForms();
             }
         });
 
-        cancelLoginBtn.addEventListener('click', () => {
-            loginPopup.classList.add('hidden');
-            paymentPopup.classList.remove('hidden');
-        });
-
-        confirmRealPayment.addEventListener('click', async () => {
-            if (!currentUser || currentUser.isAnonymous) {
-                showMessage('Error', 'Anda harus login dengan akun permanen (Google) untuk melakukan pembayaran.');
-                return;
-            }
-            if (!selectedPackage) return showMessage('Error', 'Silakan pilih paket lagi.');
-            
-            const btn = confirmRealPayment;
-            btn.disabled = true;
-            btn.textContent = "Memproses...";
-            try {
-                const result = await createTransaction({ 
-                    name: nameInput.value.trim() || currentUser.displayName || 'Pengguna',
-                    price: selectedPackage.price,
-                    attempts: selectedPackage.attempts
-                });
-                const token = result.data.token;
-                window.snap.pay(token, {
-                    onSuccess: () => {
-                        showMessage('Sukses', 'Pembayaran berhasil! Jatah kocok Anda akan segera ditambahkan.');
-                        confirmPaymentPopup.classList.add('hidden');
-                        resetState();
-                    },
-                    onPending: () => showMessage('Pending', 'Menunggu konfirmasi pembayaran.'),
-                    onError: () => showMessage('Gagal', 'Pembayaran gagal. Coba lagi nanti.'),
-                    onClose: () => console.log('Popup pembayaran ditutup oleh pengguna.')
-                });
-            } catch (error) {
-                console.error('Error memanggil Cloud Function:', error);
-                showMessage('Error', `Gagal memproses pembayaran: ${error.message}`);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Lanjut ke Midtrans";
-            }
-        });
-        
-        cancelConfirm.addEventListener('click', () => {
-            confirmPaymentPopup.classList.add('hidden');
-            paymentPopup.classList.remove('hidden');
-        });
-
-        closePaymentPopup.addEventListener('click', () => paymentPopup.classList.add('hidden'));
-        goToPaymentBtn.addEventListener('click', () => paymentPopup.classList.remove('hidden'));
-
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            html2canvas(document.getElementById('predictionCard'), {
-                backgroundColor: '#f8f4e9', scale: 2
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `Ramalan_CiamSi_${nameInput.value.trim().replace(/\s/g, '_') || 'user'}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.9);
-                link.click();
-            });
-        });
-
-        document.getElementById('whatsappShare').addEventListener('click', (e) => {
-            e.preventDefault();
-            const pedomanItems = Array.from(document.querySelectorAll('#pedomanList li')).map(li => `- ${li.textContent}`);
-            const pedomanText = pedomanItems.join('\n');
-            const shareText = `*Ramalan Ciam Si untuk ${nameInput.value.trim() || 'Pengguna'}*\n` +
-                `*Nomor: ${currentPredictionNumberState}*\n` +
-                `*Makna Lambang:*\n${sinthioText.textContent}\n` +
-                `*Bunyi Syair:*\n${syairText.textContent}\n` +
-                `*Selayang Pandang:*\n${selayangPandangText.textContent}\n` +
-                `*Pedoman Jawaban:*\n${pedomanText}\n` +
-                `Dapatkan ramalan Anda di: ${window.location.origin}`;
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-            window.open(whatsappUrl, '_blank');
-        });
-
-        termsLink.addEventListener('click', () => termsPopup.classList.remove('hidden'));
-        privacyLink.addEventListener('click', () => privacyPopup.classList.remove('hidden'));
-        closePopupBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.target.closest('.popup-overlay').classList.add('hidden');
-            });
-        });
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .catch(err => console.error('SW registration failed:', err));
-            });
-        }
+        // ... (Fungsi dan event listener lainnya tetap sama) ...
     </script>
 </body>
 </html>
