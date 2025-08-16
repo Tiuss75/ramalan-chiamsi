@@ -1,421 +1,134 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!-- Tambahkan ini -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ramalan Chiam Si</title>
     <meta name="theme-color" content="#9c1c26">
     <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" href="favicon-512.png" type="image/png">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    
+    <!-- Yang sudah ada -->
+    <title>Ramalan Chiam Si - Vihara Merah</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script type="text/javascript"
-        src="https://app.midtrans.com/snap/snap.js" 
-        data-client-key="SB-Mid-client-hCnSsq93YoH_kXLO"></script>
-    <style>
-        /* CSS yang sama seperti sebelumnya */
-        /* ... (tetap gunakan CSS yang Anda miliki) ... */
-        
-        /* Tambahan untuk form login/register */
-        .auth-form {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 30px;
-            background: rgba(44,36,22,.85);
-            border-radius: 15px;
-            border: 2px solid var(--gold);
-        }
-        .auth-form h2 {
-            text-align: center;
-            color: var(--gold);
-            margin-bottom: 20px;
-        }
-        .auth-form input {
-            width: 100%;
-            padding: 12px 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid var(--dark-gold);
-            background: var(--light-gold);
-            color: var(--black);
-        }
-        .auth-form button {
-            width: 100%;
-            margin-top: 15px;
-        }
-        .auth-switch {
-            text-align: center;
-            margin-top: 15px;
-            color: var(--light-gold);
-        }
-        .auth-switch a {
-            color: var(--gold);
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .user-menu {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-    </style>
-</head>
-<body>
-    <!-- Main App Container (default hidden) -->
-    <div id="appContainer" class="container hidden">
-        <div class="user-menu">
-            <span id="userEmailDisplay" style="color: var(--gold);"></span>
-            <button id="logoutBtn" class="btn" style="padding: 8px 15px;"><i class="fas fa-sign-out-alt"></i></button>
+    <link rel="stylesheet" href="style.css">
+</head><body>
+    <div class="container">
+        <i class="fas fa-torii-gate temple-icon"></i>
+        <i class="fas fa-torii-gate temple-icon right"></i>
+
+        <div class="header">
+            <h1>Ramalan Chiam Si</h1>
+            <p>Ramalan tradisional Tionghoa untuk mendapatkan petunjuk dari dewa-dewi.</p>
         </div>
-        
-        <!-- Konten aplikasi utama -->
-        <!-- ... (tetap gunakan konten yang sama) ... -->
+
+        <div class="process-container">
+            <div class="step">
+                <div class="step-title">
+                    <i class="fas fa-user"></i>
+                    <h2>Data Diri</h2>
+                </div>
+                <div class="step-content">
+                    <p>Masukkan nama Anda untuk memulai. Tanggal hari ini diambil secara otomatis.</p>
+                    <div class="user-input-section">
+                        <input type="text" id="nameInput" placeholder="Ketik nama Anda di sini..." class="name-input">
+                        <div id="dateDisplay" class="date-display"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <i class="fas fa-praying-hands"></i>
+                    <h2>Kocok Tabung Chiam Si</h2>
+                </div>
+                <div class="step-content">
+                    <p>Fokuskan pikiran dan doa Anda, lalu kocok tabung untuk mendapatkan satu batang bambu ramalan.</p>
+                    <div class="ciamsi-shaker-container">
+                        <div class="ciamsi-container" id="ciamsiContainer">
+                            <div class="ciamsi-lid"></div>
+                            <div class="ciamsi-body">
+                                <div class="ciamsi-logo">簽</div>
+                                <div class="stick-tops"></div>
+                            </div>
+                        </div>
+                        <div class="falling-stick" id="fallingStick"></div>
+                    </div>
+                    <button id="shakeBtn" class="btn" disabled>
+                        <i class="fas fa-hand-point-right"></i> Kocok Tabung
+                    </button>
+                    <div class="result-container hidden" id="shakeResult">
+                        <p>Anda mendapatkan nomor ramalan:</p>
+                        <div class="result-number" id="predictionNumber">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <i class="fas fa-moon"></i>
+                    <h2>Lempar Puak Poi</h2>
+                </div>
+                <div class="step-content">
+                    <p>Lemparkan dua bilah kayu berbentuk bulan untuk mendapatkan konfirmasi dari dewa.</p>
+                    <div class="puak-poi-container">
+                        <div class="puak-poi" id="puakpoi1">-</div>
+                        <div class="puak-poi" id="puakpoi2">-</div>
+                    </div>
+                    <div class="throw-counter">
+                        Lemparan ke: <span class="counter-number" id="throwCount">0</span>/3
+                        <div id="counterWarning" class="counter-warning hidden">Hanya tersisa 1 kali lemparan!</div>
+                    </div>
+                    <button id="throwBtn" class="btn" disabled>
+                        <i class="fas fa-hand-point-right"></i> Lempar Puak Poi
+                    </button>
+                    <div class="result-container hidden" id="throwResult">
+                        <p id="throwResultText">Hasil lemparan: -</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden" id="predictionResult">
+            <div class="prediction-card" id="predictionCard">
+                 <div class="card-header">
+                    <div class="card-title">Hasil Ramalan Ciam Si</div>
+                    <div class="card-number" id="resultNumber">-</div>
+                </div>
+                <div class="user-info-output">
+                    <p><strong>Nama:</strong> <span id="outputName"></span></p>
+                    <p><strong>Tanggal:</strong> <span id="outputDate"></span></p>
+                </div>
+                <div class="prediction-content">
+                    <p id="predictionText">Ramalan akan muncul di sini.</p>
+                    <div class="prediction-guidance">
+                        <h3>Petunjuk Dewa</h3>
+                        <p id="guidanceText">Petunjuk dewa akan muncul di sini.</p>
+                    </div>
+                    <div class="guidance-list">
+                        <div class="guidance-item"><i class="fas fa-heart"></i><h4>Asmara</h4><p id="loveGuidance">-</p></div>
+                        <div class="guidance-item"><i class="fas fa-briefcase"></i><h4>Karier</h4><p id="careerGuidance">-</p></div>
+                        <div class="guidance-item"><i class="fas fa-heartbeat"></i><h4>Kesehatan</h4><p id="healthGuidance">-</p></div>
+                        <div class="guidance-item"><i class="fas fa-money-bill-wave"></i><h4>Keuangan</h4><p id="wealthGuidance">-</p></div>
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <a href="#" class="whatsapp-share" id="whatsappShare"><i class="fab fa-whatsapp"></i> Bagikan</a>
+                <button class="btn download-btn" id="downloadBtn"><i class="fas fa-download"></i> Unduh JPG</button>
+            </div>
+        </div>
+
     </div>
+    
+    <canvas id="resultCanvas" class="hidden"></canvas>
 
-    <!-- Admin CMS Section (default hidden) -->
-    <div id="adminCmsSection" class="container hidden">
-        <h2>CMS Ramalan Chiam Si <button id="adminLogoutBtn" class="btn" style="float: right;">Logout</button></h2>
-        <!-- ... (konten CMS admin yang sama) ... -->
-    </div>
-
-    <!-- Auth Forms -->
-    <div id="authContainer">
-        <!-- Form Login User -->
-        <div id="userLoginForm" class="auth-form">
-            <h2>Login Pengguna</h2>
-            <div id="loginError" style="color: #ff6b6b; margin-bottom: 15px;"></div>
-            <input type="email" id="loginEmail" placeholder="Email">
-            <input type="password" id="loginPassword" placeholder="Password">
-            <button id="userLoginBtn" class="btn"><i class="fas fa-sign-in-alt"></i> Login</button>
-            <button id="googleLoginBtn" class="btn" style="background-color: #4285F4; color: white;">
-                <i class="fab fa-google"></i> Login dengan Google
-            </button>
-            <div class="auth-switch">Belum punya akun? <a id="showRegister">Daftar disini</a></div>
-        </div>
-
-        <!-- Form Register User -->
-        <div id="userRegisterForm" class="auth-form hidden">
-            <h2>Daftar Akun Baru</h2>
-            <div id="registerError" style="color: #ff6b6b; margin-bottom: 15px;"></div>
-            <input type="text" id="registerName" placeholder="Nama Lengkap">
-            <input type="email" id="registerEmail" placeholder="Email">
-            <input type="password" id="registerPassword" placeholder="Password (min. 6 karakter)">
-            <button id="userRegisterBtn" class="btn"><i class="fas fa-user-plus"></i> Daftar</button>
-            <div class="auth-switch">Sudah punya akun? <a id="showLogin">Login disini</a></div>
-        </div>
-
-        <!-- Form Login Admin -->
-        <div id="adminLoginForm" class="auth-form hidden">
-            <h2>Login Admin</h2>
-            <div id="adminLoginError" style="color: #ff6b6b; margin-bottom: 15px;"></div>
-            <input type="email" id="adminEmail" placeholder="Email Admin">
-            <input type="password" id="adminPassword" placeholder="Password">
-            <button id="adminLoginBtn" class="btn"><i class="fas fa-lock"></i> Login Admin</button>
-            <div class="auth-switch">Login sebagai <a id="showUserLogin">pengguna biasa</a></div>
-        </div>
-    </div>
-
-    <!-- Popup dan komponen lainnya -->
-    <!-- ... (tetap gunakan popup yang sama) ... -->
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword,
-            signOut,
-            onAuthStateChanged,
-            GoogleAuthProvider,
-            signInWithPopup
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            setDoc, 
-            updateDoc, 
-            onSnapshot,
-            serverTimestamp,
-            increment 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA93UxOEya10fRfOPpbOT4PfSmA_aaQx-E",
-            authDomain: "siamsi-3dd65.firebaseapp.com",
-            projectId: "siamsi-3dd65",
-            storageBucket: "siamsi-3dd65.appspot.com",
-            messagingSenderId: "675720995739",
-            appId: "1:675720995739:web:1af5223781df968289373e"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const functions = getFunctions(app);
-        const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
-
-        // === DOM Elements ===
-        const appContainer = document.getElementById('appContainer');
-        const authContainer = document.getElementById('authContainer');
-        const adminCmsSection = document.getElementById('adminCmsSection');
-        const userLoginForm = document.getElementById('userLoginForm');
-        const userRegisterForm = document.getElementById('userRegisterForm');
-        const adminLoginForm = document.getElementById('adminLoginForm');
-        const loginEmail = document.getElementById('loginEmail');
-        const loginPassword = document.getElementById('loginPassword');
-        const userLoginBtn = document.getElementById('userLoginBtn');
-        const registerName = document.getElementById('registerName');
-        const registerEmail = document.getElementById('registerEmail');
-        const registerPassword = document.getElementById('registerPassword');
-        const userRegisterBtn = document.getElementById('userRegisterBtn');
-        const adminEmail = document.getElementById('adminEmail');
-        const adminPassword = document.getElementById('adminPassword');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
-        const googleLoginBtn = document.getElementById('googleLoginBtn');
-        const showRegister = document.getElementById('showRegister');
-        const showLogin = document.getElementById('showLogin');
-        const showUserLogin = document.getElementById('showUserLogin');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-        const userEmailDisplay = document.getElementById('userEmailDisplay');
-
-        // === App State ===
-        let currentUser = null;
-        let isUserAdmin = false;
-        let unsubscribeUserListener = null;
-
-        // === Auth Functions ===
-        async function handleUserLogin(email, password) {
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                await setupUserAndListener(userCredential.user);
-                showAppContent();
-            } catch (error) {
-                document.getElementById('loginError').textContent = getAuthErrorMessage(error.code);
-                console.error("Login error:", error);
-            }
-        }
-
-        async function handleAdminLogin(email, password) {
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const adminDoc = await getDoc(doc(db, "admins", userCredential.user.uid));
-                
-                if (!adminDoc.exists()) {
-                    await auth.signOut();
-                    throw new Error("Anda bukan admin yang terdaftar");
-                }
-                
-                isUserAdmin = true;
-                showAdminCMS();
-            } catch (error) {
-                document.getElementById('adminLoginError').textContent = getAuthErrorMessage(error.code);
-                console.error("Admin login error:", error);
-            }
-        }
-
-        async function handleUserRegister(name, email, password) {
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Simpan data user tambahan
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    name: name,
-                    email: email,
-                    isPremium: false,
-                    freeAttemptsLeft: 2,
-                    createdAt: serverTimestamp(),
-                    lastLogin: serverTimestamp()
-                });
-                
-                await setupUserAndListener(userCredential.user);
-                showAppContent();
-            } catch (error) {
-                document.getElementById('registerError').textContent = getAuthErrorMessage(error.code);
-                console.error("Registration error:", error);
-            }
-        }
-
-        async function handleGoogleLogin() {
-            try {
-                const provider = new GoogleAuthProvider();
-                const userCredential = await signInWithPopup(auth, provider);
-                
-                // Cek apakah user sudah terdaftar sebelumnya
-                const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
-                
-                if (!userDoc.exists()) {
-                    // Simpan data user baru
-                    await setDoc(doc(db, "users", userCredential.user.uid), {
-                        name: userCredential.user.displayName,
-                        email: userCredential.user.email,
-                        isPremium: false,
-                        freeAttemptsLeft: 2,
-                        createdAt: serverTimestamp(),
-                        lastLogin: serverTimestamp(),
-                        photoURL: userCredential.user.photoURL
-                    });
-                }
-                
-                await setupUserAndListener(userCredential.user);
-                showAppContent();
-            } catch (error) {
-                document.getElementById('loginError').textContent = getAuthErrorMessage(error.code);
-                console.error("Google login error:", error);
-            }
-        }
-
-        function getAuthErrorMessage(errorCode) {
-            switch(errorCode) {
-                case 'auth/invalid-email': return 'Email tidak valid';
-                case 'auth/user-disabled': return 'Akun dinonaktifkan';
-                case 'auth/user-not-found': return 'Akun tidak ditemukan';
-                case 'auth/wrong-password': return 'Password salah';
-                case 'auth/email-already-in-use': return 'Email sudah terdaftar';
-                case 'auth/weak-password': return 'Password terlalu lemah (min. 6 karakter)';
-                case 'auth/operation-not-allowed': return 'Operasi tidak diizinkan';
-                case 'auth/too-many-requests': return 'Terlalu banyak percobaan gagal. Coba lagi nanti';
-                default: return 'Terjadi kesalahan. Silakan coba lagi';
-            }
-        }
-
-        // === UI Functions ===
-        function showLoginForm() {
-            userLoginForm.classList.remove('hidden');
-            userRegisterForm.classList.add('hidden');
-            adminLoginForm.classList.add('hidden');
-        }
-
-        function showRegisterForm() {
-            userLoginForm.classList.add('hidden');
-            userRegisterForm.classList.remove('hidden');
-            adminLoginForm.classList.add('hidden');
-        }
-
-        function showAdminLoginForm() {
-            userLoginForm.classList.add('hidden');
-            userRegisterForm.classList.add('hidden');
-            adminLoginForm.classList.remove('hidden');
-        }
-
-        function showAppContent() {
-            authContainer.classList.add('hidden');
-            appContainer.classList.remove('hidden');
-            adminCmsSection.classList.add('hidden');
-        }
-
-        function showAdminCMS() {
-            authContainer.classList.add('hidden');
-            appContainer.classList.add('hidden');
-            adminCmsSection.classList.remove('hidden');
-        }
-
-        function showAuthForms() {
-            authContainer.classList.remove('hidden');
-            appContainer.classList.add('hidden');
-            adminCmsSection.classList.add('hidden');
-            showLoginForm();
-        }
-
-        // === User Management ===
-        async function setupUserAndListener(user) {
-            if (unsubscribeUserListener) unsubscribeUserListener();
-            
-            currentUser = user;
-            userEmailDisplay.textContent = user.email || 'Pengguna';
-            
-            // Cek apakah user adalah admin
-            const adminDoc = await getDoc(doc(db, "admins", user.uid));
-            isUserAdmin = adminDoc.exists();
-            
-            if (isUserAdmin) {
-                showAdminCMS();
-            } else {
-                showAppContent();
-                
-                // Setup listener untuk perubahan data user
-                unsubscribeUserListener = onSnapshot(doc(db, "users", user.uid), (doc) => {
-                    if (doc.exists()) {
-                        const userData = doc.data();
-                        updateUIBasedOnUserState(userData);
-                    }
-                });
-            }
-        }
-
-        function updateUIBasedOnUserState(userData) {
-            // Update UI berdasarkan status user (premium/free)
-            const canShake = nameInput.value.trim() !== '' && 
-                            (userData.isPremium || userData.freeAttemptsLeft > 0);
-            shakeBtn.disabled = !canShake;
-            
-            // Update tampilan untuk user premium
-            if (userData.isPremium) {
-                document.querySelector('.menu .btn').textContent = "Akun Premium";
-            }
-        }
-
-        // === Event Listeners ===
-        userLoginBtn.addEventListener('click', () => {
-            if (!loginEmail.value || !loginPassword.value) {
-                document.getElementById('loginError').textContent = 'Email dan password harus diisi';
-                return;
-            }
-            handleUserLogin(loginEmail.value, loginPassword.value);
-        });
-
-        adminLoginBtn.addEventListener('click', () => {
-            if (!adminEmail.value || !adminPassword.value) {
-                document.getElementById('adminLoginError').textContent = 'Email dan password harus diisi';
-                return;
-            }
-            handleAdminLogin(adminEmail.value, adminPassword.value);
-        });
-
-        userRegisterBtn.addEventListener('click', () => {
-            if (!registerName.value || !registerEmail.value || !registerPassword.value) {
-                document.getElementById('registerError').textContent = 'Semua field harus diisi';
-                return;
-            }
-            if (registerPassword.value.length < 6) {
-                document.getElementById('registerError').textContent = 'Password minimal 6 karakter';
-                return;
-            }
-            handleUserRegister(registerName.value, registerEmail.value, registerPassword.value);
-        });
-
-        googleLoginBtn.addEventListener('click', handleGoogleLogin);
-
-        showRegister.addEventListener('click', showRegisterForm);
-        showLogin.addEventListener('click', showLoginForm);
-        showUserLogin.addEventListener('click', showLoginForm);
-
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                showAuthForms();
-            });
-        });
-
-        adminLogoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                showAuthForms();
-            });
-        });
-
-        // === Initialize App ===
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setupUserAndListener(user);
-            } else {
-                showAuthForms();
-            }
-        });
-
-        // ... (Fungsi dan event listener lainnya tetap sama) ...
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>
+
+
+
