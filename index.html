@@ -788,7 +788,6 @@
         });
 
         googleLoginBtn.addEventListener('click', async () => {
-            // PERBAIKAN: Menggunakan linkWithPopup yang lebih sederhana dan tepat.
             const provider = new GoogleAuthProvider();
             try {
                 if (!auth.currentUser || !auth.currentUser.isAnonymous) {
@@ -800,7 +799,6 @@
                 const user = result.user;
                 console.log("Akun anonim berhasil di-link dengan Google:", user.uid);
                 
-                // Update data di Firestore dengan info dari Google
                 const userDocRef = doc(db, "users", user.uid);
                 await updateDoc(userDocRef, {
                     email: user.email,
