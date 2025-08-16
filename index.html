@@ -434,15 +434,16 @@
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
-        const firebaseConfig = {
+        
             // ... (KONFIGURASI FIREBASE ANDA SAMA SEPERTI SEBELUMNYA) ...
-            apiKey: "AIzaSyBzYog6EbRLen7pg2aITsf5utEXQUVP3n0",
-            authDomain: "ramalan-chiamsi-df5b0.firebaseapp.com",
-            projectId: "ramalan-chiamsi-df5b0",
-            storageBucket: "ramalan-chiamsi-df5b0.appspot.com",
-            messagingSenderId: "152505108899",
-            appId: "1:152505108899:web:b1e2e90ac2d7e722997216"
-        };
+            const firebaseConfig = {
+  apiKey: "AIzaSyBzYog6EbRLen7pg2aITsf5utEXQUVP3n0",
+  authDomain: "ramalan-chiamsi-df5b0.firebaseapp.com",
+  projectId: "ramalan-chiamsi-df5b0",
+  storageBucket: "ramalan-chiamsi-df5b0.firebasestorage.app",
+  messagingSenderId: "152505108899",
+  appId: "1:152505108899:web:b1e2e90ac2d7e722997216"
+};
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
