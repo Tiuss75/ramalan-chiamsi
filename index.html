@@ -546,41 +546,48 @@
             }, 800);
         });
 
-        throwBtn.addEventListener('click', async () => { /* ... (no changes here) ... */ });
+      
+throwBtn.addEventListener('click', async () => {
+    throwBtn.disabled = true; // Langsung nonaktifkan tombol untuk mencegah klik ganda
+    throwCount++;
+    throwCountElement.textContent = throwCount;
 
-        async function showPrediction() {
-            if (!currentPredictionNumberState) return;
-            const docRef = doc(db, "ramalan", String(currentPredictionNumberState));
-            try {
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    resultNumber.textContent = data.nomor || currentPredictionNumberState;
-                    resultDewa.textContent = `Dewa: ${data.dewa || '-'}`; // ADDED
-                    sinthioText.textContent = data.sinthio || 'Data belum diisi.';
-                    syairText.textContent = data.syair || 'Data belum diisi.';
-                    selayangPandangText.textContent = data.selayangPandang || 'Data belum diisi.';
-                    pedomanList.innerHTML = '';
-                    (data.pedoman || []).forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item;
-                        pedomanList.appendChild(li);
-                    });
-                    predictionResult.classList.remove('hidden');
-                    shakeBtn.disabled = true;
-                    if (!isPremiumUser && !isUserAdmin) {
-                        const userDocRef = doc(db, "users", currentUser.uid);
-                        await updateDoc(userDocRef, { freeAttemptsLeft: increment(-1) });
-                    }
-                } else {
-                    showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
-                    resetState();
-                }
-            } catch (error) {
-                console.error("Gagal mengambil data ramalan:", error);
-                showMessage('Error', 'Gagal memuat data. Pastikan koneksi internet Anda stabil.');
+    puakpois.forEach(poi => {
+        poi.textContent = '';
+        poi.classList.add('throw-animation');
+    });
+
+    // Hapus animasi setelah selesai agar bisa diputar lagi
+    setTimeout(() => {
+        puakpois.forEach(poi => poi.classList.remove('throw-animation'));
+    }, 800);
+
+    // Tunggu animasi lemparan selesai sebelum menampilkan hasil
+    setTimeout(async () => {
+        const result1 = Math.round(Math.random());
+        const result2 = Math.round(Math.random());
+        puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
+        puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
+        
+        const isConfirmed = result1 !== result2;
+        throwResult.classList.remove('hidden');
+
+        if (isConfirmed) {
+            throwResultText.textContent = 'Hasil: Direstui Dewa!';
+            // Tombol tetap nonaktif karena proses selesai, lanjut ke hasil ramalan
+            await showPrediction();
+        } else {
+            throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
+            if (isPremiumUser || throwCount < maxThrowsFree || isUserAdmin) {
+                // Aktifkan kembali tombol jika masih ada kesempatan
+                throwBtn.disabled = false;
+            } else {
+                throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
+                // Tombol tetap nonaktif
             }
         }
+    }, 900);
+});
         
         // === MODIFIED: Payment and Registration Flow ===
         document.querySelectorAll('.package-option').forEach(pkg => {
