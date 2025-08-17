@@ -14,52 +14,74 @@
         :root { --primary-red: #9c1c26; --dark-red: #7a0a14; --gold: #d4af37; --light-gold: #f8ecc2; --dark-gold: #b8860b; --black: #2c2416; --white: #f8f4e9; --font-main: 'Inter', sans-serif; --font-display: 'Noto Serif SC', serif; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-main); background-color: var(--primary-red); background-image: linear-gradient(135deg, rgba(122,10,20,.8), rgba(28,5,7,.9)); color: var(--white); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { max-width: 800px; width: 100%; background: rgba(44,36,22,.85); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,.6); border: 3px solid var(--gold); backdrop-filter: blur(5px); }
+        .container { max-width: 800px; width: 100%; background: rgba(44,36,22,.85); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,.6); border: 3px solid var(--gold); backdrop-filter: blur(5px); margin-bottom: 20px; }
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { font-family: var(--font-display); font-size: 2.5rem; color: var(--gold); text-shadow: 0 3px 5px rgba(0,0,0,.7); }
-        .step { background: rgba(122,10,20,.6); border-radius: 15px; padding: 20px; margin-bottom: 25px; border: 2px solid var(--dark-gold); }
-        .step-title { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; color: var(--gold); }
-        .step-title i { font-size: 1.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: var(--black); border: 2px solid var(--gold); }
-        .step-title h2 { font-size: 1.5rem; }
         .btn { background: var(--gold); color: var(--black); border: none; padding: 12px 25px; font-size: 1.1rem; font-weight: 600; border-radius: 50px; cursor: pointer; transition: all .3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,.3); text-decoration: none; }
         .btn:hover { background: var(--light-gold); transform: translateY(-3px); }
-        .btn:disabled { background: #777; color: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
         .hidden { display: none !important; }
-        .admin-section { padding: 20px; background: #fff; color: #000; border-radius: 15px; margin-top: 20px; }
-        .admin-section h2 { color: var(--dark-red); }
+        /* Gaya untuk form dan input */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
+        .form-group textarea { min-height: 100px; }
     </style>
 </head>
 <body>
-    <div id="appContainer" class="container">
+
+    <div id="appContainer" class="container hidden">
         <div class="header">
-            <h1>Ramalan Chiam Si</h1>
-            <p>Petunjuk ilahi untuk langkah hidup Anda</p>
+            <h1>Aplikasi Ramalan Chiam Si</h1>
         </div>
-        <div class="step">
-            <div class="step-title"><i class="fas fa-user"></i><h2>Login Status</h2></div>
-            <p>Status: <span id="loginStatus">Not Logged In</span></p>
-            <p>Email: <span id="userEmail">-</span></p>
-            <p>Is Admin: <span id="isAdminStatus">false</span></p>
         </div>
-    </div>
 
-    <div id="adminLoginSection" class="container admin-section hidden">
+    <div id="adminLoginSection" class="container hidden">
         <h2>Login Admin</h2>
-        <input type="email" id="adminEmail" placeholder="Email" style="width:100%; padding:10px; margin-bottom:10px;">
-        <input type="password" id="adminPassword" placeholder="Password" style="width:100%; padding:10px; margin-bottom:10px;">
-        <button id="loginBtn" class="btn" style="width:100%;">Login</button>
+        <div class="form-group">
+            <label for="adminEmail">Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" placeholder="******">
+        </div>
+        <button id="loginBtn" class="btn" style="width: 100%;">Login</button>
     </div>
 
-    <div id="adminCmsSection" class="container admin-section hidden">
-        <h2>CMS Ramalan</h2>
-        <p>Welcome, Admin! <button id="logoutBtn" class="btn" style="float:right;">Logout</button></p>
-        <p>Anda berhasil login sebagai admin.</p>
+    <div id="adminCmsSection" class="container hidden">
+        <h2>CMS Ramalan Chiam Si <button id="logoutBtn" class="btn" style="float: right;">Logout</button></h2>
+        <p>Anda berhasil login sebagai admin. Silakan kelola konten ramalan di bawah ini.</p>
+        <div class="form-group">
+            <label for="ramalanNumberSelect">Pilih Nomor Ramalan</label>
+            <select id="ramalanNumberSelect"></select>
+        </div>
+        <div class="form-group">
+            <label for="dewaInput">Nama Dewa</label>
+            <textarea id="dewaInput"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="sinthioInput">Makna Lambang</label>
+            <textarea id="sinthioInput"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="syairInput">Bunyi Syair</label>
+            <textarea id="syairInput"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="selayangPandangInput">Selayang Pandang</label>
+            <textarea id="selayangPandangInput"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="pedomanInput">Pedoman Jawaban (satu per baris)</label>
+            <textarea id="pedomanInput"></textarea>
+        </div>
+        <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
         // PENTING: Ganti dengan konfigurasi Firebase Anda yang BENAR
@@ -80,9 +102,6 @@
         const db = getFirestore(app);
 
         // DOM Elements
-        const loginStatus = document.getElementById('loginStatus');
-        const userEmail = document.getElementById('userEmail');
-        const isAdminStatus = document.getElementById('isAdminStatus');
         const appContainer = document.getElementById('appContainer');
         const adminLoginSection = document.getElementById('adminLoginSection');
         const adminCmsSection = document.getElementById('adminCmsSection');
@@ -90,8 +109,17 @@
         const logoutBtn = document.getElementById('logoutBtn');
         const adminEmailInput = document.getElementById('adminEmail');
         const adminPasswordInput = document.getElementById('adminPassword');
+        // CMS Form Elements
+        const ramalanNumberSelect = document.getElementById('ramalanNumberSelect');
+        const dewaInput = document.getElementById('dewaInput');
+        const sinthioInput = document.getElementById('sinthioInput');
+        const syairInput = document.getElementById('syairInput');
+        const selayangPandangInput = document.getElementById('selayangPandangInput');
+        const pedomanInput = document.getElementById('pedomanInput');
+        const saveBtn = document.getElementById('saveBtn');
 
         function showPage(pageId) {
+            appContainer.classList.add('hidden');
             adminLoginSection.classList.add('hidden');
             adminCmsSection.classList.add('hidden');
             if (pageId) {
@@ -99,59 +127,103 @@
             }
         }
 
+        async function initCms() {
+            if (ramalanNumberSelect.options.length > 0) return;
+            for (let i = 1; i <= 100; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Nomor ${i}`;
+                ramalanNumberSelect.appendChild(option);
+            }
+            await loadRamalanData(1);
+        }
+
+        async function loadRamalanData(number) {
+            const docRef = doc(db, "ramalan", String(number));
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                dewaInput.value = data.dewa || '';
+                sinthioInput.value = data.sinthio || '';
+                syairInput.value = data.syair || '';
+                selayangPandangInput.value = data.selayangPandang || '';
+                pedomanInput.value = (data.pedoman || []).join('\n');
+            } else {
+                [dewaInput, sinthioInput, syairInput, selayangPandangInput, pedomanInput].forEach(input => input.value = '');
+            }
+        }
+
         onAuthStateChanged(auth, async (user) => {
-            appContainer.classList.remove('hidden');
-
+            const url = new URL(window.location.href);
+            const isAdminPage = url.hash === '#admin';
+            
             if (user) {
-                loginStatus.textContent = "Logged In";
-                userEmail.textContent = user.email;
-
-                // Check for admin role
                 const userDocRef = doc(db, "users", user.uid);
                 try {
                     const docSnap = await getDoc(userDocRef);
                     if (docSnap.exists() && docSnap.data().role === 'admin') {
-                        isAdminStatus.textContent = "true";
-                        console.log("Admin user detected. Showing CMS.");
-                        showPage('adminCmsSection');
+                        if (isAdminPage) {
+                            showPage('adminCmsSection');
+                            await initCms();
+                        } else {
+                            showPage('appContainer');
+                        }
                     } else {
-                        isAdminStatus.textContent = "false";
-                        console.log("Regular user detected. No CMS access.");
-                        // For regular users, you might show a different page or just the status
-                        showPage(null); 
+                        // User is logged in but not an admin
+                        if (isAdminPage) {
+                            alert("Anda bukan admin. Mengarahkan ke halaman utama.");
+                            window.location.hash = '';
+                        }
+                        showPage('appContainer');
                     }
                 } catch (error) {
-                    console.error("Error getting user document:", error);
-                    isAdminStatus.textContent = "error checking role";
-                    showPage('adminLoginSection'); // Fallback to login if there's an error
+                    console.error("Error getting user role:", error);
+                    alert("Gagal memverifikasi status admin. Silakan coba lagi.");
+                    signOut(auth);
                 }
             } else {
-                loginStatus.textContent = "Logged Out";
-                userEmail.textContent = "-";
-                isAdminStatus.textContent = "false";
-                console.log("No user logged in. Showing admin login page.");
-                showPage('adminLoginSection');
+                // Not logged in
+                if (isAdminPage) {
+                    showPage('adminLoginSection');
+                } else {
+                    showPage('appContainer');
+                }
             }
         });
-
+        
+        // Event Listeners
         loginBtn.addEventListener('click', () => {
             const email = adminEmailInput.value;
             const password = adminPasswordInput.value;
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    console.log("Login successful for:", userCredential.user.email);
-                })
-                .catch((error) => {
-                    console.error("Login failed:", error.message);
-                    alert("Login Gagal: " + error.message);
-                });
+                .catch((error) => alert("Login Gagal: " + error.message));
         });
 
         logoutBtn.addEventListener('click', () => {
-            signOut(auth).catch((error) => {
-                console.error("Logout failed:", error.message);
-            });
+            signOut(auth).catch((error) => alert("Logout Gagal: " + error.message));
         });
+
+        ramalanNumberSelect.addEventListener('change', (e) => loadRamalanData(e.target.value));
+
+        saveBtn.addEventListener('click', async () => {
+            const number = ramalanNumberSelect.value;
+            const dataToSave = {
+                nomor: parseInt(number),
+                dewa: dewaInput.value,
+                sinthio: sinthioInput.value,
+                syair: syairInput.value,
+                selayangPandang: selayangPandangInput.value,
+                pedoman: pedomanInput.value.split('\n').filter(line => line.trim() !== '')
+            };
+            try {
+                await setDoc(doc(db, "ramalan", number), dataToSave);
+                alert(`Data untuk nomor ${number} berhasil disimpan.`);
+            } catch (error) {
+                console.error("Save error:", error);
+                alert("Gagal menyimpan data. Pastikan Anda memiliki hak akses admin.");
+            }
+        });
+
     </script>
 </body>
 </html>
