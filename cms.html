@@ -24,7 +24,7 @@
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--light-gold); }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--dark-gold); font-size: 1rem; background-color: var(--light-gold); color: var(--black); }
         .form-group textarea { min-height: 100px; resize: vertical; }
-        #adminCmsSection h2, #adminLoginSection h2 { color: var(--gold); }
+        #cmsCmsSection h2, #cmsLoginSection h2 { color: var(--gold); }
     </style>
 </head>
 <body>
@@ -32,7 +32,7 @@
     <div id="appContainer" class="container hidden">
         <div class="header">
             <h1>Ramalan Chiam Si</h1>
-            <p>Buka <a href="/#admin" style="color: var(--gold);">halaman admin</a> untuk mengelola konten.</p>
+            <p>Buka <a href="/#cms" style="color: var(--gold);">halaman admin</a> untuk mengelola konten.</p>
         </div>
         </div>
 
@@ -162,7 +162,7 @@
         }
         
         function handleRouting() {
-            const isAdminPage = window.location.hash === '#admin';
+            const isAdminPage = window.location.hash === '#cms';
             if (isAdminPage) {
                 if (auth.currentUser) {
                     // Jika sudah ada user, biarkan onAuthStateChanged yang menangani
@@ -175,7 +175,7 @@
         }
 
         onAuthStateChanged(auth, async (user) => {
-            const isAdminPage = window.location.hash === '#admin';
+            const isAdminPage = window.location.hash === '#cms';
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);
                 try {
