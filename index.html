@@ -237,533 +237,154 @@
         </div>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
-    // =========================================================================
-    // Konfigurasi Firebase Anda
-    // =========================================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyA93UxOEya10fRfOPpbOT4PfSmA_aaQx-E",
-      authDomain: "siamsi-3dd65.firebaseapp.com",
-      projectId: "siamsi-3dd65",
-      storageBucket: "siamsi-3dd65.firebasestorage.app",
-      messagingSenderId: "675720995739",
-      appId: "1:675720995739:web:1af5223781df968289373e",
-      measurementId: "G-P5TVSQ6V7X"
-    };
-    // =========================================================================
-
-    // === Inisialisasi Firebase ===
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const functions = getFunctions(app);
-    const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
-
-    // === DOM Elements (Tidak ada perubahan di sini) ===
-    const appContainer = document.getElementById('appContainer');
-    const adminLoginSection = document.getElementById('adminLoginSection');
-    const adminCmsSection = document.getElementById('adminCmsSection');
-    const nameInput = document.getElementById('nameInput');
-    const shakeBtn = document.getElementById('shakeBtn');
-    const throwBtn = document.getElementById('throwBtn');
-    const predictionResult = document.getElementById('predictionResult');
-    const resultNumber = document.getElementById('resultNumber');
-    const resultDewa = document.getElementById('resultDewa');
-    const sinthioText = document.getElementById('sinthioText');
-    const syairText = document.getElementById('syairText');
-    const selayangPandangText = document.getElementById('selayangPandangText');
-    const pedomanList = document.getElementById('pedomanList');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const ramalanNumberSelect = document.getElementById('ramalanNumberSelect');
-    const dewaInput = document.getElementById('dewaInput');
-    const sinthioInput = document.getElementById('sinthioInput');
-    const syairInput = document.getElementById('syairInput');
-    const selayangPandangInput = document.getElementById('selayangPandangInput');
-    const pedomanInput = document.getElementById('pedomanInput');
-    const saveBtn = document.getElementById('saveBtn');
-    const paymentPopup = document.getElementById('paymentPopup');
-    const confirmPaymentPopup = document.getElementById('confirmPaymentPopup');
-    const messagePopup = document.getElementById('messagePopup');
-    const goToPaymentBtn = document.getElementById('goToPayment');
-    const registrationPopup = document.getElementById('registrationPopup');
-    const registerBtn = document.getElementById('registerBtn');
-    const loginAndPayBtn = document.getElementById('loginAndPayBtn');
-    const cancelRegistrationBtn = document.getElementById('cancelRegistrationBtn');
-    const authError = document.getElementById('authError');
-    const shakeResult = document.getElementById('shakeResult');
-    const predictionNumber = document.getElementById('predictionNumber');
-    const throwResult = document.getElementById('throwResult');
-    const throwResultText = document.getElementById('throwResultText');
-    const ciamsiContainer = document.getElementById('ciamsiContainer');
-    const fallingStick = document.getElementById('fallingStick');
-    const puakpois = [document.getElementById('puakpoi1'), document.getElementById('puakpoi2')];
-    const throwCountElement = document.getElementById('throwCount');
-    const closePaymentPopup = document.getElementById('closePaymentPopup');
-    const confirmRealPayment = document.getElementById('confirmRealPayment');
-    const cancelConfirm = document.getElementById('cancelConfirm');
-    const messageTitle = document.getElementById('messageTitle');
-    const messageText = document.getElementById('messageText');
-    const closeMessageBtn = document.getElementById('closeMessageBtn');
-    const termsPopup = document.getElementById('termsPopup');
-    const privacyPopup = document.getElementById('privacyPopup');
-    const termsLink = document.getElementById('termsLink');
-    const privacyLink = document.getElementById('privacyLink');
-    const closePopupBtns = document.querySelectorAll('.close-popup-btn');
-    const priceDisplay = document.getElementById('priceDisplay');
-    const attemptsDisplay = document.getElementById('attemptsDisplay');
-    const whatsappShareBtn = document.getElementById('whatsappShare');
-    const downloadBtn = document.getElementById('downloadBtn');
-
-    // === App State ===
-    let currentUser = null;
-    let isUserAdmin = false;
-    let currentPredictionNumberState = null;
-    let throwCount = 0;
-    const maxThrowsFree = 3;
-    let isPremiumUser = false;
-    let freeAttemptsLeft = 2; 
-    let selectedPackage = null;
-    let unsubscribeUserListener = null;
-
-    // === Functions (Tidak ada perubahan signifikan kecuali di initializeAppForUser) ===
-    function showMessage(title, text) {
-        messageTitle.textContent = title;
-        messageText.textContent = text;
-        messagePopup.classList.remove('hidden');
-    }
-
-    closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
-
-    async function initializeAppForUser(user) {
-        if (unsubscribeUserListener) unsubscribeUserListener();
-        
-        currentUser = user;
-        const userDocRef = doc(db, "users", user.uid);
-        
-        unsubscribeUserListener = onSnapshot(userDocRef, async (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                isUserAdmin = data.role === 'admin';
-                isPremiumUser = data.isPremium === true;
-                freeAttemptsLeft = data.freeAttemptsLeft ?? 2; 
-                if (data.displayName && !user.isAnonymous && !nameInput.value) {
-                    nameInput.value = data.displayName;
-                }
-            } else {
-                // ▼▼▼ PERBAIKAN 2: Jika dokumen pengguna belum ada, buat sekarang juga! ▼▼▼
-                isUserAdmin = false;
-                isPremiumUser = false;
-                freeAttemptsLeft = 2; // Nilai default awal
-
-                // Hanya buat dokumen untuk pengguna anonim yang belum punya data
-                if (user.isAnonymous) {
-                    try {
-                        await setDoc(userDocRef, {
-                            displayName: 'Anonymous User',
-                            isPremium: false,
-                            freeAttemptsLeft: 2,
-                            createdAt: serverTimestamp(),
-                            provider: 'anonymous'
-                        });
-                    } catch (e) {
-                        console.error("Gagal membuat dokumen untuk pengguna anonim:", e);
-                    }
-                }
-                // ▲▲▲ AKHIR PERBAIKAN 2 ▲▲▲
-            }
-            updateUIBasedOnUserState();
-            checkUrlHash(); 
-        });
-    }
-    
-    function updateUIBasedOnUserState() {
-        const canShake = nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin);
-        shakeBtn.disabled = !canShake;
-    }
-
-    // === Logika Utama & Event Listeners (Sebagian besar tidak berubah) ===
-
-    // CMS Logic
-    function checkUrlHash() {
-        if (window.location.hash !== '#admin') {
-            appContainer.classList.remove('hidden');
-            adminLoginSection.classList.add('hidden');
-            adminCmsSection.classList.add('hidden');
-            return;
-        }
-        
-        appContainer.classList.add('hidden');
-        if (isUserAdmin) {
-            adminCmsSection.classList.remove('hidden');
-            adminLoginSection.classList.add('hidden');
-            initCms();
-        } else {
-            adminLoginSection.classList.remove('hidden');
-            adminCmsSection.classList.add('hidden');
-        }
-    }
-    
-    window.addEventListener('hashchange', checkUrlHash);
-    document.addEventListener('DOMContentLoaded', checkUrlHash);
-
-    loginBtn.addEventListener('click', () => {
-        const email = document.getElementById('adminEmail').value;
-        const password = document.getElementById('adminPassword').value;
-        signInWithEmailAndPassword(auth, email, password)
-          .catch(error => showMessage('Login Gagal', error.message));
-    });
-
-    logoutBtn.addEventListener('click', () => {
-        signOut(auth).then(() => { 
-            isUserAdmin = false;
-            window.location.hash = ''; 
-            window.location.reload();
-        });
-    });
-
-    async function initCms() {
-        if (ramalanNumberSelect.options.length > 0) return;
-        for (let i = 1; i <= 100; i++) ramalanNumberSelect.add(new Option(`Nomor ${i}`, i));
-        loadRamalanData(1);
-    }
-
-    ramalanNumberSelect.addEventListener('change', (e) => loadRamalanData(e.target.value));
-
-    async function loadRamalanData(number) {
-        try {
-            const docRef = doc(db, "ramalan", String(number));
-            const docSnap = await getDoc(docRef);
-            const fields = { dewa: dewaInput, sinthio: sinthioInput, syair: syairInput, selayangPandang: selayangPandangInput };
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                for (const key in fields) fields[key].value = data[key] || '';
-                pedomanInput.value = (data.pedoman || []).join('\n');
-            } else {
-                for (const key in fields) fields[key].value = '';
-                pedomanInput.value = '';
-            }
-        } catch (error) {
-            console.error("Gagal memuat data ramalan:", error);
-            showMessage('Error', 'Gagal memuat data ramalan.');
-        }
-    }
-
-    saveBtn.addEventListener('click', async () => {
-        const number = ramalanNumberSelect.value;
-        const dataToSave = {
-            nomor: parseInt(number),
-            dewa: dewaInput.value.trim(),
-            sinthio: sinthioInput.value.trim(),
-            syair: syairInput.value.trim(),
-            selayangPandang: selayangPandangInput.value.trim(),
-            pedoman: pedomanInput.value.split('\n').filter(line => line.trim() !== '')
+        // =========================================================================
+        // Konfigurasi Firebase Anda
+        // =========================================================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyA93UxOEya10fRfOPpbOT4PfSmA_aaQx-E",
+          authDomain: "siamsi-3dd65.firebaseapp.com",
+          projectId: "siamsi-3dd65",
+          storageBucket: "siamsi-3dd65.firebasestorage.app",
+          messagingSenderId: "675720995739",
+          appId: "1:675720995739:web:1af5223781df968289373e",
+          measurementId: "G-P5TVSQ6V7X"
         };
-        try {
-            await setDoc(doc(db, "ramalan", number), dataToSave);
-            showMessage('Sukses', `Data untuk nomor ${number} berhasil disimpan.`);
-        } catch (error) {
-            showMessage('Error', 'Gagal menyimpan data.');
-        }
-    });
-
-    // Main App Logic
-    function resetState() {
-        throwCount = 0;
-        throwCountElement.textContent = throwCount;
-        throwBtn.disabled = true;
-        shakeResult.classList.add('hidden');
-        throwResult.classList.add('hidden');
-        predictionResult.classList.add('hidden');
-        puakpois.forEach(p => p.textContent = '-');
-        currentPredictionNumberState = null;
-        updateUIBasedOnUserState();
-    }
-
-    nameInput.addEventListener('input', () => {
-        if (predictionResult.classList.contains('hidden')) updateUIBasedOnUserState();
-    });
-
-    shakeBtn.addEventListener('click', () => {
-        if (!currentUser) return;
-        if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
-            paymentPopup.classList.remove('hidden');
-            return;
-        }
-        resetState();
-        ciamsiContainer.classList.add('shake-animation');
-        fallingStick.className = 'falling-stick';
-        setTimeout(() => {
-            ciamsiContainer.classList.remove('shake-animation');
-            fallingStick.classList.add('fall-animation');
-            const randomNumber = Math.floor(Math.random() * 100) + 1;
-            predictionNumber.textContent = randomNumber;
-            currentPredictionNumberState = randomNumber;
-            shakeResult.classList.remove('hidden');
-            throwBtn.disabled = false;
-        }, 800);
-    });
-
-    throwBtn.addEventListener('click', async () => {
-        throwBtn.disabled = true;
-        throwCount++;
-        throwCountElement.textContent = throwCount;
-        puakpois.forEach(poi => poi.classList.add('throw-animation'));
-        setTimeout(() => puakpois.forEach(p => p.classList.remove('throw-animation')), 800);
-
-        setTimeout(async () => {
-            const result1 = Math.round(Math.random());
-            const result2 = Math.round(Math.random());
-            puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
-            puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
-            const isConfirmed = result1 !== result2;
-            throwResult.classList.remove('hidden');
-
-            if (isConfirmed) {
-                throwResultText.textContent = 'Hasil: Direstui Dewa!';
-                await showPrediction();
-            } else {
-                const hasReachedLimit = throwCount >= maxThrowsFree;
-                if (hasReachedLimit && !isPremiumUser && !isUserAdmin) {
-                    throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
-                } else {
-                    throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
-                    throwBtn.disabled = false;
-                }
-            }
-        }, 900);
-    });
-
-    async function showPrediction() {
-        if (!currentPredictionNumberState) return;
-        const docRef = doc(db, "ramalan", String(currentPredictionNumberState));
-        try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                resultNumber.textContent = data.nomor || currentPredictionNumberState;
-                resultDewa.textContent = `Dewa: ${data.dewa || '-'}`;
-                sinthioText.textContent = data.sinthio || 'Data belum diisi.';
-                syairText.textContent = data.syair || 'Data belum diisi.';
-                selayangPandangText.textContent = data.selayangPandang || 'Data belum diisi.';
-                pedomanList.innerHTML = '';
-                (data.pedoman || []).forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    pedomanList.appendChild(li);
-                });
-                
-                predictionResult.classList.remove('hidden');
-                shakeBtn.disabled = true;
-                
-                if (!isPremiumUser && !isUserAdmin) {
-                    try {
-                       await updateDoc(doc(db, "users", currentUser.uid), { freeAttemptsLeft: increment(-1) });
-                    } catch (updateError) {
-                        console.error("Gagal mengurangi jatah gratis, tapi hasil tetap ditampilkan:", updateError);
-                    }
-                }
-                
-            } else {
-                showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
-                resetState();
-            }
-        } catch (error) {
-            console.error("Gagal mengambil data ramalan:", error);
-            showMessage('Error', 'Gagal memuat data ramalan.');
-            resetState();
-        }
-    }
-    
-    // Payment and Registration Flow
-    document.querySelectorAll('.package-option').forEach(pkg => {
-        pkg.addEventListener('click', () => {
-            selectedPackage = {
-                attempts: parseInt(pkg.getAttribute('data-attempts')),
-                price: parseInt(pkg.getAttribute('data-price'))
-            };
-            priceDisplay.textContent = selectedPackage.price.toLocaleString();
-            attemptsDisplay.textContent = selectedPackage.attempts;
-            paymentPopup.classList.add('hidden');
-            if (currentUser && !currentUser.isAnonymous) {
-                confirmPaymentPopup.classList.remove('hidden');
-            } else {
-                registrationPopup.classList.remove('hidden');
-            }
-        });
-    });
-
-    const handleAuthSuccess = async (userCredential, displayName) => {
-        const user = userCredential.user;
-        const userDocRef = doc(db, "users", user.uid);
-        
-        const docSnap = await getDoc(userDocRef);
-        if (!docSnap.exists()) {
-             await setDoc(userDocRef, {
-                displayName: displayName || user.displayName,
-                email: user.email,
-                isPremium: false,
-                freeAttemptsLeft: 2,
-                createdAt: serverTimestamp()
-            });
-        }
-       
-        registrationPopup.classList.add('hidden');
-        confirmPaymentPopup.classList.remove('hidden');
-        authError.style.display = 'none';
-    };
-    
-    const handleAuthError = (error) => {
-        authError.style.display = 'block';
-        if (error.code === 'auth/email-already-in-use') {
-            authError.textContent = 'Email sudah terdaftar. Silakan login.';
-        } else {
-            authError.textContent = 'Terjadi kesalahan. Coba lagi.';
-        }
-    };
-
-    registerBtn.addEventListener('click', async () => {
-        const name = document.getElementById('regName').value.trim();
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPassword').value;
-        if (!name || !email || password.length < 6) {
-            return showMessage('Data Tidak Lengkap', 'Harap isi semua field. Password minimal 6 karakter.');
-        }
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, { displayName: name });
-            await handleAuthSuccess(userCredential, name);
-        } catch (error) { handleAuthError(error); }
-    });
-
-    loginAndPayBtn.addEventListener('click', async () => {
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPassword').value;
-        if (!email || !password) return showMessage('Data Tidak Lengkap', 'Harap isi email dan password.');
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            await handleAuthSuccess(userCredential);
-        } catch (error) { 
-            authError.style.display = 'block';
-            authError.textContent = 'Login gagal. Periksa kembali email dan password Anda.';
-        }
-    });
-    
-    cancelRegistrationBtn.addEventListener('click', () => {
-        registrationPopup.classList.add('hidden');
-        paymentPopup.classList.remove('hidden');
-        authError.style.display = 'none';
-    });
-
-    confirmRealPayment.addEventListener('click', async () => {
-        const userName = nameInput.value.trim();
-        if (!userName && currentUser.isAnonymous) {
-            showMessage('Peringatan', 'Harap isi nama Anda di halaman utama sebelum melanjutkan.');
-            confirmPaymentPopup.classList.add('hidden');
-            return; 
-        }
-        const btn = confirmRealPayment;
-        btn.disabled = true;
-        btn.textContent = "Memproses...";
-        try {
-            const finalUserName = currentUser.displayName || userName;
-            const result = await createTransaction({ 
-                name: finalUserName, 
-                price: selectedPackage.price, 
-                attempts: selectedPackage.attempts 
-            });
-            window.snap.pay(result.data.token, {
-                onSuccess: () => { showMessage('Sukses', 'Pembayaran berhasil!'); confirmPaymentPopup.classList.add('hidden'); resetState(); },
-                onPending: () => showMessage('Pending', 'Menunggu konfirmasi pembayaran.'),
-                onError: () => showMessage('Gagal', 'Pembayaran gagal.'),
-                onClose: () => console.log('Popup pembayaran ditutup oleh pengguna.')
-            });
-        } catch (error) {
-            console.error('Error memanggil Cloud Function:', error);
-            showMessage('Error Server', `Gagal memproses pembayaran. Silakan coba lagi nanti.`);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Lanjut ke Midtrans";
-        }
-    });
-    
-    cancelConfirm.addEventListener('click', () => { confirmPaymentPopup.classList.add('hidden'); paymentPopup.classList.remove('hidden'); });
-    closePaymentPopup.addEventListener('click', () => paymentPopup.classList.add('hidden'));
-    goToPaymentBtn.addEventListener('click', () => paymentPopup.classList.remove('hidden'));
-
-    downloadBtn.addEventListener('click', () => {
-        html2canvas(document.getElementById('predictionCard'), { backgroundColor: '#f8f4e9', scale: 2 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Ramalan_CiamSi_${nameInput.value.trim().replace(/\s/g, '_') || 'user'}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
-            link.click();
-        });
-    });
-
-    whatsappShareBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const pedomanText = Array.from(document.querySelectorAll('#pedomanList li')).map(li => `- ${li.textContent}`).join('\n');
-        const shareText = `*Ramalan Ciam Si untuk ${nameInput.value.trim() || 'Pengguna'}*\n` +
-            `*Nomor: ${currentPredictionNumberState}* (${resultDewa.textContent})\n\n` +
-            `*Makna Lambang:*\n${sinthioText.textContent}\n\n` +
-            `*Bunyi Syair:*\n${syairText.textContent}\n\n` +
-            `*Selayang Pandang:*\n${selayangPandangText.textContent}\n\n` +
-            `*Pedoman Jawaban:*\n${pedomanText}\n\n` +
-            `Dapatkan ramalan Anda di: ${window.location.origin}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-    });
-
-    termsLink.addEventListener('click', () => termsPopup.classList.remove('hidden'));
-    privacyLink.addEventListener('click', () => privacyPopup.classList.remove('hidden'));
-    closePopupBtns.forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.popup-overlay').classList.add('hidden')));
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
-        });
-    }
-
-    // ▼▼▼ PERBAIKAN 1: Inisialisasi Autentikasi yang Aman dan Berurutan ▼▼▼
-    async function initializeAuth() {
-        try {
-            // Langkah 1: Pastikan persistensi sudah di-set SEBELUM listener auth berjalan
-            await setPersistence(auth, browserLocalPersistence);
-
-            // Langkah 2: Pasang listener HANYA SETELAH persistensi siap
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    await initializeAppForUser(user);
-                } else {
-                    // Jika benar-benar tidak ada sesi, baru buat pengguna anonim
-                    await signInAnonymously(auth);
-                }
-            });
-
-        } catch (error) {
-            console.error("Gagal mengatur persistensi:", error);
-            showMessage('Error Kritis', 'Gagal memuat sesi Anda. Coba bersihkan cache browser.');
-        }
-    }
-
-    // Jalankan alur inisialisasi
-    initializeAuth();
-    // ▲▲▲ AKHIR PERBAIKAN 1 ▲▲▲
-</script>
-        });
-        
-        // Memastikan persistensi di-set SEBELUM listener onAuthStateChanged berjalan
-        setPersistence(auth, browserLocalPersistence);
         // =========================================================================
 
+        // === Inisialisasi Firebase ===
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const functions = getFunctions(app);
+        const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
+
+        // === DOM Elements ===
+        const appContainer = document.getElementById('appContainer');
+        const adminLoginSection = document.getElementById('adminLoginSection');
+        const adminCmsSection = document.getElementById('adminCmsSection');
+        const nameInput = document.getElementById('nameInput');
+        const shakeBtn = document.getElementById('shakeBtn');
+        const throwBtn = document.getElementById('throwBtn');
+        const predictionResult = document.getElementById('predictionResult');
+        const resultNumber = document.getElementById('resultNumber');
+        const resultDewa = document.getElementById('resultDewa');
+        const sinthioText = document.getElementById('sinthioText');
+        const syairText = document.getElementById('syairText');
+        const selayangPandangText = document.getElementById('selayangPandangText');
+        const pedomanList = document.getElementById('pedomanList');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const ramalanNumberSelect = document.getElementById('ramalanNumberSelect');
+        const dewaInput = document.getElementById('dewaInput');
+        const sinthioInput = document.getElementById('sinthioInput');
+        const syairInput = document.getElementById('syairInput');
+        const selayangPandangInput = document.getElementById('selayangPandangInput');
+        const pedomanInput = document.getElementById('pedomanInput');
+        const saveBtn = document.getElementById('saveBtn');
+        const paymentPopup = document.getElementById('paymentPopup');
+        const confirmPaymentPopup = document.getElementById('confirmPaymentPopup');
+        const messagePopup = document.getElementById('messagePopup');
+        const goToPaymentBtn = document.getElementById('goToPayment');
+        const registrationPopup = document.getElementById('registrationPopup');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginAndPayBtn = document.getElementById('loginAndPayBtn');
+        const cancelRegistrationBtn = document.getElementById('cancelRegistrationBtn');
+        const authError = document.getElementById('authError');
+        const shakeResult = document.getElementById('shakeResult');
+        const predictionNumber = document.getElementById('predictionNumber');
+        const throwResult = document.getElementById('throwResult');
+        const throwResultText = document.getElementById('throwResultText');
+        const ciamsiContainer = document.getElementById('ciamsiContainer');
+        const fallingStick = document.getElementById('fallingStick');
+        const puakpois = [document.getElementById('puakpoi1'), document.getElementById('puakpoi2')];
+        const throwCountElement = document.getElementById('throwCount');
+        const closePaymentPopup = document.getElementById('closePaymentPopup');
+        const confirmRealPayment = document.getElementById('confirmRealPayment');
+        const cancelConfirm = document.getElementById('cancelConfirm');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        const closeMessageBtn = document.getElementById('closeMessageBtn');
+        const termsPopup = document.getElementById('termsPopup');
+        const privacyPopup = document.getElementById('privacyPopup');
+        const termsLink = document.getElementById('termsLink');
+        const privacyLink = document.getElementById('privacyLink');
+        const closePopupBtns = document.querySelectorAll('.close-popup-btn');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const attemptsDisplay = document.getElementById('attemptsDisplay');
+        const whatsappShareBtn = document.getElementById('whatsappShare');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // === App State ===
+        let currentUser = null;
+        let isUserAdmin = false;
+        let currentPredictionNumberState = null;
+        let throwCount = 0;
+        const maxThrowsFree = 3;
+        let isPremiumUser = false;
+        let freeAttemptsLeft = 2; 
+        let selectedPackage = null;
+        let unsubscribeUserListener = null;
+
+        // === Functions ===
+        function showMessage(title, text) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messagePopup.classList.remove('hidden');
+        }
+
+        closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
+
+        async function initializeAppForUser(user) {
+            if (unsubscribeUserListener) unsubscribeUserListener();
+            
+            currentUser = user;
+            const userDocRef = doc(db, "users", user.uid);
+            
+            unsubscribeUserListener = onSnapshot(userDocRef, async (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    isUserAdmin = data.role === 'admin';
+                    isPremiumUser = data.isPremium === true;
+                    freeAttemptsLeft = data.freeAttemptsLeft ?? 2; 
+                    if (data.displayName && !user.isAnonymous && !nameInput.value) {
+                        nameInput.value = data.displayName;
+                    }
+                } else {
+                    isUserAdmin = false;
+                    isPremiumUser = false;
+                    freeAttemptsLeft = 2;
+
+                    if (user.isAnonymous) {
+                        try {
+                            await setDoc(userDocRef, {
+                                displayName: 'Anonymous User',
+                                isPremium: false,
+                                freeAttemptsLeft: 2,
+                                createdAt: serverTimestamp(),
+                                provider: 'anonymous'
+                            });
+                        } catch (e) {
+                            console.error("Gagal membuat dokumen untuk pengguna anonim:", e);
+                        }
+                    }
+                }
+                updateUIBasedOnUserState();
+                checkUrlHash(); 
+            });
+        }
+        
         function updateUIBasedOnUserState() {
             const canShake = nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin);
             shakeBtn.disabled = !canShake;
         }
+
+        // === Logika Utama & Event Listeners ===
 
         // CMS Logic
         function checkUrlHash() {
@@ -797,11 +418,8 @@
 
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => { 
-                // Reset state lokal setelah logout
                 isUserAdmin = false;
-                // Pindah ke halaman utama
                 window.location.hash = ''; 
-                // Muat ulang untuk memulai sesi anonim yang bersih
                 window.location.reload();
             });
         });
@@ -869,7 +487,7 @@
         });
 
         shakeBtn.addEventListener('click', () => {
-            if (!currentUser) return; // Tambahan keamanan
+            if (!currentUser) return;
             if (!isPremiumUser && freeAttemptsLeft <= 0 && !isUserAdmin) {
                 paymentPopup.classList.remove('hidden');
                 return;
@@ -888,42 +506,35 @@
             }, 800);
         });
 
-        // GANTI FUNGSI LAMA DENGAN YANG INI
-throwBtn.addEventListener('click', async () => {
-    throwBtn.disabled = true;
-    throwCount++;
-    throwCountElement.textContent = throwCount;
-    puakpois.forEach(poi => poi.classList.add('throw-animation'));
-    setTimeout(() => puakpois.forEach(p => p.classList.remove('throw-animation')), 800);
+        throwBtn.addEventListener('click', async () => {
+            throwBtn.disabled = true;
+            throwCount++;
+            throwCountElement.textContent = throwCount;
+            puakpois.forEach(poi => poi.classList.add('throw-animation'));
+            setTimeout(() => puakpois.forEach(p => p.classList.remove('throw-animation')), 800);
 
-    setTimeout(async () => {
-        const result1 = Math.round(Math.random());
-        const result2 = Math.round(Math.random());
-        puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
-        puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
-        const isConfirmed = result1 !== result2;
-        throwResult.classList.remove('hidden');
+            setTimeout(async () => {
+                const result1 = Math.round(Math.random());
+                const result2 = Math.round(Math.random());
+                puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
+                puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
+                const isConfirmed = result1 !== result2;
+                throwResult.classList.remove('hidden');
 
-        if (isConfirmed) {
-            throwResultText.textContent = 'Hasil: Direstui Dewa!';
-            await showPrediction();
-        } else {
-            // ▼▼▼ PERBAIKAN LOGIKA ADA DI SINI ▼▼▼
-            const hasReachedLimit = throwCount >= maxThrowsFree;
-
-            // Cek HANYA untuk pengguna gratis yang sudah mencapai batas
-            if (hasReachedLimit && !isPremiumUser && !isUserAdmin) {
-                throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
-                // Tombol tetap disabled (tidak diaktifkan kembali)
-            } else {
-                // Untuk admin, premium, ATAU pengguna gratis yang masih punya jatah
-                throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
-                throwBtn.disabled = false; // Aktifkan kembali tombol untuk lemparan berikutnya
-            }
-            // ▲▲▲ AKHIR DARI PERBAIKAN LOGIKA ▲▲▲
-        }
-    }, 900);
-});
+                if (isConfirmed) {
+                    throwResultText.textContent = 'Hasil: Direstui Dewa!';
+                    await showPrediction();
+                } else {
+                    const hasReachedLimit = throwCount >= maxThrowsFree;
+                    if (hasReachedLimit && !isPremiumUser && !isUserAdmin) {
+                        throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
+                    } else {
+                        throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
+                        throwBtn.disabled = false;
+                    }
+                }
+            }, 900);
+        });
 
         async function showPrediction() {
             if (!currentPredictionNumberState) return;
@@ -947,9 +558,6 @@ throwBtn.addEventListener('click', async () => {
                     predictionResult.classList.remove('hidden');
                     shakeBtn.disabled = true;
                     
-                    // =================================================================
-                    // PERBAIKAN 3: Isolasi proses update jatah agar tidak menyembunyikan hasil
-                    // =================================================================
                     if (!isPremiumUser && !isUserAdmin) {
                         try {
                            await updateDoc(doc(db, "users", currentUser.uid), { freeAttemptsLeft: increment(-1) });
@@ -957,7 +565,6 @@ throwBtn.addEventListener('click', async () => {
                             console.error("Gagal mengurangi jatah gratis, tapi hasil tetap ditampilkan:", updateError);
                         }
                     }
-                    // =================================================================
                     
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
@@ -992,14 +599,13 @@ throwBtn.addEventListener('click', async () => {
             const user = userCredential.user;
             const userDocRef = doc(db, "users", user.uid);
             
-            // Cek apakah dokumen sudah ada atau belum
             const docSnap = await getDoc(userDocRef);
             if (!docSnap.exists()) {
                  await setDoc(userDocRef, {
                     displayName: displayName || user.displayName,
                     email: user.email,
                     isPremium: false,
-                    freeAttemptsLeft: maxThrowsFree,
+                    freeAttemptsLeft: 2,
                     createdAt: serverTimestamp()
                 });
             }
@@ -1062,7 +668,6 @@ throwBtn.addEventListener('click', async () => {
             btn.disabled = true;
             btn.textContent = "Memproses...";
             try {
-                // Gunakan nama dari profil pengguna jika ada, jika tidak gunakan dari input
                 const finalUserName = currentUser.displayName || userName;
                 const result = await createTransaction({ 
                     name: finalUserName, 
@@ -1122,6 +727,27 @@ throwBtn.addEventListener('click', async () => {
                 navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
             });
         }
+
+        // Alur Inisialisasi Aplikasi Utama
+        async function initializeAuth() {
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        await initializeAppForUser(user);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Gagal mengatur persistensi:", error);
+                showMessage('Error Kritis', 'Gagal memuat sesi Anda. Coba bersihkan cache browser.');
+            }
+        }
+
+        initializeAuth();
     </script>
 </body>
 </html>
