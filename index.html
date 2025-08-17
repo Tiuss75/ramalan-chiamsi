@@ -29,6 +29,19 @@
         .step-title i { font-size: 1.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: var(--black); border: 2px solid var(--gold); }
         .step-title h2 { font-size: 1.5rem; }
         .name-input { width: 100%; padding: 12px 20px; border-radius: 30px; border: 2px solid var(--dark-gold); background-color: var(--light-gold); color: var(--black); font-size: 1.1rem; }
+        .ciamsi-shaker-container { display: flex; justify-content: center; align-items: flex-end; height: 220px; position: relative; margin: 20px 0; }
+        .ciamsi-container { width: 100px; height: 180px; position: relative; }
+        .ciamsi-body { width: 100%; height: 100%; background: linear-gradient(145deg, #6d1a21, #a8323c); border-radius: 15px 15px 10px 10px; border: 4px solid #501015; box-shadow: inset 0 0 15px rgba(0,0,0,.5), 0 10px 20px rgba(0,0,0,.4); position: absolute; bottom: 0; display: flex; justify-content: center; align-items: center; }
+        .ciamsi-logo { font-family: var(--font-display); font-size: 50px; color: var(--gold); text-shadow: 0 0 10px rgba(212,175,55,.5); }
+        .falling-stick { width: 8px; height: 130px; background: linear-gradient(#deb887, #b8860b); border: 1px solid #8B4513; border-radius: 5px; position: absolute; bottom: 180px; opacity: 0; transform-origin: bottom center; }
+        .shake-animation { animation: container-shake .8s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes container-shake { 10%,90%{transform:translate3d(-1px,0,0) rotate(-1deg)} 20%,80%{transform:translate3d(2px,0,0) rotate(2deg)} 30%,50%,70%{transform:translate3d(-4px,0,0) rotate(-4deg)} 40%,60%{transform:translate3d(4px,0,0) rotate(4deg)} }
+        .fall-animation { animation: stick-fall 1s forwards ease-in; }
+        @keyframes stick-fall { 0%{opacity:1;transform:translateY(-180px) translateX(20px) rotate(0)} 100%{opacity:1;transform:translateY(220px) translateX(70px) rotate(110deg)} }
+        .puak-poi-container { display: flex; justify-content: center; gap: 40px; margin: 30px 0; }
+        .puak-poi { width: 70px; height: 35px; background: #d2b48c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--black); font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,.3); }
+        .throw-animation { animation: throw .8s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes throw { 0%{transform:translateY(0) rotate(0)} 30%{transform:translateY(-80px) rotate(180deg)} 70%{transform:translateY(40px) rotate(360deg)} 100%{transform:translateY(0) rotate(720deg)} }
         .prediction-card { background: var(--white); color: var(--black); border-radius: 15px; padding: 25px; margin-top: 20px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--light-gold); }
         .card-title-container { flex-grow: 1; }
@@ -59,14 +72,28 @@
             <input type="text" id="nameInput" placeholder="Ketik nama Anda..." class="name-input">
         </div>
         <div class="step">
-             <div class="step-title"><i class="fas fa-praying-hands"></i><h2>Kocok & Lempar</h2></div>
-             <p>Fokuskan pikiran, lalu kocok untuk mendapat nomor dan lempar Puak Poi untuk restu.</p>
-             <div style="text-align:center; margin: 20px 0;">
+            <div class="step-title"><i class="fas fa-praying-hands"></i><h2>Kocok Tabung</h2></div>
+             <p>Fokuskan pikiran, lalu kocok tabung untuk mendapat nomor ramalan.</p>
+            <div class="ciamsi-shaker-container">
+                <div class="ciamsi-container" id="ciamsiContainer"><div class="ciamsi-body"><div class="ciamsi-logo">簽</div></div></div>
+                <div class="falling-stick" id="fallingStick"></div>
+            </div>
+            <div style="text-align: center;">
                 <button id="shakeBtn" class="btn"><i class="fas fa-hand-point-right"></i> Kocok</button>
-                <button id="throwBtn" class="btn" disabled><i class="fas fa-moon"></i> Lempar</button>
-             </div>
-             <p id="appStatus" style="text-align:center; font-style:italic; min-height: 20px;"></p>
+            </div>
         </div>
+        <div id="throwStep" class="step hidden">
+             <div class="step-title"><i class="fas fa-moon"></i><h2>Lempar Puak Poi</h2></div>
+             <p>Anda mendapatkan nomor <b id="displayPredictionNumber"></b>. Lemparkan Puak Poi untuk memohon restu dewa.</p>
+            <div class="puak-poi-container">
+                <div class="puak-poi" id="puakpoi1">-</div>
+                <div class="puak-poi" id="puakpoi2">-</div>
+            </div>
+            <div style="text-align: center;">
+                <button id="throwBtn" class="btn"><i class="fas fa-hand-point-right"></i> Lempar</button>
+            </div>
+        </div>
+        <p id="appStatus" style="text-align:center; font-style:italic; min-height: 20px; margin-top: 20px;"></p>
         <div id="predictionResult" class="hidden">
             <div class="prediction-card" id="predictionCard">
                 <div class="card-header">
@@ -99,7 +126,7 @@
 
     <div id="adminCmsSection" class="container hidden">
         <h2>CMS Ramalan Chiam Si <button id="logoutBtn" class="btn" style="float: right;">Logout</button></h2>
-        <p style="margin-bottom: 20px;">Anda berhasil login sebagai admin. Silakan kelola konten ramalan di bawah ini.</p>
+        <p style="margin-bottom: 20px;">Anda berhasil login sebagai admin.</p>
         
         <div class="form-group">
             <label for="ramalanNumberSelect">Pilih Nomor Ramalan untuk Diedit</label>
@@ -123,7 +150,7 @@
         </div>
         <div class="form-group">
             <label for="pedomanInput">Pedoman Jawaban (Pisahkan dengan baris baru)</label>
-            <textarea id="pedomanInput" placeholder="PERDAGANGAN BERJALAN BIASA&#10;MENCARI HARTA BANYAK KOSONG"></textarea>
+            <textarea id="pedomanInput"></textarea>
         </div>
         <button id="saveBtn" class="btn" style="width: 100%;">Simpan Perubahan</button>
     </div>
@@ -134,9 +161,6 @@
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // =========================================================================
-        // PENTING: Ganti dengan konfigurasi Firebase Anda yang BENAR
-        // =========================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyA93UxOEya10fRfOPpbOT4PfSmA_aaQx-E",
             authDomain: "siamsi-3dd65.firebaseapp.com",
@@ -146,7 +170,6 @@
             appId: "1:675720995739:web:1af5223781df968289373e",
             measurementId: "G-P5TVSQ6V7X"
         };
-        // =========================================================================
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -165,6 +188,11 @@
         const nameInput = document.getElementById('nameInput');
         const shakeBtn = document.getElementById('shakeBtn');
         const throwBtn = document.getElementById('throwBtn');
+        const throwStep = document.getElementById('throwStep');
+        const ciamsiContainer = document.getElementById('ciamsiContainer');
+        const fallingStick = document.getElementById('fallingStick');
+        const puakpois = [document.getElementById('puakpoi1'), document.getElementById('puakpoi2')];
+        const displayPredictionNumber = document.getElementById('displayPredictionNumber');
         const appStatus = document.getElementById('appStatus');
         const predictionResult = document.getElementById('predictionResult');
         const predictionCard = document.getElementById('predictionCard');
@@ -183,9 +211,8 @@
         const saveBtn = document.getElementById('saveBtn');
 
         // --- App State ---
-        let currentUser = null;
         let currentPredictionNumber = null;
-        let currentPredictionData = {}; // Simpan data ramalan untuk di-share
+        let currentPredictionData = {};
 
         // --- Functions ---
         function showPage(pageId) {
@@ -216,17 +243,14 @@
                     [dewaInput, sinthioInput, syairInput, selayangPandangInput, pedomanInput].forEach(input => input.value = '');
                 }
             } catch(error) {
-                console.error("Error loading prediction data for CMS:", error);
-                alert("Gagal memuat data ramalan. Cek Security Rules Anda.");
+                console.error("Error loading CMS data:", error);
+                alert("Gagal memuat data ramalan.");
             }
         }
         
         function handleRouting() {
             const isAdminPage = window.location.hash === '#admin';
-            if (auth.currentUser) {
-                // onAuthStateChanged akan menangani user yang sudah login
-                return;
-            }
+            if (auth.currentUser) return;
             if (isAdminPage) {
                 showPage('adminLoginSection');
             } else {
@@ -236,7 +260,6 @@
         }
 
         onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
             const isAdminPage = window.location.hash === '#admin';
             if (user && !user.isAnonymous) {
                 const userDocRef = doc(db, "users", user.uid);
@@ -249,13 +272,12 @@
                         } else showPage('appContainer');
                     } else {
                         if (isAdminPage) {
-                            alert("Anda tidak memiliki akses admin.");
+                            alert("Anda bukan admin.");
                             window.location.hash = ''; 
                         }
                         showPage('appContainer');
                     }
                 } catch (error) {
-                    console.error("Error verifying admin status:", error);
                     signOut(auth);
                 }
             } else {
@@ -286,9 +308,17 @@
             predictionResult.classList.add('hidden');
             shakeBtn.disabled = true;
             throwBtn.disabled = true;
+            
+            ciamsiContainer.classList.add('shake-animation');
+            fallingStick.className = 'falling-stick';
+            
             setTimeout(() => {
+                ciamsiContainer.classList.remove('shake-animation');
+                fallingStick.classList.add('fall-animation');
                 currentPredictionNumber = Math.floor(Math.random() * 100) + 1;
+                displayPredictionNumber.textContent = currentPredictionNumber;
                 appStatus.textContent = `Anda mendapatkan nomor ${currentPredictionNumber}. Silakan lempar Puak Poi.`;
+                throwStep.classList.remove('hidden');
                 throwBtn.disabled = false;
             }, 1500);
         });
@@ -296,14 +326,23 @@
         throwBtn.addEventListener('click', () => {
             appStatus.textContent = "Melempar Puak Poi...";
             throwBtn.disabled = true;
+            puakpois.forEach(poi => poi.classList.add('throw-animation'));
+            setTimeout(() => puakpois.forEach(p => p.classList.remove('throw-animation')), 800);
+
             setTimeout(async () => {
-                const isSuccess = Math.random() > 0.3; // Peluang berhasil 70%
+                const result1 = Math.round(Math.random());
+                const result2 = Math.round(Math.random());
+                puakpois[0].textContent = result1 === 0 ? '凹' : '凸';
+                puakpois[1].textContent = result2 === 0 ? '凹' : '凸';
+                const isSuccess = result1 !== result2;
+                
                 if (isSuccess) {
                     appStatus.textContent = "Direstui Dewa! Menampilkan hasil ramalan...";
                     await showPrediction(currentPredictionNumber);
                 } else {
                     appStatus.textContent = "Belum direstui. Coba kocok lagi.";
                     shakeBtn.disabled = false;
+                    throwStep.classList.add('hidden');
                 }
             }, 1500);
         });
@@ -313,12 +352,11 @@
                 const docRef = doc(db, "ramalan", String(number));
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    currentPredictionData = docSnap.data(); // Simpan data untuk di-share
+                    currentPredictionData = docSnap.data();
                     resultNumber.textContent = currentPredictionData.nomor || number;
                     resultDewa.textContent = `Dewa: ${currentPredictionData.dewa || '-'}`;
                     
-                    const oldSections = predictionCard.querySelectorAll('.prediction-section');
-                    oldSections.forEach(section => section.remove());
+                    predictionCard.querySelectorAll('.prediction-section').forEach(e => e.remove());
                     
                     const createSection = (title, content) => {
                         if (!content) return;
@@ -327,19 +365,12 @@
                         const titleH3 = document.createElement('h3');
                         titleH3.textContent = title;
                         sectionDiv.appendChild(titleH3);
-
                         if (Array.isArray(content)) {
                             const listUl = document.createElement('ul');
-                            content.forEach(p_item => {
-                                const listItem = document.createElement('li');
-                                listItem.textContent = p_item;
-                                listUl.appendChild(listItem);
-                            });
+                            content.forEach(p_item => listUl.appendChild(Object.assign(document.createElement('li'), { textContent: p_item })));
                             sectionDiv.appendChild(listUl);
                         } else {
-                            const contentP = document.createElement('p');
-                            contentP.textContent = content;
-                            sectionDiv.appendChild(contentP);
+                            sectionDiv.appendChild(Object.assign(document.createElement('p'), { textContent: content }));
                         }
                         predictionCard.appendChild(sectionDiv);
                     };
@@ -357,14 +388,15 @@
                 console.error("Gagal memuat data ramalan:", error);
                 appStatus.textContent = "Error: Gagal memuat data ramalan.";
             } finally {
-                shakeBtn.disabled = false; // Aktifkan kembali tombol kocok
+                shakeBtn.disabled = false;
+                throwStep.classList.add('hidden');
             }
         }
         
         downloadBtn.addEventListener('click', () => {
             html2canvas(predictionCard, { backgroundColor: '#f8f4e9', scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Ramalan_CiamSi_${nameInput.value.trim().replace(/\s/g, '_') || 'user'}_${currentPredictionNumber}.jpg`;
+                link.download = `Ramalan_ChiamSi_${nameInput.value.trim().replace(/\s/g, '_') || 'user'}_${currentPredictionNumber}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
             });
@@ -403,7 +435,7 @@
                 alert(`Data untuk nomor ${number} berhasil disimpan.`);
             } catch (error) {
                 console.error("Save error:", error);
-                alert("Gagal menyimpan data. Cek koneksi dan Security Rules Anda.");
+                alert("Gagal menyimpan data.");
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = "Simpan Perubahan";
