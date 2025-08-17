@@ -348,45 +348,50 @@
         closeMessageBtn.addEventListener('click', () => messagePopup.classList.add('hidden'));
 
         async function setupUserAndListener(user) {
-            if (unsubscribeUserListener) unsubscribeUserListener();
-            
-            currentUser = user;
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnap = await getDoc(userDocRef);
+    if (unsubscribeUserListener) unsubscribeUserListener();
 
-            if (!userDocSnap.exists()) {
-                await setDoc(userDocRef, {
-                    isPremium: false,
-                    freeAttemptsLeft: 2,
-                    createdAt: serverTimestamp(),
-                    email: user.email || null,
-                    displayName: user.displayName || 'Anonymous User',
-                    provider: user.isAnonymous ? 'anonymous' : (user.providerData[0]?.providerId || 'email')
-                });
+    currentUser = user;
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+            isPremium: false,
+            freeAttemptsLeft: 2,
+            createdAt: serverTimestamp(),
+            email: user.email || null,
+            displayName: user.displayName || 'Anonymous User',
+            provider: user.isAnonymous ? 'anonymous' : (user.providerData[0]?.providerId || 'email')
+        });
+    }
+
+    const userData = (await getDoc(userDocRef)).data();
+    isUserAdmin = userData?.role === 'admin';
+    console.log(`User: ${user.uid}, isAdmin: ${isUserAdmin}, isAnonymous: ${user.isAnonymous}`);
+
+    checkUrlHash();
+
+    unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            isPremiumUser = data.isPremium === true;
+            freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
+
+            // === PERBAIKAN UTAMA ADA DI SINI ===
+            // Jika user punya nama tampilan (bukan user anonim) dan
+            // kolom nama di halaman utama masih kosong, maka otomatis isi kolom nama tersebut.
+            if (data.displayName && data.displayName !== 'Anonymous User' && !nameInput.value) {
+                nameInput.value = data.displayName;
             }
-
-            const userData = (await getDoc(userDocRef)).data();
-            isUserAdmin = userData?.role === 'admin';
-            console.log(`User: ${user.uid}, isAdmin: ${isUserAdmin}, isAnonymous: ${user.isAnonymous}`);
-
-            checkUrlHash();
-
-            unsubscribeUserListener = onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    isPremiumUser = data.isPremium === true;
-                    freeAttemptsLeft = data.freeAttemptsLeft ?? 2;
-                    // Auto-fill name input if user is logged in and it's empty
-                    if (data.displayName && data.displayName !== 'Anonymous User' && !nameInput.value) {
-                        nameInput.value = data.displayName;
-                    }
-                } else {
-                    isPremiumUser = false;
-                    freeAttemptsLeft = 2;
-                }
-                updateUIBasedOnUserState();
-            });
+            // ===================================
+        } else {
+            isPremiumUser = false;
+            freeAttemptsLeft = 2;
         }
+        // Selalu update UI setelah mendapat data terbaru
+        updateUIBasedOnUserState();
+    });
+}
         
         function updateUIBasedOnUserState() {
             const canShake = nameInput.value.trim() !== '' && (isPremiumUser || freeAttemptsLeft > 0 || isUserAdmin);
