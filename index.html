@@ -670,7 +670,54 @@
             authError.style.display = 'none';
         });
 
-        confirmRealPayment.addEventListener('click', async () => { /* ... (no changes here) ... */ });
+        confirmRealPayment.addEventListener('click', async () => {
+    if (!currentUser || currentUser.isAnonymous) {
+        showMessage('Error', 'Anda harus login dengan akun permanen untuk melakukan pembayaran.');
+        return;
+    }
+    if (!selectedPackage) {
+        return showMessage('Error', 'Silakan pilih paket lagi.');
+    }
+
+    // =================== TAMBAHAN VALIDASI ===================
+    // Cek apakah input nama kosong. Jika ya, beri peringatan dan hentikan proses.
+    const userName = nameInput.value.trim();
+    if (!userName) {
+        showMessage('Peringatan', 'Harap isi "Nama Lengkap" Anda di halaman utama sebelum melanjutkan pembayaran.');
+        confirmPaymentPopup.classList.add('hidden'); // Sembunyikan popup pembayaran
+        return; 
+    }
+    // ========================================================
+
+    const btn = confirmRealPayment;
+    btn.disabled = true;
+    btn.textContent = "Memproses...";
+    try {
+        const result = await createTransaction({ 
+            name: userName, // Menggunakan userName yang sudah divalidasi
+            price: selectedPackage.price,
+            attempts: selectedPackage.attempts
+        });
+        const token = result.data.token;
+        window.snap.pay(token, {
+            onSuccess: () => {
+                showMessage('Sukses', 'Pembayaran berhasil! Jatah kocok Anda akan segera ditambahkan.');
+                confirmPaymentPopup.classList.add('hidden');
+                resetState();
+            },
+            onPending: () => showMessage('Pending', 'Menunggu konfirmasi pembayaran.'),
+            onError: () => showMessage('Gagal', 'Pembayaran gagal. Coba lagi nanti.'),
+            onClose: () => console.log('Popup pembayaran ditutup oleh pengguna.')
+        });
+    } catch (error) {
+        console.error('Error memanggil Cloud Function:', error);
+        // MODIFIKASI: Pesan error lebih spesifik
+        showMessage('Error Server', `Gagal memproses pembayaran. Pastikan semua data terisi. (${error.message})`);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Lanjut ke Midtrans";
+    }
+});
         cancelConfirm.addEventListener('click', () => { /* ... (no changes here) ... */ });
         closePaymentPopup.addEventListener('click', () => paymentPopup.classList.add('hidden'));
         goToPaymentBtn.addEventListener('click', () => paymentPopup.classList.remove('hidden'));
