@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ramalan Chiam Si - PWA</title>
+    <title>Tanya Dewa</title>
     <meta name="theme-color" content="#9c1c26">
     <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -114,10 +114,6 @@
     <div id="appContainer" class="container">
         <div class="menu">
             <button id="goToPayment" class="btn"><i class="fas fa-crown"></i> Upgrade Sekarang</button>
-            <div class="search-container">
-                <input type="number" id="searchInput" placeholder="No. Ramalan" min="1" max="100">
-                <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Cari</button>
-            </div>
         </div>
         <div class="header">
             <h1>Tanya Dewa</h1>
@@ -356,8 +352,6 @@
         const attemptsDisplay = document.getElementById('attemptsDisplay');
         const whatsappShareBtn = document.getElementById('whatsappShare');
         const downloadBtn = document.getElementById('downloadBtn');
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
 
@@ -547,7 +541,7 @@
             predictionResult.classList.add('hidden');
             puakpois.forEach(p => p.textContent = '-');
             currentPredictionNumberState = null;
-            updateUIBasedOnUserState();
+            // updateUIBasedOnUserState(); // DIHAPUS SESUAI PERMINTAAN
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
             tabButtons[0].classList.add('active');
@@ -564,6 +558,7 @@
                 paymentPopup.classList.remove('hidden');
                 return;
             }
+            shakeBtn.disabled = true; // DIUBAH: Tombol langsung nonaktif
             resetState();
             ciamsiContainer.classList.add('shake-animation');
             fallingStick.className = 'falling-stick';
@@ -578,23 +573,6 @@
             }, 800);
         });
         
-        searchBtn.addEventListener('click', () => {
-            const number = parseInt(searchInput.value, 10);
-            if (number >= 1 && number <= 60) {
-                searchRamalan(number);
-            } else {
-                showMessage('Input Tidak Valid', 'Mohon masukkan nomor ramalan antara 1 sampai 100.');
-            }
-        });
-        
-        async function searchRamalan(number) {
-            resetState();
-            currentPredictionNumberState = number;
-            predictionNumber.textContent = number;
-            shakeResult.classList.remove('hidden');
-            await showPrediction();
-        }
-
         throwBtn.addEventListener('click', async () => {
             throwBtn.disabled = true;
             throwCount++;
@@ -617,6 +595,7 @@
                     const hasReachedLimit = throwCount >= maxThrowsFree;
                     if (hasReachedLimit) {
                         throwResultText.textContent = 'Batas lemparan tercapai. Silakan kocok ulang.';
+                        updateUIBasedOnUserState(); // DIUBAH: Aktifkan kembali tombol kocok
                     } else {
                         throwResultText.textContent = 'Hasil: Belum direstui. Coba lagi.';
                         throwBtn.disabled = false;
@@ -646,7 +625,7 @@
                     });
                     
                     predictionResult.classList.remove('hidden');
-                    shakeBtn.disabled = true;
+                    // shakeBtn.disabled = true; // DIHAPUS SESUAI PERMINTAAN
                     
                     if (!isPremiumUser && !isUserAdmin) {
                         try {
@@ -656,6 +635,7 @@
                             console.error("Gagal mengurangi jatah gratis, tapi hasil tetap ditampilkan:", updateError);
                         }
                     }
+                    updateUIBasedOnUserState(); // DIUBAH: Aktifkan kembali tombol kocok untuk sesi berikutnya
                     
                 } else {
                     showMessage('Data Kosong', `Data ramalan nomor ${currentPredictionNumberState} belum diisi.`);
